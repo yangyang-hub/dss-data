@@ -1,0 +1,18 @@
+DisablePathCorrection: false
+EnablePathEscape: false
+FireMethodNotAllowed: true
+DisableBodyConsumptionOnUnmarshal: true
+TimeFormat: Mon, 01 Jan 2006 15:04:05 GMT
+Charset: UTF-8
+Other:
+  Addr: :32081
+
+tushare:
+  url: http://api.tushare.pro
+  token: 48664f289b98d05be6737d086fd711ca62f7ba08d17410a73cfa8181
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  database: dss
+  username: dss
+  password: yYzJmeL73FjG3KB4

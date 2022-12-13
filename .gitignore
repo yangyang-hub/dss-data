@@ -1,0 +1,6 @@
+.idea
+.vscode
+transaction-dss.iml
+modules.xml
+__debug_bin
+oryxBuildBinary
