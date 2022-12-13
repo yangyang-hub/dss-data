@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/yangyang-hub/dss-common/constant"
+	"github.com/yangyang-hub/dss-common/model"
 	"github.com/yangyang-hub/dss-common/thread"
 )
 
@@ -160,10 +161,8 @@ func CreateDailyData(trade_date string, includeThs bool) {
 	}
 	//获取当日的同花顺概念及行业行情
 	if includeThs {
-		thsHyQuotes := robot.GetAllThsHyQuote(dao.QueryAllThsHy())
-		dao.InsertThsHyQuote(thsHyQuotes)
-		thsGnQuotes := robot.GetAllThsGnQuote(dao.QueryAllThsGn())
-		dao.InsertThsGnQuote(thsGnQuotes)
+		getThsHyQuote(dao.QueryAllThsHy())
+		getThsGnQuote(dao.QueryAllThsGn())
 	}
 	log.Println("更新k线信息")
 	// 创建容量为 100 的任务池
@@ -205,6 +204,12 @@ func UpdateThsGnAndHy() {
 		dao.DeleteAllThsGn()
 		dao.InsertThsGn(thsGns)
 	}
+	AllThsGns := dao.QueryAllThsGn()
+	newThsGns := model.Minus(*AllThsGns, *thsGns)
+	//获取当日的同花顺概念及行业行情
+	if len(newThsGns) > 0 {
+		getThsGnQuote(&newThsGns)
+	}
 	thsGnRelSymbols := robot.GetAllThsGnRelSymbol(thsGns)
 	if len(*thsGnRelSymbols) > 0 {
 		dao.DeleteAllThsGnRelSymbol()
@@ -215,12 +220,30 @@ func UpdateThsGnAndHy() {
 		dao.DeleteAllThsHy()
 		dao.InsertThsHy(thsHys)
 	}
+	AllThsHys := dao.QueryAllThsHy()
+	newThsHys := model.Minus(*AllThsHys, *thsHys)
+	//获取当日的同花顺概念及行业行情
+	if len(newThsHys) > 0 {
+		getThsHyQuote(&newThsHys)
+	}
 	thsHyRelSymbols := robot.GetAllThsHyRelSymbol(thsHys)
 	if len(*thsHyRelSymbols) > 0 {
 		dao.DeleteAllThsHyRelSymbol()
 		dao.InsertThsHyRelSymbol(thsHyRelSymbols)
 	}
 	log.Printf("UpdateThsGnAndHy end,spend time %v", time.Since(start))
+}
+
+//获取当日的同花顺概念详情数据
+func getThsGnQuote(thsGns *[]model.ThsGn) {
+	thsGnQuotes := robot.GetAllThsGnQuote(thsGns)
+	dao.InsertThsGnQuote(thsGnQuotes)
+}
+
+//获取当日的同花顺行业详情数据
+func getThsHyQuote(thsHys *[]model.ThsHy) {
+	thsHyQuotes := robot.GetAllThsHyQuote(thsHys)
+	dao.InsertThsHyQuote(thsHyQuotes)
 }
 
 //初始化同花顺概念
