@@ -155,7 +155,7 @@ func CreateDailyData(trade_date string, includeThs bool) {
 	dao.InitCreateStockQuoteTable(trade_date)
 	tsCodes, err := dao.GetAllTsCode()
 	if err != nil {
-		log.Println("查询ts_code失败，结束进程")
+		log.Println("查询ts_code失败,结束进程")
 		return
 	}
 	//获取当日的同花顺概念及行业行情
@@ -195,6 +195,11 @@ func CreateDailyData(trade_date string, includeThs bool) {
 
 //更新同花顺概念和行业的股票关联信息
 func UpdateThsGnAndHy() {
+	trade_date := time.Now().Format("20060102")
+	startTime := time.Now()
+	defer dao.InsertTaskInfo("taskUpdateThsGnAndHy", trade_date, startTime)
+	start := time.Now()
+	log.Printf("UpdateThsGnAndHy date(%v) start... ", trade_date)
 	thsGns := robot.GetAllThsGn()
 	if len(*thsGns) > 0 {
 		dao.DeleteAllThsGn()
@@ -215,6 +220,7 @@ func UpdateThsGnAndHy() {
 		dao.DeleteAllThsHyRelSymbol()
 		dao.InsertThsHyRelSymbol(thsHyRelSymbols)
 	}
+	log.Printf("UpdateThsGnAndHy end,spend time %v", time.Since(start))
 }
 
 //初始化同花顺概念
