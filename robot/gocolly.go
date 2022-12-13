@@ -428,6 +428,7 @@ func stepSleep() {
 	//查询时间戳 保持每次爬取的间隔大于 step
 	currentTime := time.Now().Unix() //秒为单位的时间戳
 	if (preStepTime + int64(step)) < currentTime {
+		preStepTime = time.Now().Unix()
 		return
 	}
 	time.Sleep(step * time.Millisecond)
