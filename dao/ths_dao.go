@@ -1,7 +1,7 @@
 package dao
 
 import (
-	db "dss-base-data/db"
+	db "dss-data/db"
 	"log"
 
 	"github.com/yangyang-hub/dss-common/constant"

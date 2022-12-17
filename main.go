@@ -1,13 +1,13 @@
 package main
 
 import (
-	configs "dss-base-data/configs"
-	db "dss-base-data/db"
-	_ "dss-base-data/handler"
-	_ "dss-base-data/robot"
-	router "dss-base-data/router"
-	schedule "dss-base-data/schedule"
-	service "dss-base-data/service"
+	configs "dss-data/configs"
+	db "dss-data/db"
+	_ "dss-data/handler"
+	_ "dss-data/robot"
+	router "dss-data/router"
+	schedule "dss-data/schedule"
+	service "dss-data/service"
 	"flag"
 	"os"
 

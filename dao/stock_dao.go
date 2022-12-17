@@ -2,8 +2,8 @@ package dao
 
 import (
 	"database/sql"
-	configs "dss-base-data/configs"
-	db "dss-base-data/db"
+	configs "dss-data/configs"
+	db "dss-data/db"
 	"fmt"
 	"log"
 	"reflect"

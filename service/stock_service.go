@@ -1,9 +1,9 @@
 package service
 
 import (
-	dao "dss-base-data/dao"
-	robot "dss-base-data/robot"
-	tushare "dss-base-data/tushare"
+	dao "dss-data/dao"
+	robot "dss-data/robot"
+	tushare "dss-data/tushare"
 	"log"
 	"sync"
 	"time"

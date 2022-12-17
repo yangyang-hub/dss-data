@@ -8,20 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/v2"
 	"github.com/robertkrimen/otto"
 	"github.com/yangyang-hub/dss-common/model"
 	"github.com/yangyang-hub/dss-common/util"
 )
-
-var proxyUrls []string
-var timeStamp int64
-
-// 爬取时间间隔（毫秒）
-var step time.Duration = 500
-
-// 上次爬取请求的时间戳
-var preStepTime int64
 
 /**
 同花顺行业 	start==========================================================================================================================
@@ -346,75 +337,23 @@ func getThsCookie() string {
 		panic(err)
 	}
 	v := fmt.Sprintf("v=%v", value.String())
-	// log.Printf("success get cookie %v", v)
 	return v
-}
-
-//func init() {
-//	GetProxy()
-//}
-
-//获取代理ip
-func GetProxy() []string {
-	//查询时间戳，设置代理过期时间为一个小时
-	currentTime := time.Now().Unix() //秒为单位的时间戳
-	if (timeStamp + 3600) > currentTime {
-		return proxyUrls
-	}
-	timeStamp = currentTime
-	//重新设置代理池
-	//默认获取100个代理ip
-	newProxyUrls := []string{}
-	for i := 1; i <= 1; i++ {
-		c := colly.NewCollector()
-		url := "https://www.kuaidaili.com/free/inha/" + strconv.Itoa(i) + "/"
-		c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299"
-		c.OnError(func(_ *colly.Response, err error) {
-			log.Println("Something went wrong:", err)
-		})
-		c.OnHTML("table > tbody > tr", func(e *colly.HTMLElement) {
-			ip := e.ChildText("td[data-title='IP']")
-			port := e.ChildText("td[data-title='PORT']")
-			proxyUrl := fmt.Sprintf("//%v:%v", ip, port)
-			newProxyUrls = append(newProxyUrls, proxyUrl)
-		})
-		c.OnScraped(func(r *colly.Response) {
-			log.Println("Finished", r.Request.URL)
-		})
-		err := collyVisit(c, url)
-		if err != nil {
-			log.Println("err", err)
-		}
-	}
-	proxyUrls = newProxyUrls
-	return proxyUrls
 }
 
 func getCollyCollector() *colly.Collector {
 	c := colly.NewCollector()
 	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299"
-	//proxyUrls := GetProxy()
-	//rp, err := proxy.RoundRobinProxySwitcher(proxyUrls...)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	////设置代理IP使用轮询ip方式
-	//c.SetProxyFunc(rp)
+	c.SetProxy(getProxy())
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Add("Cookie", getThsCookie())
 	})
-	c.OnError(func(_ *colly.Response, err error) {
-		log.Println("Something went wrong:", err)
+	c.OnError(func(r *colly.Response, err error) {
+		log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, r.Request.ProxyURL)
 	})
-	// c.OnScraped(func(r *colly.Response) {
-	// 	log.Println("Finished", r.Request.URL)
-	// 	//log.Printf("Proxy Address: %s\n", r.Request.ProxyURL)
-	// })
 	return c
 }
 
 func collyVisit(c *colly.Collector, url string) error {
-	stepSleep()
 	err := c.Visit(url)
 	if err != nil {
 		return err
@@ -424,13 +363,18 @@ func collyVisit(c *colly.Collector, url string) error {
 	return nil
 }
 
-func stepSleep() {
-	//查询时间戳 保持每次爬取的间隔大于 step
-	currentTime := time.Now().Unix() //秒为单位的时间戳
-	if (preStepTime + int64(step)) < currentTime {
-		preStepTime = time.Now().Unix()
-		return
+func getProxy() string {
+	result, err := util.SendGet("http://127.0.0.1:5010/get?type=http")
+	if err != nil {
+		log.Println("get proxy wrong:", err)
 	}
-	time.Sleep(step * time.Millisecond)
-	preStepTime = time.Now().Unix()
+	var proxyUrl string
+	b, _ := strconv.ParseBool(fmt.Sprint(result["https"]))
+	if bool(b) {
+		proxyUrl = fmt.Sprintf("https://%v", fmt.Sprint(result["proxy"]))
+	} else {
+		proxyUrl = fmt.Sprintf("http://%v", fmt.Sprint(result["proxy"]))
+	}
+	util.SendGet(fmt.Sprintf("http://127.0.0.1:5010/delete/?proxy=%v", fmt.Sprint(result["proxy"])))
+	return proxyUrl
 }

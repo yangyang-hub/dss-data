@@ -1,8 +1,8 @@
 package stock
 
 import (
-	router "dss-base-data/router"
-	service "dss-base-data/service"
+	router "dss-data/router"
+	service "dss-data/service"
 	"log"
 	"time"
 

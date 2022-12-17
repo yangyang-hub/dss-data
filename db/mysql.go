@@ -1,7 +1,7 @@
 package db
 
 import (
-	configs "dss-base-data/configs"
+	configs "dss-data/configs"
 	"fmt"
 	"log"
 	"time"

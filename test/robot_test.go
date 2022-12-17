@@ -1,7 +1,6 @@
 package test
 
 import (
-	robot "dss-base-data/robot"
 	"fmt"
 	"io/ioutil"
 	"testing"
@@ -10,10 +9,8 @@ import (
 )
 
 func TestGetGn(t *testing.T) {
-	robot.GetAllThsGn()
-}
-func TestGetGnDetail(t *testing.T) {
-	robot.GetThsGnDetail("301558")
+	// result := robot.GetAllThsGn()
+	// fmt.Println(*result)
 }
 func TestGetThsCookie(t *testing.T) {
 	filePath := "../robot/js/ths_cookie_v.js"

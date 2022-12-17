@@ -1,7 +1,7 @@
 package schedule
 
 import (
-	service "dss-base-data/service"
+	service "dss-data/service"
 	"log"
 	"time"
 

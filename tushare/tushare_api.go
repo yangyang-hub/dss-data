@@ -1,7 +1,7 @@
 package tushare
 
 import (
-	configs "dss-base-data/configs"
+	configs "dss-data/configs"
 
 	model "github.com/yangyang-hub/dss-common/model"
 )

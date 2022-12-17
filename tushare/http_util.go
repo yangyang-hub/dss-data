@@ -38,20 +38,20 @@ type responseData[T any] struct {
 
 func (client httpClient[T]) sendPost() *response[T] {
 	bytesData, err := json.Marshal(client.param)
-	if HandleErrorStr(err, "参数异常；url: %v,param：%v\n", client.url, client.param) {
+	if HandleErrorStr(err, "参数异常;url: %v,param:%v\n", client.url, client.param) {
 		return nil
 	}
 	res, err := http.Post(client.url, client.contentType, bytes.NewBuffer(bytesData))
-	if HandleErrorStr(err, "请求失败；url: %v,param：%v\n", client.url, client.param) {
+	if HandleErrorStr(err, "请求失败;url: %v,param:%v\n", client.url, client.param) {
 		return nil
 	}
 	defer res.Body.Close()
 	contentBytes, err := ioutil.ReadAll(res.Body)
-	HandleErrorStr(err, "response读取异常；url: %v,param：%v\n", client.url, client.param)
+	HandleErrorStr(err, "response读取异常;url: %v,param:%v\n", client.url, client.param)
 	//var mapResult map[string]interface{}
 	var result response[T]
 	err = json.Unmarshal(contentBytes, &result)
-	if HandleErrorStr(err, "response返回数据json转换异常（%v）", string(contentBytes)) {
+	if HandleErrorStr(err, "response返回数据json转换异常(%v)", string(contentBytes)) {
 		return nil
 	}
 	result.Data.resultToStruct(getQuoteType(client.param))
