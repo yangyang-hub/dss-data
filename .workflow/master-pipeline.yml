@@ -1,56 +1,72 @@
 version: '1.0'
 name: master-pipeline
 displayName: MasterPipeline
-stages:
-  - stage: 
-    name: compile
-    displayName: 编译
-    steps:
-      - step: build@golang
-        name: build_golang
-        displayName: Golang 构建
-        # 支持1.8、1.10、1.11、1.12、1.13、1.14、1.15、1.16八个版本
-        golangVersion: 1.12
-        # 构建命令
-        commands: |
-          mkdir output
-          GOOS=linux GOARCH=amd64 go build -o output/main.amd64 main.go
-          GOOS=linux GOARCH=386 go build -o output/main.linux32 main.go
-          GOOS=windows GOARCH=amd64 go build -o output/main.win64.exe main.go
-          GOOS=windows GOARCH=386 go build -o output/main.win32.exe main.go
-          GOOS=darwin GOARCH=amd64 go build -o output/main.darwin main.go 
-          chmod +X output/main.linux32
-          ./output/main.linux32
-        # 非必填字段，开启后表示将构建产物暂存，但不会上传到制品库中，24小时后自动清除
-        artifacts:
-            # 构建产物名字，作为产物的唯一标识可向下传递，支持自定义，默认为BUILD_ARTIFACT。在下游可以通过${BUILD_ARTIFACT}方式引用来获取构建物地址
-          - name: BUILD_ARTIFACT
-            # 构建产物获取路径，是指代码编译完毕之后构建物的所在路径
-            path:
-              - ./output
-      - step: publish@general_artifacts
-        name: publish_general_artifacts
-        displayName: 上传制品
-        # 上游构建任务定义的产物名，默认BUILD_ARTIFACT
-        dependArtifact: BUILD_ARTIFACT
-        # 上传到制品库时的制品命名，默认output
-        artifactName: output
-        dependsOn: build_golang
-  - stage: 
-    name: release
-    displayName: 发布
-    steps:
-      - step: publish@release_artifacts
-        name: publish_release_artifacts
-        displayName: '发布'
-        # 上游上传制品任务的产出
-        dependArtifact: output
-        # 发布制品版本号
-        version: '1.0.0.0'
-        # 是否开启版本号自增，默认开启
-        autoIncrement: true
 triggers:
+  trigger: manual
   push:
     branches:
       include:
         - master
+variables:
+  BUILD_TIME: dss-pod/dss:v1.0.0
+stages:
+  - name: compile
+    displayName: 编译
+    strategy: naturally
+    trigger: auto
+    steps:
+      - step: build@golang
+        name: build_golang
+        displayName: Golang 构建
+        golangVersion: '1.18'
+        commands:
+          - mkdir output
+          - cp -R `find ./* -type d -path ./output -prune -o -print | sed 1d ` ./output
+        artifacts:
+          - name: BUILD_ARTIFACT
+            path:
+              - ./output
+        caches: []
+        strategy: {}
+  - name: stage-78d47e18
+    displayName: 构建
+    strategy: naturally
+    trigger: auto
+    executor: []
+    steps:
+      - step: build@docker
+        name: build_docker
+        displayName: 镜像构建
+        type: cert
+        certificate: 19d7df30-f95e-013a-0d61-6a560b86330d
+        tag: ${BUILD_TIME}
+        dockerfile: ./docker/Dockerfile
+        context: ./docker
+        artifacts:
+          - ${BUILD_ARTIFACT}
+        isCache: false
+        notify: []
+        strategy:
+          retry: '0'
+  - name: stage-1072fd8c
+    displayName: 部署
+    strategy: naturally
+    trigger: auto
+    executor: []
+    steps:
+      - step: shell@agent
+        name: execute_shell
+        displayName: 部署镜像
+        hostGroupID:
+          ID: home
+          hostID:
+            - 515d22e7-91fe-48bc-bf77-cb98e56e5dd8
+        script:
+          - docker stop dss
+          - docker rm dss
+          - docker rmi $(docker images | grep 'dss' | awk '{print $3}')
+          - docker pull ${GITEE_DOCKER_IMAGE}
+          - docker run -d --name dss -p 32081:32081 ${GITEE_DOCKER_IMAGE}
+        notify: []
+        strategy:
+          retry: '0'
