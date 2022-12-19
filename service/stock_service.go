@@ -102,6 +102,7 @@ func CreateBaseData(startDate string) {
 	if startDate == "" {
 		startDate = "20100101"
 	}
+	log.Printf("start init quote data ...")
 	//初始化股票行情数据表
 	dao.InitCreateStockQuoteTable(startDate)
 	// 创建容量为 100 的任务池

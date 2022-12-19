@@ -20,20 +20,15 @@ import (
 
 //获取所有同花顺行业
 func GetAllThsHy() *[]model.ThsHy {
-	c := getCollyCollector()
 	thsHys := []model.ThsHy{}
 	url := "http://q.10jqka.com.cn/thshy/"
-	c.OnHTML("div[class='cate_group'] > div[class='cate_items'] > a", func(e *colly.HTMLElement) {
+	visit(url, "div[class='cate_group'] > div[class='cate_items'] > a", func(e *colly.HTMLElement) {
 		// 获取概念连接
 		link := e.Attr("href")
 		code := util.Substr(link, len(link)-7, 6)
 		name := e.Text
 		thsHys = append(thsHys, model.ThsHy{Code: code, Name: name})
 	})
-	err := collyVisit(c, url)
-	if err != nil {
-		log.Println("err", err)
-	}
 	log.Printf("hy found size: %v\n", len(thsHys))
 	return &thsHys
 }
@@ -56,17 +51,12 @@ func GetThsHyDetail(code string) *[]model.ThsHyRelSymbol {
 	//获取总页码
 	totalPage := 0
 	url := "http://q.10jqka.com.cn/thshy/detail/field/199112/order/desc/page/2/ajax/1/code/" + code
-	c := getCollyCollector()
-	c.OnHTML("div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
+	visit(url, "div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
 		if e.Text == "尾页" {
 			totalPage, _ = strconv.Atoi(e.Attr("page"))
 			log.Printf("total page found: %v\n", totalPage)
 		}
 	})
-	err := collyVisit(c, url)
-	if err != nil {
-		log.Println("err", err)
-	}
 	//循环获取概念所有代码
 	if totalPage > 0 {
 		for i := 1; i <= totalPage; i++ {
@@ -80,18 +70,13 @@ func GetThsHyDetail(code string) *[]model.ThsHyRelSymbol {
 func getThsHyDetailByPage(code string, page int) *[]model.ThsHyRelSymbol {
 	thsHyRelSymbol := []model.ThsHyRelSymbol{}
 	url := "http://q.10jqka.com.cn/thshy/detail/field/199112/order/desc/page/" + strconv.Itoa(page) + "/ajax/1/code/" + code
-	c := getCollyCollector()
 	//获取当页的股票代码
-	c.OnHTML("table[class='m-table m-pager-table'] > tbody > tr", func(e *colly.HTMLElement) {
+	visit(url, "table[class='m-table m-pager-table'] > tbody > tr", func(e *colly.HTMLElement) {
 		symbol := e.ChildText("td:nth-child(2)")
 		if symbol != "" {
 			thsHyRelSymbol = append(thsHyRelSymbol, model.ThsHyRelSymbol{HyCode: code, Symbol: symbol})
 		}
 	})
-	err := collyVisit(c, url)
-	if err != nil {
-		log.Println("err", err)
-	}
 	return &thsHyRelSymbol
 }
 
@@ -101,7 +86,7 @@ func GetAllThsHyQuote(thsHys *[]model.ThsHy) *[]model.ThsHyQuote {
 	//迭代获取行业行情
 	if len(*thsHys) > 0 {
 		for index, thsHy := range *thsHys {
-			log.Printf("start get hy %v %v %v", index, thsHy.Name, thsHy.Code)
+			log.Printf("start get hy quote %v %v %v", index, thsHy.Name, thsHy.Code)
 			thsHyQuote = append(thsHyQuote, *GetThsHyQuote(thsHy.Code))
 		}
 	}
@@ -114,8 +99,7 @@ func GetThsHyQuote(code string) *model.ThsHyQuote {
 	thsHyQuote.Code = code
 	thsHyQuote.TradeDate = time.Now().Format("20060102")
 	url := "http://q.10jqka.com.cn/thshy/detail/code/" + code
-	c := getCollyCollector()
-	c.OnHTML("div[class='board-infos'] > dl", func(e *colly.HTMLElement) {
+	visit(url, "div[class='board-infos'] > dl", func(e *colly.HTMLElement) {
 		title := e.ChildText("dt")
 		value := e.ChildText("dd")
 		switch title {
@@ -154,10 +138,6 @@ func GetThsHyQuote(code string) *model.ThsHyQuote {
 		}
 
 	})
-	err := collyVisit(c, url)
-	if err != nil {
-		log.Println("err", err)
-	}
 	return &thsHyQuote
 }
 
@@ -171,20 +151,15 @@ func GetThsHyQuote(code string) *model.ThsHyQuote {
 
 //获取所有同花顺概念
 func GetAllThsGn() *[]model.ThsGn {
-	c := getCollyCollector()
 	thsGns := []model.ThsGn{}
 	url := "http://q.10jqka.com.cn/gn/"
-	c.OnHTML("div[class='cate_group'] > div[class='cate_items'] > a", func(e *colly.HTMLElement) {
+	visit(url, "div[class='cate_group'] > div[class='cate_items'] > a", func(e *colly.HTMLElement) {
 		// 获取概念连接
 		link := e.Attr("href")
 		code := util.Substr(link, len(link)-7, 6)
 		name := e.Text
 		thsGns = append(thsGns, model.ThsGn{Code: code, Name: name})
 	})
-	err := collyVisit(c, url)
-	if err != nil {
-		log.Println("err", err)
-	}
 	log.Printf("gn found size: %v\n", len(thsGns))
 	return &thsGns
 }
@@ -207,17 +182,12 @@ func GetThsGnDetail(code string) *[]model.ThsGnRelSymbol {
 	//获取总页码
 	totalPage := 0
 	url := "http://q.10jqka.com.cn/gn/detail/field/199112/order/desc/page/1/ajax/1/code/" + code
-	c := getCollyCollector()
-	c.OnHTML("div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
+	visit(url, "div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
 		if e.Text == "尾页" {
 			totalPage, _ = strconv.Atoi(e.Attr("page"))
 			log.Printf("total page found: %v\n", totalPage)
 		}
 	})
-	err := collyVisit(c, url)
-	if err != nil {
-		log.Println("err", err)
-	}
 	//循环获取概念所有代码
 	if totalPage > 0 {
 		for i := 1; i <= totalPage; i++ {
@@ -231,18 +201,13 @@ func GetThsGnDetail(code string) *[]model.ThsGnRelSymbol {
 func getThsGnDetailByPage(code string, page int) *[]model.ThsGnRelSymbol {
 	thsGnRelSymbol := []model.ThsGnRelSymbol{}
 	url := "http://q.10jqka.com.cn/gn/detail/field/199112/order/desc/page/" + strconv.Itoa(page) + "/ajax/1/code/" + code
-	c := getCollyCollector()
 	//获取当页的股票代码
-	c.OnHTML("table[class='m-table m-pager-table'] > tbody > tr", func(e *colly.HTMLElement) {
+	visit(url, "table[class='m-table m-pager-table'] > tbody > tr", func(e *colly.HTMLElement) {
 		symbol := e.ChildText("td:nth-child(2)")
 		if symbol != "" {
 			thsGnRelSymbol = append(thsGnRelSymbol, model.ThsGnRelSymbol{GnCode: code, Symbol: symbol})
 		}
 	})
-	err := collyVisit(c, url)
-	if err != nil {
-		log.Println("err", err)
-	}
 	return &thsGnRelSymbol
 }
 
@@ -252,7 +217,7 @@ func GetAllThsGnQuote(thsGns *[]model.ThsGn) *[]model.ThsGnQuote {
 	//迭代获取概念当日行情
 	if len(*thsGns) > 0 {
 		for index, thsGn := range *thsGns {
-			log.Printf("start get hy %v %v %v", index, thsGn.Name, thsGn.Code)
+			log.Printf("start get gn quote %v %v %v", index, thsGn.Name, thsGn.Code)
 			thsGnQuote = append(thsGnQuote, *GetThsGnQuote(thsGn.Code))
 		}
 	}
@@ -265,8 +230,7 @@ func GetThsGnQuote(code string) *model.ThsGnQuote {
 	thsGnQuote.Code = code
 	thsGnQuote.TradeDate = time.Now().Format("20060102")
 	url := "http://q.10jqka.com.cn/gn/detail/code/" + code
-	c := getCollyCollector()
-	c.OnHTML("div[class='board-infos'] > dl", func(e *colly.HTMLElement) {
+	visit(url, "div[class='board-infos'] > dl", func(e *colly.HTMLElement) {
 		title := e.ChildText("dt")
 		value := e.ChildText("dd")
 		switch title {
@@ -305,10 +269,6 @@ func GetThsGnQuote(code string) *model.ThsGnQuote {
 		}
 
 	})
-	err := collyVisit(c, url)
-	if err != nil {
-		log.Println("err", err)
-	}
 	return &thsGnQuote
 }
 
@@ -340,31 +300,30 @@ func getThsCookie() string {
 	return v
 }
 
-func getCollyCollector() *colly.Collector {
+func visit(url string, goquerySelector string, f colly.HTMLCallback) {
 	c := colly.NewCollector()
 	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299"
-	c.SetProxy(getProxy())
+	proxy := getProxy()
+	c.SetProxy(proxy)
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Add("Cookie", getThsCookie())
 	})
 	c.OnError(func(r *colly.Response, err error) {
-		log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, r.Request.ProxyURL)
+		log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, proxy)
 	})
-	return c
-}
-
-func collyVisit(c *colly.Collector, url string) error {
+	c.OnHTML(goquerySelector, f)
 	err := c.Visit(url)
 	if err != nil {
-		return err
+		//重试 并删除无效代理
+		deleteProxy(proxy)
+		visit(url, goquerySelector, f)
 	}
 	// 采集等待结束
 	c.Wait()
-	return nil
 }
 
 func getProxy() string {
-	result, err := util.SendGet("http://127.0.0.1:5010/get?type=http")
+	result, err := util.SendGet("http://127.0.0.1:5010/get")
 	if err != nil {
 		log.Println("get proxy wrong:", err)
 	}
@@ -375,6 +334,11 @@ func getProxy() string {
 	} else {
 		proxyUrl = fmt.Sprintf("http://%v", fmt.Sprint(result["proxy"]))
 	}
-	util.SendGet(fmt.Sprintf("http://127.0.0.1:5010/delete/?proxy=%v", fmt.Sprint(result["proxy"])))
 	return proxyUrl
+}
+
+func deleteProxy(proxyUrl string) {
+	proxy := strings.Split(proxyUrl, "//")[1]
+	log.Println("delete proxy", proxy)
+	util.SendGet(fmt.Sprintf("http://127.0.0.1:5010/delete/?proxy=%v", proxy))
 }
