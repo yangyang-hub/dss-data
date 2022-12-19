@@ -8,7 +8,7 @@ triggers:
       prefix:
         - v
 variables:
-  BUILD_TIME: dss-pod/dss:v1.0.0
+  BUILD_VERSION: dss-pod/dss-data:v1.0.1
 stages:
   - name: compile
     displayName: 编译
@@ -39,7 +39,7 @@ stages:
         displayName: 镜像构建
         type: cert
         certificate: 19d7df30-f95e-013a-0d61-6a560b86330d
-        tag: ${BUILD_TIME}
+        tag: ${BUILD_VERSION}
         dockerfile: ./docker/Dockerfile
         context: ./docker
         artifacts:
@@ -62,11 +62,11 @@ stages:
           hostID:
             - 515d22e7-91fe-48bc-bf77-cb98e56e5dd8
         script:
-          - docker stop dss
-          - docker rm dss
-          - docker rmi $(docker images | grep 'dss' | awk '{print $3}')
+          - docker stop dss-data
+          - docker rm dss-data
+          - docker rmi $(docker images | grep 'dss-data' | awk '{print $3}')
           - docker pull ${GITEE_DOCKER_IMAGE}
-          - docker run -d --name dss -p 32081:32081 ${GITEE_DOCKER_IMAGE}
+          - docker run -d --name dss-data -p 32081:32081 --restart=always --net=host ${GITEE_DOCKER_IMAGE}
         notify: []
         strategy:
           retry: '0'
