@@ -4,9 +4,9 @@ displayName: MasterPipeline
 triggers:
   trigger: manual
   push:
-    branches:
-      include:
-        - master
+    tags:
+      prefix:
+        - v
 variables:
   BUILD_TIME: dss-pod/dss:v1.0.0
 stages:
