@@ -1,6 +1,6 @@
 version: '1.0'
-name: master-pipeline
-displayName: MasterPipeline
+name: pr-pipeline
+displayName: PRPipeline
 stages:
   - stage: 
     name: compile
@@ -21,7 +21,7 @@ stages:
           GOOS=darwin GOARCH=amd64 go build -o output/main.darwin main.go 
           chmod +X output/main.linux32
           ./output/main.linux32
-        # 非必填字段，开启后表示将构建产物暂存，但不会上传到制品库中，24小时后自动清除
+        # 非必填字段，开启后表示将构建产物暂存，但不会上传到制品库中，7天后自动清除
         artifacts:
             # 构建产物名字，作为产物的唯一标识可向下传递，支持自定义，默认为BUILD_ARTIFACT。在下游可以通过${BUILD_ARTIFACT}方式引用来获取构建物地址
           - name: BUILD_ARTIFACT
@@ -36,21 +36,8 @@ stages:
         # 上传到制品库时的制品命名，默认output
         artifactName: output
         dependsOn: build_golang
-  - stage: 
-    name: release
-    displayName: 发布
-    steps:
-      - step: publish@release_artifacts
-        name: publish_release_artifacts
-        displayName: '发布'
-        # 上游上传制品任务的产出
-        dependArtifact: output
-        # 发布制品版本号
-        version: '1.0.0.0'
-        # 是否开启版本号自增，默认开启
-        autoIncrement: true
 triggers:
-  push:
+  pr:
     branches:
       include:
         - master
