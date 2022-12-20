@@ -60,7 +60,7 @@ stages:
         hostGroupID:
           ID: home
           hostID:
-            - 515d22e7-91fe-48bc-bf77-cb98e56e5dd8
+            - 8c1a4605-0e9f-4ca6-9b17-e66ec4bfe5d1
         script:
           - docker stop dss-data
           - docker rm dss-data
