@@ -5,13 +5,13 @@ DisableBodyConsumptionOnUnmarshal: true
 TimeFormat: Mon, 01 Jan 2006 15:04:05 GMT
 Charset: UTF-8
 Other:
-  Addr: :32081
+  Addr: :8081
 
 tushare:
   url: http://api.tushare.pro
   token: 48664f289b98d05be6737d086fd711ca62f7ba08d17410a73cfa8181
 mysql:
-  host: 192.168.31.100
+  host: 192.168.31.4
   port: 3306
   database: dss_test
   username: dss_test
