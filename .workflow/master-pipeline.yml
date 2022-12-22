@@ -48,25 +48,25 @@ stages:
         notify: []
         strategy:
           retry: '0'
-  - name: stage-1072fd8c
-    displayName: 部署
-    strategy: naturally
-    trigger: auto
-    executor: []
-    steps:
-      - step: shell@agent
-        name: execute_shell
-        displayName: 部署镜像
-        hostGroupID:
-          ID: home
-          hostID:
-            - 8c1a4605-0e9f-4ca6-9b17-e66ec4bfe5d1
-        script:
-          - docker stop dss-data
-          - docker rm dss-data
-          - docker rmi $(docker images | grep 'dss-data' | awk '{print $3}')
-          - docker pull ${GITEE_DOCKER_IMAGE}
-          - docker run -d --name dss-data -p 8081:32081 --restart=always --net=host ${GITEE_DOCKER_IMAGE}
-        notify: []
-        strategy:
-          retry: '0'
+  # - name: stage-1072fd8c
+  #   displayName: 部署
+  #   strategy: naturally
+  #   trigger: auto
+  #   executor: []
+  #   steps:
+  #     - step: shell@agent
+  #       name: execute_shell
+  #       displayName: 部署镜像
+  #       hostGroupID:
+  #         ID: home
+  #         hostID:
+  #           - 8c1a4605-0e9f-4ca6-9b17-e66ec4bfe5d1
+  #       script:
+  #         - docker stop dss-data
+  #         - docker rm dss-data
+  #         - docker rmi $(docker images | grep 'dss-data' | awk '{print $3}')
+  #         - docker pull ${GITEE_DOCKER_IMAGE}
+  #         - docker run -d --name dss-data -p 8081:32081 --restart=always --net=host ${GITEE_DOCKER_IMAGE}
+  #       notify: []
+  #       strategy:
+  #         retry: '0'
