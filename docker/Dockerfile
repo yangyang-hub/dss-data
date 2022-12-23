@@ -10,5 +10,4 @@ RUN go env -w GO111MODULE="on"
 RUN go env -w GOPROXY=https://goproxy.cn,direct
 RUN go build -o main main.go
 RUN chmod +X main
-RUN ip -4 route list match 0/0 | awk '{print $3 " host.docker.internal"}' >> /etc/hosts
 ENTRYPOINT ["./main"]

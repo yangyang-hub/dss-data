@@ -9,14 +9,14 @@ Other:
 
 tushare:
   url: http://api.tushare.pro
-  token: 48664f289b98d05be6737d086fd711ca62f7ba08d17410a73cfa8181
+  token: ${TUSHARE_TOKEN}
 
 proxy:
-  url: http://host.docker.internal:5010
+  url: ${PROXY_URL}
 
 mysql:
-  host: host.docker.internal
-  port: 3306
-  database: dss
-  username: dss
-  password: yYzJmeL73FjG3KB4
+  host: ${MYSQL_HOST}
+  port: ${MYSQL_PORT}
+  database: ${MYSQL_DATABASE}
+  username: ${MYSQL_USERNAME}
+  password: ${MYSQL_PASSWORD}

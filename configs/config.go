@@ -1,9 +1,10 @@
 package config
 
 import (
-	viper "github.com/spf13/viper"
 	"log"
 	"reflect"
+
+	viper "github.com/spf13/viper"
 )
 
 var Config *ConfigMap
@@ -11,6 +12,7 @@ var Config *ConfigMap
 type ConfigMap struct {
 	TushareUrl    string `yml:"tushare.url"`
 	TushareToken  string `yml:"tushare.token"`
+	ProxyUrl      string `yml:"proxy.url"`
 	MysqlHost     string `yml:"mysql.host"`
 	MysqlPort     int    `yml:"mysql.port"`
 	MysqlDatabase string `yml:"mysql.database"`
