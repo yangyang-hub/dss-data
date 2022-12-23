@@ -10,6 +10,10 @@ Other:
 tushare:
   url: http://api.tushare.pro
   token: 48664f289b98d05be6737d086fd711ca62f7ba08d17410a73cfa8181
+
+proxy:
+  url: http://127.0.0.1:5010
+  
 mysql:
   host: 127.0.0.1
   port: 3306
