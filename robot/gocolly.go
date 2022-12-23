@@ -325,7 +325,7 @@ func visit(url string, goquerySelector string, f colly.HTMLCallback) {
 }
 
 func getProxy() string {
-	result, err := util.SendGet(configs.Config.ProxyUrl + "/get")
+	result, err := util.SendGet(configs.Config.ProxyUrl + "/get/")
 	if err != nil {
 		log.Println("get proxy wrong:", err)
 	}
