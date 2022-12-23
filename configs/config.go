@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 	"reflect"
 
 	viper "github.com/spf13/viper"
@@ -39,7 +40,7 @@ func (this *ConfigMap) readConfigFromYaml() {
 		var value interface{}
 		envTag := field.Tag.Get("env")
 		if envTag != "" {
-			value = viper.Get(envTag)
+			value = os.Getenv(envTag)
 		}
 		if envTag == "" || value == nil {
 			ymlTag := field.Tag.Get("yml")
