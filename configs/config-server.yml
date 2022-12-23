@@ -11,7 +11,7 @@ tushare:
   url: http://api.tushare.pro
   token: 48664f289b98d05be6737d086fd711ca62f7ba08d17410a73cfa8181
 mysql:
-  host: 127.0.0.1
+  host: 172.17.0.1
   port: 3306
   database: dss
   username: dss
