@@ -10,14 +10,11 @@ import (
 var Config *ConfigMap
 
 type ConfigMap struct {
-	TushareUrl    string `yml:"tushare.url"`
-	TushareToken  string `yml:"tushare.token"`
-	ProxyUrl      string `yml:"proxy.url"`
-	MysqlHost     string `yml:"mysql.host"`
-	MysqlPort     int    `yml:"mysql.port"`
-	MysqlDatabase string `yml:"mysql.database"`
-	MysqlUsername string `yml:"mysql.username"`
-	Mysqlpassword string `yml:"mysql.password"`
+	TushareUrl    string `yml:"tushare.url" env:"TUSHARE_URL"`
+	TushareToken  string `yml:"tushare.token" env:"TUSHARE_TOKEN"`
+	ProxyUrl      string `yml:"proxy.url" env:"PROXY_URL"`
+	MysqlUrl      string `yml:"mysql.url" env:"MYSQL_URL"`
+	MysqlDatabase string `yml:"mysql.database" env:"MYSQL_DATABASE"`
 }
 
 func ConfigRead() {
@@ -39,8 +36,15 @@ func (this *ConfigMap) readConfigFromYaml() {
 	t := reflect.TypeOf(*this)
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
-		ymlTag := field.Tag.Get("yml")
-		value := viper.Get(ymlTag)
+		var value interface{}
+		envTag := field.Tag.Get("env")
+		if envTag != "" {
+			value = viper.Get(envTag)
+		}
+		if envTag == "" || value == nil {
+			ymlTag := field.Tag.Get("yml")
+			value = viper.Get(ymlTag)
+		}
 		fieldName := field.Name
 		fieldType := field.Type.Name()
 		switch fieldType {

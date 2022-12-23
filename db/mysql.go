@@ -16,23 +16,14 @@ var Mysql *gorm.DB
 // mysql初始化文件
 func InitMysql() {
 	log.Println("init mysql...")
-	param_s := fmt.Sprintf(
-		"%v:%v@tcp(%v:%v)/%v?parseTime=True&loc=Local",
-		configs.Config.MysqlUsername,
-		configs.Config.Mysqlpassword,
-		configs.Config.MysqlHost,
-		configs.Config.MysqlPort,
-		configs.Config.MysqlDatabase,
-	)
-	log.Println("mysql param:", param_s)
-	db, err := gorm.Open(mysql.Open(param_s), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(configs.Config.MysqlUrl), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Error),
 	})
 	if err != nil {
 		log.Println("open mysql error:", err)
 		panic(err)
 	}
-	sqldb, err := db.DB()
+	sqldb, _ := db.DB()
 	sqlDB := *sqldb
 	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
 	sqlDB.SetMaxIdleConns(20)

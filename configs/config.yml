@@ -15,8 +15,5 @@ proxy:
   url: http://127.0.0.1:5010
   
 mysql:
-  host: 127.0.0.1
-  port: 3306
+  url: dss_test:hxHazFWeKaLtw5zc@tcp(127.0.0.1:3306)/dss_test?parseTime=True&loc=Local
   database: dss_test
-  username: dss_test
-  password: hxHazFWeKaLtw5zc

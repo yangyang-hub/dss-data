@@ -9,14 +9,11 @@ Other:
 
 tushare:
   url: http://api.tushare.pro
-  token: ${TUSHARE_TOKEN}
+  token: 48664f289b98d05be6737d086fd711ca62f7ba08d17410a73cfa8181
 
 proxy:
-  url: ${PROXY_URL}
+  url: http://172.17.0.1:5010
 
 mysql:
-  host: ${MYSQL_HOST}
-  port: ${MYSQL_PORT}
-  database: ${MYSQL_DATABASE}
-  username: ${MYSQL_USERNAME}
-  password: ${MYSQL_PASSWORD}
+  url: dss:yYzJmeL73FjG3KB4@tcp(172.17.0.1:3306)/dss?parseTime=True&loc=Local
+  database: dss
