@@ -112,6 +112,7 @@ func CreateBaseData(startDate string) {
 	}
 	wg := new(sync.WaitGroup)
 	for _, tsCode := range tsCodes {
+		log.Printf("Init quote %v", tsCode)
 		for _, quote := range constant.QuoteConst.List() {
 			data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "start_date": startDate, "end_date": time.Now().Format("20060102")}, quote)
 			// 将任务放入任务池
