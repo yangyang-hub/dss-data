@@ -1,0 +1,9 @@
+version: '3'
+services:
+  dss-data:
+    image: registry.cn-hangzhou.aliyuncs.com/dss-pod/dss-data:v1.0.2
+    container_name: dss-data
+    ports:
+      - "32081:8081"
+    restart: always
+    network_mode: bridge
