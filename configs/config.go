@@ -42,7 +42,7 @@ func (this *ConfigMap) readConfigFromYaml() {
 		if envTag != "" {
 			value = os.Getenv(envTag)
 		}
-		if envTag == "" || value == nil {
+		if envTag == "" || value == "" {
 			ymlTag := field.Tag.Get("yml")
 			value = viper.Get(ymlTag)
 		}
