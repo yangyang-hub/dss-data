@@ -1,5 +1,6 @@
 # 基础镜像，基于golang镜像构建--编译阶段
 FROM registry.cn-hangzhou.aliyuncs.com/dss-pod/golang-base:1.18.4 AS builder
+RUN apk update --no-cache && apk add --no-cache tzdata
 # 全局工作目录
 WORKDIR /usr/local/go/src/dss-data
 # 把运行Dockerfile文件的当前目录所有文件复制到目标目录
@@ -23,13 +24,8 @@ COPY --from=builder /usr/local/go/src/dss-data/main .
 # 复制编译阶段里的configs文件夹到目标目录
 COPY --from=builder /usr/local/go/src/dss-data/configs ./configs
 # 将时区设置为东八区
-
-RUN apk add tzdata
-# RUN echo "https://mirrors.aliyun.com/alpine/v3.8/main/" > /etc/apk/repositories \
-#     && echo "https://mirrors.aliyun.com/alpine/v3.8/community/" >> /etc/apk/repositories \
-#     && apk add --no-cache tzdata \
-#     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  \
-#     && echo Asia/Shanghai > /etc/timezone \
-#     && apk del tzdata
+RUN apk update --no-cache && apk add --no-cache ca-certificates
+COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai
+ENV TZ Asia/Shanghai
 # docker run命令触发的真实命令(相当于直接运行编译后的可运行文件)
 ENTRYPOINT ["./main"]
