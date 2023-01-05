@@ -23,6 +23,7 @@ WORKDIR /usr/local/go/src/dss-data
 COPY --from=builder /usr/local/go/src/dss-data/main .
 # 复制编译阶段里的configs文件夹到目标目录
 COPY --from=builder /usr/local/go/src/dss-data/configs ./configs
+COPY --from=builder /usr/local/go/src/dss-data/robot/js ./robot/js
 # 将时区设置为东八区
 RUN apk update --no-cache && apk add --no-cache ca-certificates
 COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai
