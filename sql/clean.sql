@@ -20,3 +20,4 @@ drop table stock_quote_2019;
 drop table stock_quote_2020;
 drop table stock_quote_2021;
 drop table stock_quote_2022;
+drop table stock_quote_2023;

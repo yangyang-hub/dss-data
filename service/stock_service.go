@@ -162,6 +162,7 @@ func CreateDailyData(trade_date string, includeThs bool) {
 		return
 	}
 	//获取当日的同花顺概念及行业行情
+	UpdateThsGnAndHy()
 	if includeThs {
 		getThsHyQuote(dao.QueryAllThsHy())
 		getThsGnQuote(dao.QueryAllThsGn())
@@ -197,20 +198,12 @@ func CreateDailyData(trade_date string, includeThs bool) {
 //更新同花顺概念和行业的股票关联信息
 func UpdateThsGnAndHy() {
 	trade_date := time.Now().Format("20060102")
-	startTime := time.Now()
-	defer dao.InsertTaskInfo("taskUpdateThsGnAndHy", trade_date, startTime)
 	start := time.Now()
 	log.Printf("UpdateThsGnAndHy date(%v) start... ", trade_date)
 	thsGns := robot.GetAllThsGn()
 	if len(*thsGns) > 0 {
 		dao.DeleteAllThsGn()
 		dao.InsertThsGn(thsGns)
-	}
-	AllThsGns := dao.QueryAllThsGn()
-	newThsGns := model.Minus(*AllThsGns, *thsGns)
-	//获取当日的同花顺概念及行业行情
-	if len(newThsGns) > 0 {
-		getThsGnQuote(&newThsGns)
 	}
 	thsGnRelSymbols := robot.GetAllThsGnRelSymbol(thsGns)
 	if len(*thsGnRelSymbols) > 0 {
@@ -221,12 +214,6 @@ func UpdateThsGnAndHy() {
 	if len(*thsHys) > 0 {
 		dao.DeleteAllThsHy()
 		dao.InsertThsHy(thsHys)
-	}
-	AllThsHys := dao.QueryAllThsHy()
-	newThsHys := model.Minus(*AllThsHys, *thsHys)
-	//获取当日的同花顺概念及行业行情
-	if len(newThsHys) > 0 {
-		getThsHyQuote(&newThsHys)
 	}
 	thsHyRelSymbols := robot.GetAllThsHyRelSymbol(thsHys)
 	if len(*thsHyRelSymbols) > 0 {
