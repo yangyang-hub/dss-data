@@ -8,12 +8,8 @@ COPY /output /usr/local/go/src/dss-data
 RUN go env -w GO111MODULE="on"
 RUN go env -w GOPROXY=https://goproxy.cn,direct
 # 编译，关闭CGO，防止编译后的文件有动态链接，而alpine镜像里有些c库没有，直接没有文件的错误
-# RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" main.go
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" main.go
 
-RUN GOOS=linux GOARCH=amd64 go build main.go
- 
-# RUN go build -o main main.go
- 
  
 # 使用alpine这个轻量级镜像为基础镜像--运行阶段
 FROM alpine AS runner
@@ -24,11 +20,15 @@ COPY --from=builder /usr/local/go/src/dss-data/main .
 # 复制编译阶段里的configs文件夹到目标目录
 COPY --from=builder /usr/local/go/src/dss-data/configs ./configs
 # 将时区设置为东八区
-RUN echo "https://mirrors.aliyun.com/alpine/v3.8/main/" > /etc/apk/repositories \
-    && echo "https://mirrors.aliyun.com/alpine/v3.8/community/" >> /etc/apk/repositories \
-    && apk add --no-cache tzdata \
-    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  \
-    && echo Asia/Shanghai > /etc/timezone \
-    && apk del tzdata
+# 设定时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+#RUN echo "https://mirrors.aliyun.com/alpine/v3.8/main/" > /etc/apk/repositories \
+#    && echo "https://mirrors.aliyun.com/alpine/v3.8/community/" >> /etc/apk/repositories \
+#    && apk add --no-cache tzdata \
+#    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  \
+#    && echo Asia/Shanghai > /etc/timezone \
+#    && apk del tzdata
 # docker run命令触发的真实命令(相当于直接运行编译后的可运行文件)
 ENTRYPOINT ["./main"]
