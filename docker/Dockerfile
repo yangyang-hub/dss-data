@@ -19,6 +19,8 @@ FROM alpine AS runner
 WORKDIR /usr/local/go/src/dss-data
 # 复制编译阶段编译出来的运行文件到目标目录
 COPY --from=builder /usr/local/go/src/dss-data/main .
+# 复制编译阶段里的configs文件夹到目标目录
+COPY --from=builder /usr/local/go/src/dss-data/configs ./configs
 # 将时区设置为东八区
 RUN echo "https://mirrors.aliyun.com/alpine/v3.8/main/" > /etc/apk/repositories \
     && echo "https://mirrors.aliyun.com/alpine/v3.8/community/" >> /etc/apk/repositories \

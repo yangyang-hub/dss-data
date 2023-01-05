@@ -8,7 +8,7 @@ triggers:
       prefix:
         - v
 variables:
-  BUILD_VERSION: dss-pod/dss-data:v1.1.0
+  BUILD_VERSION: dss-pod/dss-data:v1.1.1
 stages:
   - name: compile
     displayName: 编译
