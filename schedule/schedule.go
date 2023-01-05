@@ -12,8 +12,8 @@ func InitScheduler() {
 	defer log.Println("success init scheduler")
 	timezone, _ := time.LoadLocation("Asia/Shanghai")
 	s := gocron.NewScheduler(timezone)
-	// 每天下午五点半执行 定时任务-插入每日行情数据
-	s.Every(1).Days().At("17:30").Do(taskCreateDailyData)
+	// 每天下午六点半执行 定时任务-插入每日行情数据
+	s.Every(1).Days().At("18:30").Do(taskCreateDailyData)
 	go s.StartBlocking()
 }
 

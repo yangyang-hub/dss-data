@@ -1,6 +1,5 @@
 # 基础镜像，基于golang镜像构建--编译阶段
 FROM registry.cn-hangzhou.aliyuncs.com/dss-pod/golang-base:1.18.4 AS builder
-RUN apk update --no-cache && apk add --no-cache tzdata
 # 全局工作目录
 WORKDIR /usr/local/go/src/dss-data
 # 把运行Dockerfile文件的当前目录所有文件复制到目标目录
@@ -16,7 +15,7 @@ RUN GOOS=linux GOARCH=amd64 go build main.go
  
  
 # 使用alpine这个轻量级镜像为基础镜像--运行阶段
-FROM alpine AS runner
+FROM registry.cn-hangzhou.aliyuncs.com/dss-pod/alpine:1.0.0 AS runner
 # 全局工作目录
 WORKDIR /usr/local/go/src/dss-data
 # 复制编译阶段编译出来的运行文件到目标目录
@@ -24,9 +23,5 @@ COPY --from=builder /usr/local/go/src/dss-data/main .
 # 复制编译阶段里的configs文件夹到目标目录
 COPY --from=builder /usr/local/go/src/dss-data/configs ./configs
 COPY --from=builder /usr/local/go/src/dss-data/robot/js ./robot/js
-# 将时区设置为东八区
-RUN apk update --no-cache && apk add --no-cache ca-certificates
-COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai
-ENV TZ Asia/Shanghai
 # docker run命令触发的真实命令(相当于直接运行编译后的可运行文件)
 ENTRYPOINT ["./main"]
