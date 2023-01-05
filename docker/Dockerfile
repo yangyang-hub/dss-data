@@ -8,9 +8,11 @@ COPY /output /usr/local/go/src/dss-data
 RUN go env -w GO111MODULE="on"
 RUN go env -w GOPROXY=https://goproxy.cn,direct
 # 编译，关闭CGO，防止编译后的文件有动态链接，而alpine镜像里有些c库没有，直接没有文件的错误
-RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" main.go
+# RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" main.go
+
+RUN GOOS=linux GOARCH=amd64 go build main.go
  
- 
+# RUN go build -o main main.go
  
  
 # 使用alpine这个轻量级镜像为基础镜像--运行阶段
