@@ -4,6 +4,9 @@ displayName: MasterPipeline
 triggers:
   trigger: auto
   push:
+    branches:
+      precise:
+        - master
     tags:
       include:
         - ^v\d+.\d+.\d+
