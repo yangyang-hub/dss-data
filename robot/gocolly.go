@@ -310,9 +310,9 @@ func visit(url string, goquerySelector string, f colly.HTMLCallback) {
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Add("Cookie", getThsCookie())
 	})
-	c.OnError(func(r *colly.Response, err error) {
-		log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, proxy)
-	})
+	// c.OnError(func(r *colly.Response, err error) {
+	// 	log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, proxy)
+	// })
 	c.OnHTML(goquerySelector, f)
 	err := c.Visit(url)
 	if err != nil {
@@ -341,6 +341,6 @@ func getProxy() string {
 
 func deleteProxy(proxyUrl string) {
 	proxy := strings.Split(proxyUrl, "//")[1]
-	log.Println("delete proxy", proxy)
+	// log.Println("delete proxy", proxy)
 	util.SendGet(fmt.Sprintf(configs.Config.ProxyUrl+"/delete/?proxy=%v", proxy))
 }
