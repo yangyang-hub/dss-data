@@ -4,7 +4,7 @@ networks:
     name: default-net
 services:
   dss-data:
-    image: registry.cn-hangzhou.aliyuncs.com/dss-pod/dss-data:v1.1.8
+    image: registry.cn-hangzhou.aliyuncs.com/dss-pod/dss-data:v1.1.9
     container_name: dss-data
     ports:
       - "32081:8081"
