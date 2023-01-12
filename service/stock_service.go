@@ -94,10 +94,10 @@ func CreateBaseData(startDate string) {
 	//初始化同花顺行业数据
 	InitThsHy()
 	//获取当日的同花顺概念及行业行情
-	thsHyQuotes := robot.GetAllThsHyQuote(dao.QueryAllThsHy())
-	dao.InsertThsHyQuote(thsHyQuotes)
-	thsGnQuotes := robot.GetAllThsGnQuote(dao.QueryAllThsGn())
-	dao.InsertThsGnQuote(thsGnQuotes)
+	// thsHyQuotes := robot.GetAllThsHyQuote(dao.QueryAllThsHy())
+	// dao.InsertThsHyQuote(thsHyQuotes)
+	// thsGnQuotes := robot.GetAllThsGnQuote(dao.QueryAllThsGn())
+	// dao.InsertThsGnQuote(thsGnQuotes)
 	//初始化日线、周线、月线数据 默认从2010年1月1日开始
 	if startDate == "" {
 		startDate = "20100101"
@@ -139,6 +139,12 @@ func CreateDailyData(trade_date string, includeThs bool) {
 	//trade_date为空则默认查询当日数据
 	if trade_date == "" {
 		trade_date = time.Now().Format("20060102")
+	}
+	//查询是否为交易日
+	tradeCals := tushare.GetTradeCal(trade_date, trade_date)
+	if len(*tradeCals) < 1 {
+		log.Printf("(%v)为非交易日,结束任务 ", trade_date)
+		return
 	}
 	startTime := time.Now()
 	defer dao.InsertTaskInfo("taskCreateDailyData", trade_date, startTime)

@@ -1,7 +1,10 @@
 version: '3'
+networks:
+   default:
+    name: default-net
 services:
   dss-data:
-    image: registry.cn-hangzhou.aliyuncs.com/dss-pod/dss-data:v1.1.7
+    image: registry.cn-hangzhou.aliyuncs.com/dss-pod/dss-data:v1.1.8
     container_name: dss-data
     ports:
       - "32081:8081"
@@ -13,3 +16,6 @@ services:
       MYSQL_DATABASE: dss
     restart: always
     network_mode: bridge
+    networks:
+      default:
+        ipv4_address: 172.18.0.4
