@@ -6,10 +6,10 @@ triggers:
   push:
     tags:
       include:
-        - v\d+.\d+.\d+
+        - ^v\d+.\d+.\d+
     commitMessages:
       include:
-        - v\d+.\d+.\d+
+        - ^v\d+.\d+.\d+.*
 variables:
   BUILD_VERSION: dss-pod/dss-data:v1.1.9
 stages:
