@@ -83,8 +83,8 @@ func InitCreateStockQuoteTable(startDate string) bool {
 	for i := startYear; i <= nowYear; i++ {
 		tableName := fmt.Sprintf("%s%d", "stock_quote_", i)
 		var count int64
-		db.Mysql.Raw("SELECT * FROM information_schema.TABLES t, information_schema.SCHEMATA n \n"+
-			"WHERE t.table_name = ? AND n.SCHEMA_NAME = ?", tableName, configs.Config.MysqlDatabase).Count(&count)
+		db.Mysql.Raw("SELECT * FROM information_schema.TABLES t \n"+
+			"WHERE t.TABLE_NAME = ? AND t.TABLE_SCHEMA = ?", tableName, configs.Config.MysqlDatabase).Count(&count)
 		if count == 0 {
 			sql := "CREATE TABLE `" + tableName + "`  (\n" +
 				"  `ts_code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'TS代码',\n" +
