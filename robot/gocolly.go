@@ -325,7 +325,7 @@ func visit(url string, goquerySelector string, f colly.HTMLCallback) {
 }
 
 func getProxy() string {
-	result, err := util.SendGet(configs.Config.ProxyUrl + "/get/")
+	result, err := util.SendGetResJson(configs.Config.ProxyUrl + "/get/")
 	if err != nil {
 		log.Println("get proxy wrong:", err)
 	}
@@ -342,5 +342,5 @@ func getProxy() string {
 func deleteProxy(proxyUrl string) {
 	proxy := strings.Split(proxyUrl, "//")[1]
 	// log.Println("delete proxy", proxy)
-	util.SendGet(fmt.Sprintf(configs.Config.ProxyUrl+"/delete/?proxy=%v", proxy))
+	util.SendGetResJson(fmt.Sprintf(configs.Config.ProxyUrl+"/delete/?proxy=%v", proxy))
 }
