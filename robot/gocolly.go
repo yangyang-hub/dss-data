@@ -44,7 +44,17 @@ func GetAllThsHyRelSymbol(thsHys *[]model.ThsHy) *[]model.ThsHyRelSymbol {
 			thsHyRelSymbol = append(thsHyRelSymbol, *GetThsHyDetail(thsHy.Code)...)
 		}
 	}
-	return &thsHyRelSymbol
+	//去重
+	result := []model.ThsHyRelSymbol{}
+	m := make(map[string]int)
+	for _, item := range thsHyRelSymbol {
+		str := item.HyCode + item.Symbol
+		m[str]++
+		if m[str] == 1 {
+			result = append(result, item)
+		}
+	}
+	return &result
 }
 
 //获取单个同花顺行业所关联的股票代码
@@ -175,7 +185,17 @@ func GetAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
 			thsGnRelSymbol = append(thsGnRelSymbol, *GetThsGnDetail(thsGn.Code)...)
 		}
 	}
-	return &thsGnRelSymbol
+	//去重
+	result := []model.ThsGnRelSymbol{}
+	m := make(map[string]int)
+	for _, item := range thsGnRelSymbol {
+		str := item.GnCode + item.Symbol
+		m[str]++
+		if m[str] == 1 {
+			result = append(result, item)
+		}
+	}
+	return &result
 }
 
 //获取单个同花顺概念所关联的股票代码
