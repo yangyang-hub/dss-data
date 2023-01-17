@@ -6,6 +6,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	configs "dss-data/configs"
@@ -13,6 +14,7 @@ import (
 	"github.com/gocolly/colly/v2"
 	"github.com/robertkrimen/otto"
 	"github.com/yangyang-hub/dss-common/model"
+	"github.com/yangyang-hub/dss-common/thread"
 	"github.com/yangyang-hub/dss-common/util"
 )
 
@@ -34,6 +36,7 @@ func GetAllThsHy() *[]model.ThsHy {
 	log.Printf("hy found size: %v\n", len(thsHys))
 	if len(thsHys) < 1 {
 		//重试
+		log.Println("retry GetAllThsHy")
 		thsHys = *GetAllThsHy()
 	}
 	return &thsHys
@@ -41,7 +44,23 @@ func GetAllThsHy() *[]model.ThsHy {
 
 //获取所有同花顺行业所关联的股票代码
 func GetAllThsHyRelSymbol(thsHys *[]model.ThsHy) *[]model.ThsHyRelSymbol {
-	thsHyRelSymbol := *getAllThsHyRelSymbol(thsHys)
+	thsHyRelSymbol := []model.ThsHyRelSymbol{}
+	if len(*thsHys) > 0 {
+		pool, _ := thread.NewPool(10)
+		wg := new(sync.WaitGroup)
+		for index, thsHy := range *thsHys {
+			log.Printf("start get hy %v %v %v", index, thsHy.Name, thsHy.Code)
+			wg.Add(1)
+			pool.Put(&thread.Task{
+				Handler: func(v ...interface{}) {
+					thsHyRelSymbol = append(thsHyRelSymbol, *GetThsHyDetail(thsHy.Code)...)
+					wg.Done()
+				},
+			})
+		}
+		wg.Wait()
+		pool.Close()
+	}
 	//去重
 	result := []model.ThsHyRelSymbol{}
 	m := make(map[string]int)
@@ -53,21 +72,6 @@ func GetAllThsHyRelSymbol(thsHys *[]model.ThsHy) *[]model.ThsHyRelSymbol {
 		}
 	}
 	return &result
-}
-
-func getAllThsHyRelSymbol(thsHys *[]model.ThsHy) *[]model.ThsHyRelSymbol {
-	thsHyRelSymbol := []model.ThsHyRelSymbol{}
-	if len(*thsHys) > 0 {
-		for index, thsHy := range *thsHys {
-			log.Printf("start get hy %v %v %v", index, thsHy.Name, thsHy.Code)
-			thsHyRelSymbol = append(thsHyRelSymbol, *GetThsHyDetail(thsHy.Code)...)
-		}
-	}
-	if len(thsHyRelSymbol) < 1 {
-		//重试
-		thsHyRelSymbol = *getAllThsHyRelSymbol(thsHys)
-	}
-	return &thsHyRelSymbol
 }
 
 //获取单个同花顺行业所关联的股票代码
@@ -92,6 +96,7 @@ func getThsHyTotalPage(code string) int {
 		}
 	})
 	if totalPage < 1 {
+		log.Printf("retry getThsHyTotalPage code: %v", code)
 		totalPage = getThsHyTotalPage(code)
 	}
 	return totalPage
@@ -110,6 +115,7 @@ func getThsHyDetailByPage(code string, page int) *[]model.ThsHyRelSymbol {
 	})
 	if len(thsHyRelSymbol) < 1 {
 		//重试
+		log.Printf("retry getThsHyDetailByPage code: %v page: %v", code, page)
 		thsHyRelSymbol = *getThsHyDetailByPage(code, page)
 	}
 	return &thsHyRelSymbol
@@ -198,6 +204,7 @@ func GetAllThsGn() *[]model.ThsGn {
 	log.Printf("gn found size: %v\n", len(thsGns))
 	if len(thsGns) < 1 {
 		//重试
+		log.Println("retry GetAllThsGn")
 		thsGns = *GetAllThsGn()
 	}
 	return &thsGns
@@ -205,7 +212,23 @@ func GetAllThsGn() *[]model.ThsGn {
 
 //获取所有同花顺概念所关联的股票代码
 func GetAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
-	thsGnRelSymbol := *getAllThsGnRelSymbol(thsGns)
+	thsGnRelSymbol := []model.ThsGnRelSymbol{}
+	if len(*thsGns) > 0 {
+		pool, _ := thread.NewPool(10)
+		wg := new(sync.WaitGroup)
+		for index, thsGn := range *thsGns {
+			log.Printf("start get gn %v %v %v total %v", index, thsGn.Name, thsGn.Code, len(*thsGns))
+			wg.Add(1)
+			pool.Put(&thread.Task{
+				Handler: func(v ...interface{}) {
+					thsGnRelSymbol = append(thsGnRelSymbol, *GetThsGnDetail(thsGn.Code)...)
+					wg.Done()
+				},
+			})
+		}
+		wg.Wait()
+		pool.Close()
+	}
 	//去重
 	result := []model.ThsGnRelSymbol{}
 	m := make(map[string]int)
@@ -217,21 +240,6 @@ func GetAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
 		}
 	}
 	return &result
-}
-
-func getAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
-	thsGnRelSymbol := []model.ThsGnRelSymbol{}
-	if len(*thsGns) > 0 {
-		for index, thsGn := range *thsGns {
-			log.Printf("start get gn %v %v %v total %v", index, thsGn.Name, thsGn.Code, len(*thsGns))
-			thsGnRelSymbol = append(thsGnRelSymbol, *GetThsGnDetail(thsGn.Code)...)
-		}
-	}
-	if len(thsGnRelSymbol) < 1 {
-		//重试
-		thsGnRelSymbol = *getAllThsGnRelSymbol(thsGns)
-	}
-	return &thsGnRelSymbol
 }
 
 //获取单个同花顺概念所关联的股票代码
@@ -256,6 +264,7 @@ func getThsGnTotalPage(code string) int {
 		}
 	})
 	if totalPage < 1 {
+		log.Printf("retry getThsGnTotalPage code: %v", code)
 		totalPage = getThsGnTotalPage(code)
 	}
 	return totalPage
@@ -274,6 +283,7 @@ func getThsGnDetailByPage(code string, page int) *[]model.ThsGnRelSymbol {
 	})
 	if len(thsGnRelSymbol) < 1 {
 		//重试
+		log.Printf("retry getThsGnDetailByPage code: %v page: %v", code, page)
 		thsGnRelSymbol = *getThsGnDetailByPage(code, page)
 	}
 	return &thsGnRelSymbol
