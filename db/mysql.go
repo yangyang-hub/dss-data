@@ -24,13 +24,12 @@ func InitMysql() {
 		panic(err)
 	}
 	sqldb, _ := db.DB()
-	sqlDB := *sqldb
 	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
-	sqlDB.SetMaxIdleConns(20)
+	sqldb.SetMaxIdleConns(10)
 	// SetMaxOpenConns 设置打开数据库连接的最大数量。
-	sqlDB.SetMaxOpenConns(100)
+	sqldb.SetMaxOpenConns(100)
 	// SetConnMaxLifetime 设置了连接可复用的最大时间。
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqldb.SetConnMaxLifetime(time.Hour)
 	Mysql = db
 	log.Println("init mysql end.")
 }
