@@ -32,18 +32,16 @@ func GetAllThsHy() *[]model.ThsHy {
 		thsHys = append(thsHys, model.ThsHy{Code: code, Name: name})
 	})
 	log.Printf("hy found size: %v\n", len(thsHys))
+	if len(thsHys) < 1 {
+		//重试
+		thsHys = *GetAllThsHy()
+	}
 	return &thsHys
 }
 
 //获取所有同花顺行业所关联的股票代码
 func GetAllThsHyRelSymbol(thsHys *[]model.ThsHy) *[]model.ThsHyRelSymbol {
-	thsHyRelSymbol := []model.ThsHyRelSymbol{}
-	if len(*thsHys) > 0 {
-		for index, thsHy := range *thsHys {
-			log.Printf("start get hy %v %v %v", index, thsHy.Name, thsHy.Code)
-			thsHyRelSymbol = append(thsHyRelSymbol, *GetThsHyDetail(thsHy.Code)...)
-		}
-	}
+	thsHyRelSymbol := *getAllThsHyRelSymbol(thsHys)
 	//去重
 	result := []model.ThsHyRelSymbol{}
 	m := make(map[string]int)
@@ -57,10 +55,34 @@ func GetAllThsHyRelSymbol(thsHys *[]model.ThsHy) *[]model.ThsHyRelSymbol {
 	return &result
 }
 
+func getAllThsHyRelSymbol(thsHys *[]model.ThsHy) *[]model.ThsHyRelSymbol {
+	thsHyRelSymbol := []model.ThsHyRelSymbol{}
+	if len(*thsHys) > 0 {
+		for index, thsHy := range *thsHys {
+			log.Printf("start get hy %v %v %v", index, thsHy.Name, thsHy.Code)
+			thsHyRelSymbol = append(thsHyRelSymbol, *GetThsHyDetail(thsHy.Code)...)
+		}
+	}
+	if len(thsHyRelSymbol) < 1 {
+		//重试
+		thsHyRelSymbol = *getAllThsHyRelSymbol(thsHys)
+	}
+	return &thsHyRelSymbol
+}
+
 //获取单个同花顺行业所关联的股票代码
 func GetThsHyDetail(code string) *[]model.ThsHyRelSymbol {
 	thsHyRelSymbol := []model.ThsHyRelSymbol{}
 	//获取总页码
+	totalPage := getThsHyTotalPage(code)
+	//循环获取概念所有代码
+	for i := 1; i <= totalPage; i++ {
+		thsHyRelSymbol = append(thsHyRelSymbol, *getThsHyDetailByPage(code, i)...)
+	}
+	return &thsHyRelSymbol
+}
+
+func getThsHyTotalPage(code string) int {
 	totalPage := 0
 	url := "http://q.10jqka.com.cn/thshy/detail/field/199112/order/desc/page/2/ajax/1/code/" + code
 	visit(url, "div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
@@ -69,13 +91,10 @@ func GetThsHyDetail(code string) *[]model.ThsHyRelSymbol {
 			log.Printf("total page found: %v\n", totalPage)
 		}
 	})
-	//循环获取概念所有代码
-	if totalPage > 0 {
-		for i := 1; i <= totalPage; i++ {
-			thsHyRelSymbol = append(thsHyRelSymbol, *getThsHyDetailByPage(code, i)...)
-		}
+	if totalPage < 1 {
+		totalPage = getThsHyTotalPage(code)
 	}
-	return &thsHyRelSymbol
+	return totalPage
 }
 
 //读取单页同花顺行业所关联的股票代码
@@ -89,6 +108,10 @@ func getThsHyDetailByPage(code string, page int) *[]model.ThsHyRelSymbol {
 			thsHyRelSymbol = append(thsHyRelSymbol, model.ThsHyRelSymbol{HyCode: code, Symbol: symbol})
 		}
 	})
+	if len(thsHyRelSymbol) < 1 {
+		//重试
+		thsHyRelSymbol = *getThsHyDetailByPage(code, page)
+	}
 	return &thsHyRelSymbol
 }
 
@@ -173,18 +196,16 @@ func GetAllThsGn() *[]model.ThsGn {
 		thsGns = append(thsGns, model.ThsGn{Code: code, Name: name})
 	})
 	log.Printf("gn found size: %v\n", len(thsGns))
+	if len(thsGns) < 1 {
+		//重试
+		thsGns = *GetAllThsGn()
+	}
 	return &thsGns
 }
 
 //获取所有同花顺概念所关联的股票代码
 func GetAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
-	thsGnRelSymbol := []model.ThsGnRelSymbol{}
-	if len(*thsGns) > 0 {
-		for index, thsGn := range *thsGns {
-			log.Printf("start get gn %v %v %v total %v", index, thsGn.Name, thsGn.Code, len(*thsGns))
-			thsGnRelSymbol = append(thsGnRelSymbol, *GetThsGnDetail(thsGn.Code)...)
-		}
-	}
+	thsGnRelSymbol := *getAllThsGnRelSymbol(thsGns)
 	//去重
 	result := []model.ThsGnRelSymbol{}
 	m := make(map[string]int)
@@ -198,10 +219,34 @@ func GetAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
 	return &result
 }
 
+func getAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
+	thsGnRelSymbol := []model.ThsGnRelSymbol{}
+	if len(*thsGns) > 0 {
+		for index, thsGn := range *thsGns {
+			log.Printf("start get gn %v %v %v total %v", index, thsGn.Name, thsGn.Code, len(*thsGns))
+			thsGnRelSymbol = append(thsGnRelSymbol, *GetThsGnDetail(thsGn.Code)...)
+		}
+	}
+	if len(thsGnRelSymbol) < 1 {
+		//重试
+		thsGnRelSymbol = *getAllThsGnRelSymbol(thsGns)
+	}
+	return &thsGnRelSymbol
+}
+
 //获取单个同花顺概念所关联的股票代码
 func GetThsGnDetail(code string) *[]model.ThsGnRelSymbol {
 	thsGnRelSymbol := []model.ThsGnRelSymbol{}
 	//获取总页码
+	totalPage := getThsGnTotalPage(code)
+	//循环获取概念所有代码
+	for i := 1; i <= totalPage; i++ {
+		thsGnRelSymbol = append(thsGnRelSymbol, *getThsGnDetailByPage(code, i)...)
+	}
+	return &thsGnRelSymbol
+}
+
+func getThsGnTotalPage(code string) int {
 	totalPage := 0
 	url := "http://q.10jqka.com.cn/gn/detail/field/199112/order/desc/page/1/ajax/1/code/" + code
 	visit(url, "div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
@@ -210,13 +255,10 @@ func GetThsGnDetail(code string) *[]model.ThsGnRelSymbol {
 			log.Printf("total page found: %v\n", totalPage)
 		}
 	})
-	//循环获取概念所有代码
-	if totalPage > 0 {
-		for i := 1; i <= totalPage; i++ {
-			thsGnRelSymbol = append(thsGnRelSymbol, *getThsGnDetailByPage(code, i)...)
-		}
+	if totalPage < 1 {
+		totalPage = getThsGnTotalPage(code)
 	}
-	return &thsGnRelSymbol
+	return totalPage
 }
 
 //读取单页同花顺概念所关联的股票代码
@@ -230,6 +272,10 @@ func getThsGnDetailByPage(code string, page int) *[]model.ThsGnRelSymbol {
 			thsGnRelSymbol = append(thsGnRelSymbol, model.ThsGnRelSymbol{GnCode: code, Symbol: symbol})
 		}
 	})
+	if len(thsGnRelSymbol) < 1 {
+		//重试
+		thsGnRelSymbol = *getThsGnDetailByPage(code, page)
+	}
 	return &thsGnRelSymbol
 }
 
