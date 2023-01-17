@@ -34,39 +34,34 @@ func InitData() {
 	//丢失的行情数据
 	missDate := []string{}
 	initData := (*initDataInfos)[0].Date
-	if len(*taskInfos) == 0 {
-		for _, date := range tradeDates {
-			if initData >= date {
-				continue
-			}
-			missDate = append(missDate, date)
+	for _, date := range tradeDates {
+		if initData >= date {
+			continue
 		}
-	} else {
-		for _, taskInfo := range *taskInfos {
-			if initData >= taskInfo.Date {
-				continue
-			}
+		if len(*taskInfos) == 0 {
+			missDate = append(missDate, date)
+		} else {
 			flag := false
-			for _, date := range tradeDates {
+			for _, taskInfo := range *taskInfos {
 				if date == taskInfo.Date {
 					flag = true
-					return
+					break
 				}
 			}
 			if !flag {
-				missDate = append(missDate, taskInfo.Date)
+				missDate = append(missDate, date)
 			}
 		}
 	}
 	if len(missDate) == 0 {
-		log.Printf("not find miss_data...")
+		log.Println("not find miss_data...")
 	} else {
-		log.Printf("start run miss_data...")
+		log.Println("start run miss_data...")
 		for _, data := range missDate {
 			CreateDailyData(data, false)
 		}
 	}
-	log.Printf("init stock_service end...")
+	log.Println("init stock_service end...")
 }
 
 //初始化基本数据（股票基本信息、上市公司基本信息、日线数据、周线数据、月线数据）
