@@ -18,6 +18,8 @@ import (
 	"github.com/yangyang-hub/dss-common/util"
 )
 
+var MaxDepth int = 3
+
 /**
 同花顺行业 	start==========================================================================================================================
 */
@@ -78,16 +80,19 @@ func GetAllThsHyRelSymbol(thsHys *[]model.ThsHy) *[]model.ThsHyRelSymbol {
 func GetThsHyDetail(code string) *[]model.ThsHyRelSymbol {
 	thsHyRelSymbol := []model.ThsHyRelSymbol{}
 	//获取总页码
-	totalPage := getThsHyTotalPage(code)
+	totalPage := getThsHyTotalPage(MaxDepth, code)
 	//循环获取概念所有代码
 	for i := 1; i <= totalPage; i++ {
-		thsHyRelSymbol = append(thsHyRelSymbol, *getThsHyDetailByPage(code, i)...)
+		thsHyRelSymbol = append(thsHyRelSymbol, *getThsHyDetailByPage(MaxDepth, code, i)...)
 	}
 	return &thsHyRelSymbol
 }
 
-func getThsHyTotalPage(code string) int {
+func getThsHyTotalPage(depth int, code string) int {
 	totalPage := 0
+	if depth == 0 {
+		return totalPage
+	}
 	url := "http://q.10jqka.com.cn/thshy/detail/field/199112/order/desc/page/2/ajax/1/code/" + code
 	visit(url, "div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
 		if e.Text == "尾页" {
@@ -97,14 +102,18 @@ func getThsHyTotalPage(code string) int {
 	})
 	if totalPage < 1 {
 		log.Printf("retry getThsHyTotalPage code: %v", code)
-		totalPage = getThsHyTotalPage(code)
+		depth--
+		totalPage = getThsHyTotalPage(depth, code)
 	}
 	return totalPage
 }
 
 //读取单页同花顺行业所关联的股票代码
-func getThsHyDetailByPage(code string, page int) *[]model.ThsHyRelSymbol {
+func getThsHyDetailByPage(depth int, code string, page int) *[]model.ThsHyRelSymbol {
 	thsHyRelSymbol := []model.ThsHyRelSymbol{}
+	if depth == 0 {
+		return &thsHyRelSymbol
+	}
 	url := "http://q.10jqka.com.cn/thshy/detail/field/199112/order/desc/page/" + strconv.Itoa(page) + "/ajax/1/code/" + code
 	//获取当页的股票代码
 	visit(url, "table[class='m-table m-pager-table'] > tbody > tr", func(e *colly.HTMLElement) {
@@ -116,7 +125,8 @@ func getThsHyDetailByPage(code string, page int) *[]model.ThsHyRelSymbol {
 	if len(thsHyRelSymbol) < 1 {
 		//重试
 		log.Printf("retry getThsHyDetailByPage code: %v page: %v", code, page)
-		thsHyRelSymbol = *getThsHyDetailByPage(code, page)
+		depth--
+		thsHyRelSymbol = *getThsHyDetailByPage(depth, code, page)
 	}
 	return &thsHyRelSymbol
 }
@@ -246,16 +256,19 @@ func GetAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
 func GetThsGnDetail(code string) *[]model.ThsGnRelSymbol {
 	thsGnRelSymbol := []model.ThsGnRelSymbol{}
 	//获取总页码
-	totalPage := getThsGnTotalPage(code)
+	totalPage := getThsGnTotalPage(MaxDepth, code)
 	//循环获取概念所有代码
 	for i := 1; i <= totalPage; i++ {
-		thsGnRelSymbol = append(thsGnRelSymbol, *getThsGnDetailByPage(code, i)...)
+		thsGnRelSymbol = append(thsGnRelSymbol, *getThsGnDetailByPage(MaxDepth, code, i)...)
 	}
 	return &thsGnRelSymbol
 }
 
-func getThsGnTotalPage(code string) int {
+func getThsGnTotalPage(depth int, code string) int {
 	totalPage := 0
+	if depth == 0 {
+		return totalPage
+	}
 	url := "http://q.10jqka.com.cn/gn/detail/field/199112/order/desc/page/1/ajax/1/code/" + code
 	visit(url, "div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
 		if e.Text == "尾页" {
@@ -265,14 +278,18 @@ func getThsGnTotalPage(code string) int {
 	})
 	if totalPage < 1 {
 		log.Printf("retry getThsGnTotalPage code: %v", code)
-		totalPage = getThsGnTotalPage(code)
+		depth--
+		totalPage = getThsGnTotalPage(depth, code)
 	}
 	return totalPage
 }
 
 //读取单页同花顺概念所关联的股票代码
-func getThsGnDetailByPage(code string, page int) *[]model.ThsGnRelSymbol {
+func getThsGnDetailByPage(depth int, code string, page int) *[]model.ThsGnRelSymbol {
 	thsGnRelSymbol := []model.ThsGnRelSymbol{}
+	if depth == 0 {
+		return &thsGnRelSymbol
+	}
 	url := "http://q.10jqka.com.cn/gn/detail/field/199112/order/desc/page/" + strconv.Itoa(page) + "/ajax/1/code/" + code
 	//获取当页的股票代码
 	visit(url, "table[class='m-table m-pager-table'] > tbody > tr", func(e *colly.HTMLElement) {
@@ -284,7 +301,8 @@ func getThsGnDetailByPage(code string, page int) *[]model.ThsGnRelSymbol {
 	if len(thsGnRelSymbol) < 1 {
 		//重试
 		log.Printf("retry getThsGnDetailByPage code: %v page: %v", code, page)
-		thsGnRelSymbol = *getThsGnDetailByPage(code, page)
+		depth--
+		thsGnRelSymbol = *getThsGnDetailByPage(depth, code, page)
 	}
 	return &thsGnRelSymbol
 }
