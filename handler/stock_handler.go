@@ -24,7 +24,7 @@ func createDailyData(ctx iris.Context) {
 	if date == "" {
 		date = time.Now().Format("20060102")
 	}
-	go service.CreateDailyData(date, false)
+	go service.CreateDailyData(date, false, false)
 	ctx.Write([]byte("开始更新(" + date + ")数据任务"))
 }
 

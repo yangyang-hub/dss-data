@@ -83,12 +83,12 @@ func InitCreateStockQuoteTable(startDate string) bool {
 	for i := startYear; i <= nowYear; i++ {
 		tableName := fmt.Sprintf("%s%d", "stock_quote_", i)
 		var count int64
-		db.Mysql.Raw("SELECT * FROM information_schema.TABLES t \n"+
+		db.Mysql.Raw("SELECT COUNT(1) FROM information_schema.TABLES t \n"+
 			"WHERE t.TABLE_NAME = ? AND t.TABLE_SCHEMA = ?", tableName, configs.Config.MysqlDatabase).Count(&count)
 		if count == 0 {
 			sql := "CREATE TABLE `" + tableName + "`  (\n" +
 				"  `ts_code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'TS代码',\n" +
-				"  `type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'D：日线行情；W：周线行情；M：月线行情',\n" +
+				"  `type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'D:日线行情;W:周线行情;M:月线行情',\n" +
 				"  `trade_date` varchar(8) NOT NULL COMMENT '交易日期',\n" +
 				"  `open` float(30, 4) NULL DEFAULT NULL COMMENT '开盘价',\n" +
 				"  `high` float(30, 4) NULL DEFAULT NULL COMMENT '最高价',\n" +

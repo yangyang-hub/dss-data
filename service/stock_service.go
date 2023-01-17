@@ -57,8 +57,10 @@ func InitData() {
 		log.Println("not find miss_data...")
 	} else {
 		log.Println("start run miss_data...")
+		flag := true
 		for _, data := range missDate {
-			CreateDailyData(data, false)
+			CreateDailyData(data, flag, false)
+			flag = false
 		}
 	}
 	log.Println("init stock_service end...")
@@ -128,12 +130,14 @@ func CreateBaseData(startDate string) {
 
 /**插入日数据
 trade_date:日期
-includeThs:是否拉取同花顺行情数据
+includeThsGnHy:是否拉取同花顺概念和行业
+includeThsQuote:是否拉取同花顺行情数据
 */
-func CreateDailyData(trade_date string, includeThs bool) {
+func CreateDailyData(trade_date string, includeThsGnHy bool, includeThsQuote bool) {
 	//trade_date为空则默认查询当日数据
+	nowDate := time.Now().Format("20060102")
 	if trade_date == "" {
-		trade_date = time.Now().Format("20060102")
+		trade_date = nowDate
 	}
 	//查询是否为交易日
 	tradeCals := tushare.GetTradeCal(trade_date, trade_date)
@@ -142,6 +146,11 @@ func CreateDailyData(trade_date string, includeThs bool) {
 		return
 	}
 	startTime := time.Now()
+	hour := startTime.Hour()
+	if nowDate == trade_date && hour < 18 {
+		log.Printf("CreateDailyData end, now time %v, wait for daily task", startTime.GoString())
+		return
+	}
 	defer dao.InsertTaskInfo("taskCreateDailyData", trade_date, startTime)
 	start := time.Now()
 	log.Printf("CreateDailyData date(%v) start... ", trade_date)
@@ -163,8 +172,10 @@ func CreateDailyData(trade_date string, includeThs bool) {
 		return
 	}
 	//获取当日的同花顺概念及行业行情
-	UpdateThsGnAndHy()
-	if includeThs {
+	if includeThsGnHy {
+		UpdateThsGnAndHy()
+	}
+	if includeThsQuote {
 		getThsHyQuote(dao.QueryAllThsHy())
 		getThsGnQuote(dao.QueryAllThsGn())
 	}
