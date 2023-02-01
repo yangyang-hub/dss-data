@@ -32,8 +32,8 @@ func createDailyData(ctx iris.Context) {
 func getLiveData(ctx iris.Context) {
 	start := time.Now()
 	symbols := ctx.Params().GetString("symbols")
-	url := ctx.GetReferrer().URL
-	log.Printf("%v param (%v)", url, symbols)
+	url := ctx.Request().URL.Path
+	log.Printf("%v param(%v)", url, symbols)
 	if symbols == "" {
 		ctx.Write([]byte("请传入股票编码"))
 	}
@@ -45,6 +45,6 @@ func getLiveData(ctx iris.Context) {
 	if err != nil {
 		log.Panicf("%v json转换异常, result: %v", url, result)
 	}
-	ctx.Write([]byte(data))
+	ctx.Write(data)
 	log.Printf("%v end,spend time %v", url, time.Since(start))
 }

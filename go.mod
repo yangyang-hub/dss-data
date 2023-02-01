@@ -8,7 +8,8 @@ require (
 	github.com/kataras/iris/v12 v12.2.0-beta6
 	github.com/robertkrimen/otto v0.2.1
 	github.com/spf13/viper v1.14.0
-	github.com/yangyang-hub/dss-common v1.0.4
+	github.com/yangyang-hub/dss-common v1.0.5
+	golang.org/x/text v0.4.0
 	gorm.io/driver/mysql v1.4.4
 	gorm.io/gorm v1.24.2
 )
@@ -80,7 +81,6 @@ require (
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.0.0-20220919091848-fb04ddd9f9c8 // indirect
-	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
