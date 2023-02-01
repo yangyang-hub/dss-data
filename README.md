@@ -1,10 +1,10 @@
-# transaction-dss
+# dss-data
 
 #### 介绍
-交易决策支持系统
+交易决策支持系统-基础数据服务
 
 #### 软件架构
-iris 框架构建后台，数据采用mysql存储，数据来源主要依赖tushare（https://www.tushare.pro/）以及爬虫获取
+Gin 框架构建后台，数据采用mysql存储，数据来源主要依赖tushare（https://www.tushare.pro/）以及爬虫获取
 
 #### 使用说明
 

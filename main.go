@@ -9,9 +9,11 @@ import (
 	schedule "dss-data/schedule"
 	service "dss-data/service"
 	"flag"
+	"log"
 	"os"
 
-	"github.com/kataras/iris/v12"
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 func init() {
@@ -28,16 +30,17 @@ func init() {
 	service.InitData()
 }
 
-func newApp() *iris.Application {
-	app := iris.New()
-	//初始化路由
-	router.RegisterRoutes(app)
-	return app
-}
-
 func main() {
-	app := newApp()
-	cfg := iris.YAML("configs/config.yml")
-	addr := cfg.Other["Addr"].(string)
-	app.Listen(addr, iris.WithConfiguration(cfg))
+	viper.SetConfigName("config")
+	viper.SetConfigType("yml")
+	viper.AddConfigPath("configs")
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Panicln("读取配置文件失败")
+		return
+	}
+	g := gin.Default()
+	router.RegisterRoutes(g)
+	g.Run(viper.GetString("server.port"))
+
 }

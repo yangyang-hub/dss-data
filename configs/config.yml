@@ -1,11 +1,5 @@
-DisablePathCorrection: false
-EnablePathEscape: false
-FireMethodNotAllowed: true
-DisableBodyConsumptionOnUnmarshal: true
-TimeFormat: Mon, 01 Jan 2006 15:04:05 GMT
-Charset: UTF-8
-Other:
-  Addr: :8081
+server:
+  port: :8081
 
 tushare:
   url: http://api.tushare.pro

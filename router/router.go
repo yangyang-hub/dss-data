@@ -1,44 +1,43 @@
 package router
 
 import (
-	"github.com/kataras/iris/v12"
-	"github.com/kataras/iris/v12/context"
 	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 type RegInfo struct {
 	Method  string
 	Uri     string
-	Handler iris.Handler
+	Handler gin.HandlerFunc
 }
 
 var _RegInfo = make(map[string][]RegInfo)
 
-func RegisterRoutes(app *iris.Application) {
+func RegisterRoutes(router *gin.Engine) {
 	defer log.Println("success register routes")
 	for key, infos := range _RegInfo {
-		party := app.Party(key, func(ctx iris.Context) {
-			ctx.Next()
-		})
+		party := router.Group(key)
 		{
 			for _, info := range infos {
 				switch info.Method {
 				case "Get":
-					party.Get(info.Uri, info.Handler)
+					party.GET(info.Uri, info.Handler)
 				case "Post":
-					party.Post(info.Uri, info.Handler)
+					party.POST(info.Uri, info.Handler)
 				case "Put":
-					party.Put(info.Uri, info.Handler)
+					party.PUT(info.Uri, info.Handler)
 				case "Delete":
-					party.Delete(info.Uri, info.Handler)
+					party.DELETE(info.Uri, info.Handler)
 				case "Options":
-					party.Options(info.Uri, info.Handler)
+					party.OPTIONS(info.Uri, info.Handler)
 				}
 			}
 		}
+
 	}
 }
-func RegisterHandler(method string, party string, uri string, handler context.Handler) {
+func RegisterHandler(method string, party string, uri string, handler gin.HandlerFunc) {
 	info := RegInfo{method, uri, handler}
 	infos, ok := _RegInfo[party]
 	if !ok {
