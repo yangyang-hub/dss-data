@@ -57,10 +57,8 @@ func InitData() {
 		log.Println("not find miss_data...")
 	} else {
 		log.Println("start run miss_data...")
-		flag := true
 		for _, data := range missDate {
-			CreateDailyData(data, flag, false)
-			flag = false
+			CreateDailyData(data)
 		}
 	}
 	log.Println("init stock_service end...")
@@ -105,8 +103,8 @@ func CreateBaseData(startDate string) {
 		wg.Add(1)
 		pool.Put(&thread.Task{
 			Handler: func(v ...interface{}) {
-				wg.Done()
 				dao.InsertStockQuote(data)
+				wg.Done()
 			},
 		})
 	}
@@ -118,10 +116,8 @@ func CreateBaseData(startDate string) {
 
 /**插入日数据
 trade_date:日期
-includeThsGnHy:是否拉取同花顺概念和行业
-includeThsQuote:是否拉取同花顺行情数据
 */
-func CreateDailyData(trade_date string, includeThsGnHy bool, includeThsQuote bool) {
+func CreateDailyData(trade_date string) {
 	//trade_date为空则默认查询当日数据
 	nowDate := time.Now().Format("20060102")
 	if trade_date == "" {
@@ -173,8 +169,8 @@ func CreateDailyData(trade_date string, includeThsGnHy bool, includeThsQuote boo
 			wg.Add(1)
 			pool.Put(&thread.Task{
 				Handler: func(v ...interface{}) {
-					wg.Done()
 					dao.InsertStockQuote(data)
+					wg.Done()
 				},
 			})
 		}
@@ -187,13 +183,13 @@ func CreateDailyData(trade_date string, includeThsGnHy bool, includeThsQuote boo
 }
 
 //获取当日的同花顺概念详情数据
-func getThsGnQuote(thsGns *[]model.ThsGn) {
+func GetThsGnQuote(thsGns *[]model.ThsGn) {
 	thsGnQuotes := robot.GetAllThsGnQuote(thsGns)
 	dao.InsertThsGnQuote(thsGnQuotes)
 }
 
 //获取当日的同花顺行业详情数据
-func getThsHyQuote(thsHys *[]model.ThsHy) {
+func GetThsHyQuote(thsHys *[]model.ThsHy) {
 	thsHyQuotes := robot.GetAllThsHyQuote(thsHys)
 	dao.InsertThsHyQuote(thsHyQuotes)
 }

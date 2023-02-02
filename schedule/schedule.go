@@ -20,5 +20,5 @@ func InitScheduler() {
 //定时任务-插入每日行情数据
 func taskCreateDailyData() {
 	log.Printf("Start Scheduler CreateDailyData date(%v)", time.Now().Format("20060102"))
-	service.CreateDailyData("", true, true)
+	service.CreateDailyData("")
 }
