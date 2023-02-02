@@ -23,7 +23,7 @@ func createDailyData(ctx *gin.Context) {
 	if date == "" {
 		date = time.Now().Format("20060102")
 	}
-	go service.CreateDailyData(date, false, false)
+	go service.CreateDailyData(date)
 	ctx.JSON(200, "开始更新("+date+")数据任务")
 }
 
