@@ -88,7 +88,6 @@ func InitCreateStockQuoteTable(startDate string) bool {
 		if count == 0 {
 			sql := "CREATE TABLE `" + tableName + "`  (\n" +
 				"  `ts_code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'TS代码',\n" +
-				"  `type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'D:日线行情;W:周线行情;M:月线行情',\n" +
 				"  `trade_date` varchar(8) NOT NULL COMMENT '交易日期',\n" +
 				"  `open` float(30, 4) NULL DEFAULT NULL COMMENT '开盘价',\n" +
 				"  `high` float(30, 4) NULL DEFAULT NULL COMMENT '最高价',\n" +
@@ -99,7 +98,7 @@ func InitCreateStockQuoteTable(startDate string) bool {
 				"  `pct_chg` float(30, 4) NULL DEFAULT NULL COMMENT '涨跌幅(未复权)',\n" +
 				"  `vol` float(30, 4) NULL DEFAULT NULL COMMENT '成交量(手)',\n" +
 				"  `amount` float(30, 4) NULL DEFAULT NULL COMMENT '成交额(千元)',\n" +
-				"  PRIMARY KEY (`ts_code`, `type`, `trade_date`) USING BTREE\n)" +
+				"  PRIMARY KEY (`ts_code`, `trade_date`) USING BTREE\n)" +
 				" ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '股票行情' ROW_FORMAT = Dynamic;"
 			res := db.Mysql.Exec(sql)
 			if res.Error != nil {

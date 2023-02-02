@@ -54,23 +54,11 @@ func (client httpClient[T]) sendPost() *response[T] {
 	if HandleErrorStr(err, "response返回数据json转换异常(%v)", string(contentBytes)) {
 		return nil
 	}
-	result.Data.resultToStruct(getQuoteType(client.param))
+	result.Data.resultToStruct()
 	return &result
 }
 
-//获取股票行情 设置行情类型
-func getQuoteType(param map[string]interface{}) string {
-	if param["api_name"] == "daily" {
-		return "D"
-	} else if param["api_name"] == "weekly" {
-		return "W"
-	} else if param["api_name"] == "monthly" {
-		return "M"
-	}
-	return ""
-}
-
-func (res *responseData[T]) resultToStruct(quoteType string) {
+func (res *responseData[T]) resultToStruct() {
 	items := res.Items
 	fields := res.Fields
 	var result []T
@@ -81,9 +69,6 @@ func (res *responseData[T]) resultToStruct(quoteType string) {
 	for _, item := range items {
 		entity := new(T)
 		t := reflect.TypeOf(*entity)
-		if quoteType != "" && t.Name() == "StockQuote" {
-			reflect.ValueOf(&*entity).Elem().FieldByName("Type").SetString(quoteType)
-		}
 		for j, value := range item {
 			if value == nil {
 				continue

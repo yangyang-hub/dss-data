@@ -13,7 +13,7 @@ import (
 	"github.com/yangyang-hub/dss-common/thread"
 )
 
-//初始化基本数据（股票基本信息、上市公司基本信息、日线数据、周线数据、月线数据）
+//初始化基本数据（股票基本信息、上市公司基本信息、日线数据）
 func InitData() {
 	initDataInfos := dao.QueryTaskInfo("InitData")
 	if len(*initDataInfos) == 0 {
@@ -66,7 +66,7 @@ func InitData() {
 	log.Println("init stock_service end...")
 }
 
-//初始化基本数据（股票基本信息、上市公司基本信息、日线数据、周线数据、月线数据）
+//初始化基本数据（股票基本信息、上市公司基本信息、日线数据）
 func CreateBaseData(startDate string) {
 	startTime := time.Now()
 	//记录定时任务日志
@@ -83,19 +83,10 @@ func CreateBaseData(startDate string) {
 	}
 	tsCodes, err := dao.GetAllTsCode()
 	if err != nil {
-		log.Println("查询ts_code失败，结束初始化进程")
+		log.Println("查询ts_code失败,结束初始化进程")
 		return
 	}
-	//初始化同花顺概念数据
-	InitThsGn()
-	//初始化同花顺行业数据
-	InitThsHy()
-	//获取当日的同花顺概念及行业行情
-	// thsHyQuotes := robot.GetAllThsHyQuote(dao.QueryAllThsHy())
-	// dao.InsertThsHyQuote(thsHyQuotes)
-	// thsGnQuotes := robot.GetAllThsGnQuote(dao.QueryAllThsGn())
-	// dao.InsertThsGnQuote(thsGnQuotes)
-	//初始化日线、周线、月线数据 默认从2010年1月1日开始
+	//初始化日线数据 默认从2010年1月1日开始
 	if startDate == "" {
 		startDate = "20100101"
 	}
@@ -109,17 +100,15 @@ func CreateBaseData(startDate string) {
 	}
 	wg := new(sync.WaitGroup)
 	for _, tsCode := range tsCodes {
-		for _, quote := range constant.QuoteConst.List() {
-			data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "start_date": startDate, "end_date": time.Now().Format("20060102")}, quote)
-			// 将任务放入任务池
-			wg.Add(1)
-			pool.Put(&thread.Task{
-				Handler: func(v ...interface{}) {
-					wg.Done()
-					dao.InsertStockQuote(data)
-				},
-			})
-		}
+		data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "start_date": startDate, "end_date": time.Now().Format("20060102")}, "daily")
+		// 将任务放入任务池
+		wg.Add(1)
+		pool.Put(&thread.Task{
+			Handler: func(v ...interface{}) {
+				wg.Done()
+				dao.InsertStockQuote(data)
+			},
+		})
 	}
 	wg.Wait()
 	// 安全关闭任务池（保证已加入池中的任务被消费完）
@@ -170,14 +159,6 @@ func CreateDailyData(trade_date string, includeThsGnHy bool, includeThsQuote boo
 		log.Println("查询ts_code失败,结束进程")
 		return
 	}
-	//获取当日的同花顺概念及行业行情
-	if includeThsGnHy {
-		UpdateThsGnAndHy()
-	}
-	if includeThsQuote {
-		getThsHyQuote(dao.QueryAllThsHy())
-		getThsGnQuote(dao.QueryAllThsGn())
-	}
 	log.Println("更新k线信息")
 	// 创建容量为 100 的任务池
 	pool, err := thread.NewPool(100)
@@ -186,52 +167,23 @@ func CreateDailyData(trade_date string, includeThsGnHy bool, includeThsQuote boo
 	}
 	wg := new(sync.WaitGroup)
 	for _, tsCode := range tsCodes {
-		for _, quote := range constant.QuoteConst.List() {
-			data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "trade_date": trade_date}, quote)
-			// 将任务放入任务池
-			if len(*data) > 0 {
-				wg.Add(1)
-				pool.Put(&thread.Task{
-					Handler: func(v ...interface{}) {
-						wg.Done()
-						dao.InsertStockQuote(data)
-					},
-				})
-			}
+		data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "trade_date": trade_date}, "daily")
+		// 将任务放入任务池
+		if len(*data) > 0 {
+			wg.Add(1)
+			pool.Put(&thread.Task{
+				Handler: func(v ...interface{}) {
+					wg.Done()
+					dao.InsertStockQuote(data)
+				},
+			})
 		}
+
 	}
 	wg.Wait()
 	// 安全关闭任务池（保证已加入池中的任务被消费完）
 	pool.Close()
 	log.Printf("CreateDailyData end,spend time %v", time.Since(start))
-}
-
-//更新同花顺概念和行业的股票关联信息
-func UpdateThsGnAndHy() {
-	trade_date := time.Now().Format("20060102")
-	start := time.Now()
-	log.Printf("UpdateThsGnAndHy date(%v) start... ", trade_date)
-	thsGns := robot.GetAllThsGn()
-	if len(*thsGns) > 0 {
-		dao.DeleteAllThsGn()
-		dao.InsertThsGn(thsGns)
-	}
-	thsGnRelSymbols := robot.GetAllThsGnRelSymbol(thsGns)
-	if len(*thsGnRelSymbols) > 0 {
-		dao.DeleteAllThsGnRelSymbol()
-		dao.InsertThsGnRelSymbol(thsGnRelSymbols)
-	}
-	thsHys := robot.GetAllThsHy()
-	if len(*thsHys) > 0 {
-		dao.DeleteAllThsHy()
-		dao.InsertThsHy(thsHys)
-	}
-	thsHyRelSymbols := robot.GetAllThsHyRelSymbol(thsHys)
-	if len(*thsHyRelSymbols) > 0 {
-		dao.DeleteAllThsHyRelSymbol()
-		dao.InsertThsHyRelSymbol(thsHyRelSymbols)
-	}
-	log.Printf("UpdateThsGnAndHy end,spend time %v", time.Since(start))
 }
 
 //获取当日的同花顺概念详情数据

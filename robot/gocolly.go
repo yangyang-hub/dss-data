@@ -18,7 +18,9 @@ import (
 	"github.com/yangyang-hub/dss-common/util"
 )
 
-var MaxDepth int = 3
+var MaxDepth int = 5
+
+var PoolSize uint64 = 1
 
 /**
 同花顺行业 	start==========================================================================================================================
@@ -48,7 +50,7 @@ func GetAllThsHy() *[]model.ThsHy {
 func GetAllThsHyRelSymbol(thsHys *[]model.ThsHy) *[]model.ThsHyRelSymbol {
 	thsHyRelSymbol := []model.ThsHyRelSymbol{}
 	if len(*thsHys) > 0 {
-		pool, _ := thread.NewPool(10)
+		pool, _ := thread.NewPool(PoolSize)
 		wg := new(sync.WaitGroup)
 		for index, thsHy := range *thsHys {
 			log.Printf("start get hy %v %v %v", index, thsHy.Name, thsHy.Code)
@@ -91,17 +93,16 @@ func GetThsHyDetail(code string) *[]model.ThsHyRelSymbol {
 func getThsHyTotalPage(depth int, code string) int {
 	totalPage := 0
 	if depth == 0 {
-		return totalPage
+		log.Printf("getThsHyTotalPage err code: %v totalPage: %v", code, totalPage)
+		return 1
 	}
-	url := "http://q.10jqka.com.cn/thshy/detail/field/199112/order/desc/page/2/ajax/1/code/" + code
+	url := "http://q.10jqka.com.cn/thshy/detail/field/199112/order/desc/page/1/ajax/1/code/" + code
 	visit(url, "div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
 		if e.Text == "尾页" {
 			totalPage, _ = strconv.Atoi(e.Attr("page"))
-			log.Printf("total page found: %v\n", totalPage)
 		}
 	})
 	if totalPage < 1 {
-		log.Printf("retry getThsHyTotalPage code: %v", code)
 		depth--
 		totalPage = getThsHyTotalPage(depth, code)
 	}
@@ -112,6 +113,7 @@ func getThsHyTotalPage(depth int, code string) int {
 func getThsHyDetailByPage(depth int, code string, page int) *[]model.ThsHyRelSymbol {
 	thsHyRelSymbol := []model.ThsHyRelSymbol{}
 	if depth == 0 {
+		log.Printf("getThsHyDetailByPage error code: %v page: %v", code, page)
 		return &thsHyRelSymbol
 	}
 	url := "http://q.10jqka.com.cn/thshy/detail/field/199112/order/desc/page/" + strconv.Itoa(page) + "/ajax/1/code/" + code
@@ -123,8 +125,6 @@ func getThsHyDetailByPage(depth int, code string, page int) *[]model.ThsHyRelSym
 		}
 	})
 	if len(thsHyRelSymbol) < 1 {
-		//重试
-		log.Printf("retry getThsHyDetailByPage code: %v page: %v", code, page)
 		depth--
 		thsHyRelSymbol = *getThsHyDetailByPage(depth, code, page)
 	}
@@ -224,7 +224,7 @@ func GetAllThsGn() *[]model.ThsGn {
 func GetAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
 	thsGnRelSymbol := []model.ThsGnRelSymbol{}
 	if len(*thsGns) > 0 {
-		pool, _ := thread.NewPool(10)
+		pool, _ := thread.NewPool(PoolSize)
 		wg := new(sync.WaitGroup)
 		for index, thsGn := range *thsGns {
 			log.Printf("start get gn %v %v %v total %v", index, thsGn.Name, thsGn.Code, len(*thsGns))
@@ -267,17 +267,16 @@ func GetThsGnDetail(code string) *[]model.ThsGnRelSymbol {
 func getThsGnTotalPage(depth int, code string) int {
 	totalPage := 0
 	if depth == 0 {
-		return totalPage
+		log.Printf("getThsGnTotalPage error code: %v totalPage: %v", code, totalPage)
+		return 1
 	}
 	url := "http://q.10jqka.com.cn/gn/detail/field/199112/order/desc/page/1/ajax/1/code/" + code
 	visit(url, "div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
 		if e.Text == "尾页" {
 			totalPage, _ = strconv.Atoi(e.Attr("page"))
-			log.Printf("total page found: %v\n", totalPage)
 		}
 	})
 	if totalPage < 1 {
-		log.Printf("retry getThsGnTotalPage code: %v", code)
 		depth--
 		totalPage = getThsGnTotalPage(depth, code)
 	}
@@ -288,6 +287,7 @@ func getThsGnTotalPage(depth int, code string) int {
 func getThsGnDetailByPage(depth int, code string, page int) *[]model.ThsGnRelSymbol {
 	thsGnRelSymbol := []model.ThsGnRelSymbol{}
 	if depth == 0 {
+		log.Printf("getThsGnDetailByPage error code: %v page: %v", code, page)
 		return &thsGnRelSymbol
 	}
 	url := "http://q.10jqka.com.cn/gn/detail/field/199112/order/desc/page/" + strconv.Itoa(page) + "/ajax/1/code/" + code
@@ -300,7 +300,6 @@ func getThsGnDetailByPage(depth int, code string, page int) *[]model.ThsGnRelSym
 	})
 	if len(thsGnRelSymbol) < 1 {
 		//重试
-		log.Printf("retry getThsGnDetailByPage code: %v page: %v", code, page)
 		depth--
 		thsGnRelSymbol = *getThsGnDetailByPage(depth, code, page)
 	}
@@ -405,17 +404,16 @@ func visit(url string, goquerySelector string, f colly.HTMLCallback) {
 		r.Headers.Add("Cookie", getThsCookie())
 	})
 	c.OnError(func(r *colly.Response, err error) {
-		// log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, proxy)
+		log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, proxy)
 	})
 	c.OnHTML(goquerySelector, f)
 	err := c.Visit(url)
+	c.Wait()
 	if err != nil {
 		//重试 并删除无效代理
 		deleteProxy(proxy)
 		visit(url, goquerySelector, f)
 	}
-	// 采集等待结束
-	c.Wait()
 }
 
 func getProxy() string {
