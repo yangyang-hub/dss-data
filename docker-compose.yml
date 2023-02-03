@@ -4,7 +4,7 @@ networks:
     name: default-net
 services:
   dss-data:
-    image: registry.cn-hangzhou.aliyuncs.com/dss-pod/dss-data:v1.3.4
+    image: registry.cn-hangzhou.aliyuncs.com/dss-pod/dss-data:v1.3.5
     container_name: dss-data
     ports:
       - "32081:8081"
@@ -25,4 +25,4 @@ services:
     network_mode: bridge
     networks:
       default:
-        ipv4_address: 172.18.0.4
+        ipv4_address: 172.18.0.11

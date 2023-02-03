@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+
+	"github.com/shopspring/decimal"
 )
 
 func HandleErrorStr(err error, format string, a ...any) bool {
@@ -94,6 +96,20 @@ func (res *responseData[T]) resultToStruct() {
 					}
 					break
 				}
+			}
+		}
+		//计算涨停板
+		if t.Name() == "StockQuote" {
+			v1 := reflect.ValueOf(&*entity).Elem().FieldByName("PreClose").Float()
+			v2 := reflect.ValueOf(&*entity).Elem().FieldByName("Change").Float()
+			preClose := decimal.NewFromFloat(v1)
+			p := decimal.NewFromFloat(0.1)
+			limit := preClose.Mul(p).Round(2)
+			res := decimal.NewFromFloat(v2).Cmp(limit)
+			if res >= 0 {
+				reflect.ValueOf(&*entity).Elem().FieldByName("LimitUp").SetInt(1)
+			} else {
+				reflect.ValueOf(&*entity).Elem().FieldByName("LimitUp").SetInt(0)
 			}
 		}
 		result = append(result, *entity)

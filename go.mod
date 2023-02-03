@@ -8,7 +8,7 @@ require (
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/robertkrimen/otto v0.2.1
 	github.com/spf13/viper v1.14.0
-	github.com/yangyang-hub/dss-common v1.0.6
+	github.com/yangyang-hub/dss-common v1.0.9
 	golang.org/x/text v0.6.0
 	gorm.io/driver/mysql v1.4.4
 	gorm.io/gorm v1.24.2
@@ -45,6 +45,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
+	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

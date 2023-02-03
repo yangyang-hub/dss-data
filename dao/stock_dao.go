@@ -14,6 +14,20 @@ import (
 	"github.com/yangyang-hub/dss-common/model"
 )
 
+//查询所有股票信息
+func GetAllStockInfo() (*[]model.StockInfo, error) {
+	stockInfos := []model.StockInfo{}
+	res := db.Mysql.Find(&stockInfos).Error
+	return &stockInfos, res
+}
+
+//查询所有的股票编码数据（ts_code）
+func GetAllTsCode() ([]string, error) {
+	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_info").Rows()
+	res := scanRows2List(rows)
+	return res, nil
+}
+
 //新增tushare stock_basic数据
 func InsertStockBasic(stockInfos *[]model.StockInfo) bool {
 	res := db.Mysql.CreateInBatches(stockInfos, constant.InsertBatchSize).Error
@@ -98,6 +112,7 @@ func InitCreateStockQuoteTable(startDate string) bool {
 				"  `pct_chg` float(30, 4) NULL DEFAULT NULL COMMENT '涨跌幅(未复权)',\n" +
 				"  `vol` float(30, 4) NULL DEFAULT NULL COMMENT '成交量(手)',\n" +
 				"  `amount` float(30, 4) NULL DEFAULT NULL COMMENT '成交额(千元)',\n" +
+				"  `limit_up` tinyint(1) NULL DEFAULT NULL COMMENT '涨停板',\n" +
 				"  PRIMARY KEY (`ts_code`, `trade_date`) USING BTREE\n)" +
 				" ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '股票行情' ROW_FORMAT = Dynamic;"
 			res := db.Mysql.Exec(sql)
@@ -129,13 +144,6 @@ func InsertStockQuote(stockQuotes *[]model.StockQuote) bool {
 		}
 	}
 	return true
-}
-
-//查询所有的股票编码数据（ts_code）
-func GetAllTsCode() ([]string, error) {
-	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_info").Rows()
-	res := scanRows2List(rows)
-	return res, nil
 }
 
 func scanRows2List(rows *sql.Rows) []string {
