@@ -26,15 +26,18 @@ var PoolSize uint64 = 1
 func GetThsGnBySymbol(symbol string) *[]string {
 	var result []string
 	thsGn := ""
+	text := ""
 	url := "http://stockpage.10jqka.com.cn/" + symbol + "/"
-	visit(url, "dl[class='company_details'] > dd", func(e *colly.HTMLElement) {
-		title := e.Attr("title")
-		if title != "" && thsGn == "" {
-			thsGn = title
-		}
+	visit(url, "dl[class='company_details']", func(e *colly.HTMLElement) {
+		e.ForEach("dd", func(i int, e *colly.HTMLElement) {
+			if i == 1 {
+				title := e.Attr("title")
+				thsGn = title
+			}
+		})
 	})
 	result = strings.Split(thsGn, "，")
-	if len(result) == 0 || thsGn == "" {
+	if text != "--" && (len(result) == 0 || thsGn == "") {
 		return GetThsGnBySymbol(symbol)
 	}
 	return &result
