@@ -78,6 +78,14 @@ func DeleteThsGnRelBySymbol(symbol string) {
 	}
 }
 
+// 清除退市股票
+func DeleteThsGnRelSymbolNotExist() {
+	res := db.Mysql.Where("symbol NOT IN (SELECT symbol FROM stock_info)").Delete(&model.ThsGnRelSymbol{}).Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+}
+
 // 删除同花顺概念与股票代码关联关系
 func DeleteAllThsGnRelSymbol() {
 	res := db.Mysql.Where("1 = 1").Delete(&model.ThsGnRelSymbol{}).Error

@@ -53,12 +53,9 @@ func GetSymbolsByThsGn(gns string) *map[string][]string {
 func RobotAllThsGnBySymbols() {
 	start := time.Now()
 	thsGns := robot.GetAllThsGn()
-	if len(*thsGns) == 0 {
-		log.Println("未获取到同花顺概念,任务结束")
-		return
-	}
 	dao.DeleteAllThsGn()
 	dao.InsertThsGn(thsGns)
+	dao.DeleteThsGnRelSymbolNotExist()
 	symbols, _ := dao.GetAllSymbol()
 	for _, symbol := range symbols {
 		gns := robot.GetThsGnBySymbol(symbol)

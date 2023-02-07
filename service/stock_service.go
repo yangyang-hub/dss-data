@@ -148,34 +148,8 @@ func CreateDailyData(trade_date string) {
 	}
 	//初始化股票行情数据表
 	dao.InitCreateStockQuoteTable(trade_date)
-	tsCodes, err := dao.GetAllTsCode()
-	if err != nil {
-		log.Println("查询ts_code失败,结束进程")
-		return
-	}
 	log.Println("更新k线信息")
-	// 创建容量为 100 的任务池
-	pool, err := thread.NewPool(100)
-	if err != nil {
-		panic(err)
-	}
-	wg := new(sync.WaitGroup)
-	for _, tsCode := range tsCodes {
-		data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "trade_date": trade_date}, "daily")
-		// 将任务放入任务池
-		if len(*data) > 0 {
-			wg.Add(1)
-			pool.Put(&thread.Task{
-				Handler: func(v ...interface{}) {
-					dao.InsertStockQuote(data)
-					wg.Done()
-				},
-			})
-		}
-
-	}
-	wg.Wait()
-	// 安全关闭任务池（保证已加入池中的任务被消费完）
-	pool.Close()
+	data := tushare.GetStockQuoteData(map[string]interface{}{"trade_date": trade_date}, "daily")
+	dao.InsertStockQuote(data)
 	log.Printf("CreateDailyData end,spend time %v", time.Since(start))
 }
