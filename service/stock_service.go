@@ -2,14 +2,12 @@ package service
 
 import (
 	dao "dss-data/dao"
-	robot "dss-data/robot"
 	tushare "dss-data/tushare"
 	"log"
 	"sync"
 	"time"
 
 	"github.com/yangyang-hub/dss-common/constant"
-	"github.com/yangyang-hub/dss-common/model"
 	"github.com/yangyang-hub/dss-common/thread"
 )
 
@@ -180,32 +178,4 @@ func CreateDailyData(trade_date string) {
 	// 安全关闭任务池（保证已加入池中的任务被消费完）
 	pool.Close()
 	log.Printf("CreateDailyData end,spend time %v", time.Since(start))
-}
-
-//获取当日的同花顺概念详情数据
-func GetThsGnQuote(thsGns *[]model.ThsGn) {
-	thsGnQuotes := robot.GetAllThsGnQuote(thsGns)
-	dao.InsertThsGnQuote(thsGnQuotes)
-}
-
-//获取当日的同花顺行业详情数据
-func GetThsHyQuote(thsHys *[]model.ThsHy) {
-	thsHyQuotes := robot.GetAllThsHyQuote(thsHys)
-	dao.InsertThsHyQuote(thsHyQuotes)
-}
-
-//初始化同花顺概念
-func InitThsGn() {
-	thsGns := robot.GetAllThsGn()
-	dao.InsertThsGn(thsGns)
-	thsGnRelSymbols := robot.GetAllThsGnRelSymbol(thsGns)
-	dao.InsertThsGnRelSymbol(thsGnRelSymbols)
-}
-
-//初始化同花顺行业
-func InitThsHy() {
-	thsHys := robot.GetAllThsHy()
-	dao.InsertThsHy(thsHys)
-	thsHyRelSymbols := robot.GetAllThsHyRelSymbol(thsHys)
-	dao.InsertThsHyRelSymbol(thsHyRelSymbols)
 }

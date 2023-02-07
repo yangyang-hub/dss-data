@@ -14,7 +14,7 @@
  Date: 13/11/2022 21:00:03
 */
 
-SET NAMES utf8mb4;
+SET NAMES utf8;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
@@ -70,59 +70,59 @@ CREATE TABLE `stock_info`  (
 DROP TABLE IF EXISTS `task_info`;
 CREATE TABLE `task_info`  (
   `id` int(0) NOT NULL AUTO_INCREMENT,
-  `task_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '任务名称',
-  `date` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '日期',
-  `spend_time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci  NOT NULL COMMENT '花费时间',
+  `task_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '任务名称',
+  `date` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '日期',
+  `spend_time` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci  NOT NULL COMMENT '花费时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务执行记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '定时任务执行记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ths_gn
 -- ----------------------------
 DROP TABLE IF EXISTS `ths_gn`;
 CREATE TABLE `ths_gn`  (
-  `code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '同花顺概念代码',
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '同花顺概念名称',
+  `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '同花顺概念代码',
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '同花顺概念名称',
   PRIMARY KEY (`code`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '同花顺概念' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺概念' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ths_gn_rel_symbol
 -- ----------------------------
 DROP TABLE IF EXISTS `ths_gn_rel_symbol`;
 CREATE TABLE `ths_gn_rel_symbol`  (
-  `gn_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '同花顺概念代码',
-  `symbol` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '股票代码',
-  PRIMARY KEY (`gn_code`, `symbol`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '同花顺概念与股票代码关联关系' ROW_FORMAT = Dynamic;
+  `gn_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '同花顺概念名称',
+  `symbol` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '股票代码',
+  PRIMARY KEY (`gn_name`, `symbol`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺概念与股票代码关联关系' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ths_hy
 -- ----------------------------
 DROP TABLE IF EXISTS `ths_hy`;
 CREATE TABLE `ths_hy`  (
-  `code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '同花顺行业代码',
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '同花顺行业名称',
+  `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '同花顺行业代码',
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '同花顺行业名称',
   PRIMARY KEY (`code`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '同花顺行业' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺行业' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ths_hy_rel_symbol
 -- ----------------------------
 DROP TABLE IF EXISTS `ths_hy_rel_symbol`;
 CREATE TABLE `ths_hy_rel_symbol`  (
-  `hy_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '同花顺行业代码',
-  `symbol` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '股票代码',
+  `hy_code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '同花顺行业代码',
+  `symbol` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '股票代码',
   PRIMARY KEY (`hy_code`, `symbol`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '同花顺行业与股票代码关联关系' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺行业与股票代码关联关系' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ths_hy_quote
 -- ----------------------------
 DROP TABLE IF EXISTS `ths_hy_quote`;
 CREATE TABLE `ths_hy_quote`  (
-  `code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '行业代码',
-  `trade_date` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '交易日期',
+  `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '行业代码',
+  `trade_date` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '交易日期',
   `open` float(30, 4) NULL DEFAULT NULL COMMENT '开盘价',
   `close` float(30, 4) NULL DEFAULT NULL COMMENT '收盘价',
   `low` float(30, 4) NULL DEFAULT NULL COMMENT '最低价',
@@ -136,15 +136,15 @@ CREATE TABLE `ths_hy_quote`  (
   `rise_count` int(0) NULL DEFAULT NULL COMMENT '上涨家数',
   `fall_count` int(0) NULL DEFAULT NULL COMMENT '下跌家数',
   PRIMARY KEY (`code`, `trade_date`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '同花顺行业行情' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺行业行情' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for ths_gn_quote
 -- ----------------------------
 DROP TABLE IF EXISTS `ths_gn_quote`;
 CREATE TABLE `ths_gn_quote`  (
-  `code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '概念代码',
-  `trade_date` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '交易日期',
+  `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '概念代码',
+  `trade_date` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '交易日期',
   `open` float(30, 4) NULL DEFAULT NULL COMMENT '开盘价',
   `close` float(30, 4) NULL DEFAULT NULL COMMENT '收盘价',
   `low` float(30, 4) NULL DEFAULT NULL COMMENT '最低价',
@@ -158,6 +158,6 @@ CREATE TABLE `ths_gn_quote`  (
   `rise_count` int(0) NULL DEFAULT NULL COMMENT '上涨家数',
   `fall_count` int(0) NULL DEFAULT NULL COMMENT '下跌家数',
   PRIMARY KEY (`code`, `trade_date`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '同花顺概念行情' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺概念行情' ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -1,9 +1,10 @@
-package stock
+package handler
 
 import (
 	dao "dss-data/dao"
 	router "dss-data/router"
 	service "dss-data/service"
+	"encoding/json"
 	"log"
 	"strings"
 	"time"
@@ -11,12 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const party = "/stock"
-
 func init() {
+	party := "/stock"
 	log.Printf("init router %v", party)
 	router.RegisterHandler("Get", party, "/dailyData/:date", createDailyData)
-	router.RegisterHandler("Get", party, "/getLiveData/:symbols", getLiveData)
+	router.RegisterHandler("Post", party, "/getLiveData", getLiveData)
 	router.RegisterHandler("Get", party, "/getAllStockInfo", getAllStockInfo)
 }
 
@@ -31,7 +31,10 @@ func getAllStockInfo(ctx *gin.Context) {
 
 //批量获取股票实时数据
 func getLiveData(ctx *gin.Context) {
-	symbols := ctx.Param("symbols")
+	var params map[string]string
+	b, _ := ctx.GetRawData()
+	json.Unmarshal(b, &params)
+	symbols := params["symbols"]
 	if symbols == "" {
 		ctx.JSON(200, "请传入股票编码")
 	}

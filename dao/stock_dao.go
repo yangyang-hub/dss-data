@@ -21,6 +21,13 @@ func GetAllStockInfo() (*[]model.StockInfo, error) {
 	return &stockInfos, res
 }
 
+//查询所有的股票symbol
+func GetAllSymbol() ([]string, error) {
+	rows, _ := db.Mysql.Raw("SELECT symbol FROM stock_info").Rows()
+	res := scanRows2List(rows)
+	return res, nil
+}
+
 //查询所有的股票编码数据（ts_code）
 func GetAllTsCode() ([]string, error) {
 	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_info").Rows()

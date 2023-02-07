@@ -22,6 +22,24 @@ var MaxDepth int = 5
 
 var PoolSize uint64 = 1
 
+// 根据股票编码查询所属概念
+func GetThsGnBySymbol(symbol string) *[]string {
+	var result []string
+	thsGn := ""
+	url := "http://stockpage.10jqka.com.cn/" + symbol + "/"
+	visit(url, "dl[class='company_details'] > dd", func(e *colly.HTMLElement) {
+		title := e.Attr("title")
+		if title != "" && thsGn == "" {
+			thsGn = title
+		}
+	})
+	result = strings.Split(thsGn, "，")
+	if len(result) == 0 || thsGn == "" {
+		return GetThsGnBySymbol(symbol)
+	}
+	return &result
+}
+
 /**
 同花顺行业 	start==========================================================================================================================
 */
@@ -220,92 +238,6 @@ func GetAllThsGn() *[]model.ThsGn {
 	return &thsGns
 }
 
-//获取所有同花顺概念所关联的股票代码
-func GetAllThsGnRelSymbol(thsGns *[]model.ThsGn) *[]model.ThsGnRelSymbol {
-	thsGnRelSymbol := []model.ThsGnRelSymbol{}
-	if len(*thsGns) > 0 {
-		pool, _ := thread.NewPool(PoolSize)
-		wg := new(sync.WaitGroup)
-		for index, thsGn := range *thsGns {
-			log.Printf("start get gn %v %v %v total %v", index, thsGn.Name, thsGn.Code, len(*thsGns))
-			wg.Add(1)
-			pool.Put(&thread.Task{
-				Handler: func(v ...interface{}) {
-					thsGnRelSymbol = append(thsGnRelSymbol, *GetThsGnDetail(thsGn.Code)...)
-					wg.Done()
-				},
-			})
-		}
-		wg.Wait()
-		pool.Close()
-	}
-	//去重
-	result := []model.ThsGnRelSymbol{}
-	m := make(map[string]int)
-	for _, item := range thsGnRelSymbol {
-		str := item.GnCode + item.Symbol
-		m[str]++
-		if m[str] == 1 {
-			result = append(result, item)
-		}
-	}
-	return &result
-}
-
-//获取单个同花顺概念所关联的股票代码
-func GetThsGnDetail(code string) *[]model.ThsGnRelSymbol {
-	thsGnRelSymbol := []model.ThsGnRelSymbol{}
-	//获取总页码
-	totalPage := getThsGnTotalPage(MaxDepth, code)
-	//循环获取概念所有代码
-	for i := 1; i <= totalPage; i++ {
-		thsGnRelSymbol = append(thsGnRelSymbol, *getThsGnDetailByPage(MaxDepth, code, i)...)
-	}
-	return &thsGnRelSymbol
-}
-
-func getThsGnTotalPage(depth int, code string) int {
-	totalPage := 0
-	if depth == 0 {
-		log.Printf("getThsGnTotalPage error code: %v totalPage: %v", code, totalPage)
-		return 1
-	}
-	url := "http://q.10jqka.com.cn/gn/detail/field/199112/order/desc/page/1/ajax/1/code/" + code
-	visit(url, "div[class='m-pager'] > a[class='changePage']", func(e *colly.HTMLElement) {
-		if e.Text == "尾页" {
-			totalPage, _ = strconv.Atoi(e.Attr("page"))
-		}
-	})
-	if totalPage < 1 {
-		depth--
-		totalPage = getThsGnTotalPage(depth, code)
-	}
-	return totalPage
-}
-
-//读取单页同花顺概念所关联的股票代码
-func getThsGnDetailByPage(depth int, code string, page int) *[]model.ThsGnRelSymbol {
-	thsGnRelSymbol := []model.ThsGnRelSymbol{}
-	if depth == 0 {
-		log.Printf("getThsGnDetailByPage error code: %v page: %v", code, page)
-		return &thsGnRelSymbol
-	}
-	url := "http://q.10jqka.com.cn/gn/detail/field/199112/order/desc/page/" + strconv.Itoa(page) + "/ajax/1/code/" + code
-	//获取当页的股票代码
-	visit(url, "table[class='m-table m-pager-table'] > tbody > tr", func(e *colly.HTMLElement) {
-		symbol := e.ChildText("td:nth-child(2)")
-		if symbol != "" {
-			thsGnRelSymbol = append(thsGnRelSymbol, model.ThsGnRelSymbol{GnCode: code, Symbol: symbol})
-		}
-	})
-	if len(thsGnRelSymbol) < 1 {
-		//重试
-		depth--
-		thsGnRelSymbol = *getThsGnDetailByPage(depth, code, page)
-	}
-	return &thsGnRelSymbol
-}
-
 //获取当日所有同花顺概念的行情信息
 func GetAllThsGnQuote(thsGns *[]model.ThsGn) *[]model.ThsGnQuote {
 	thsGnQuote := []model.ThsGnQuote{}
@@ -403,9 +335,9 @@ func visit(url string, goquerySelector string, f colly.HTMLCallback) {
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Add("Cookie", getThsCookie())
 	})
-	c.OnError(func(r *colly.Response, err error) {
-		log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, proxy)
-	})
+	// c.OnError(func(r *colly.Response, err error) {
+	// 	log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, proxy)
+	// })
 	c.OnHTML(goquerySelector, f)
 	err := c.Visit(url)
 	c.Wait()
@@ -418,6 +350,7 @@ func visit(url string, goquerySelector string, f colly.HTMLCallback) {
 
 func getProxy() string {
 	result, err := util.SendGetResJson(configs.Config.ProxyUrl + "/get/")
+	// result, err := util.SendGetResJson("http://127.0.0.1:5010/get/")
 	if err != nil {
 		log.Println("get proxy wrong:", err)
 	}
@@ -435,4 +368,5 @@ func deleteProxy(proxyUrl string) {
 	proxy := strings.Split(proxyUrl, "//")[1]
 	// log.Println("delete proxy", proxy)
 	util.SendGetResJson(fmt.Sprintf(configs.Config.ProxyUrl+"/delete/?proxy=%v", proxy))
+	// util.SendGetResJson(fmt.Sprintf("http://127.0.0.1:5010/delete/?proxy=%v", proxy))
 }

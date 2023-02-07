@@ -8,6 +8,11 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
+func TestGetThsGnBySymbol(t *testing.T) {
+	// result := robot.GetThsGnBySymbol("300071")
+	// log.Println(result)
+}
+
 func TestGetGn(t *testing.T) {
 	// result := robot.GetAllThsGn()
 	// fmt.Println(*result)
