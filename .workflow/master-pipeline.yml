@@ -14,7 +14,7 @@ triggers:
       include:
         - ^v\d+.\d+.\d+.*
 variables:
-  BUILD_VERSION: dss-pod/dss-data:v1.3.6
+  BUILD_VERSION: dss-pod/dss-data:v1.3.7
 stages:
   - name: compile
     displayName: 编译
@@ -46,8 +46,8 @@ stages:
         type: cert
         certificate: 19d7df30-f95e-013a-0d61-6a560b86330d
         tag: ${BUILD_VERSION}
-        dockerfile: ./docker/Dockerfile
-        context: ./docker
+        dockerfile: ./Dockerfile
+        context: ''
         artifacts:
           - ${BUILD_ARTIFACT}
         isCache: false
