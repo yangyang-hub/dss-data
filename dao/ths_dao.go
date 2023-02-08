@@ -8,6 +8,14 @@ import (
 	"github.com/yangyang-hub/dss-common/model"
 )
 
+// 新增龙虎榜数据
+func InsertLongHu(longHus *[]model.LongHu) {
+	res := db.Mysql.CreateInBatches(longHus, constant.InsertBatchSize).Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+}
+
 // 查询股票所包含的概念
 func QueryThsGnBySymbols(symbols []string) *[]model.ThsGnRelSymbol {
 	rels := []model.ThsGnRelSymbol{}

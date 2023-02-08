@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	configs "dss-data/configs"
+	"dss-data/dao"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/robertkrimen/otto"
@@ -22,20 +24,59 @@ var MaxDepth int = 5
 
 var PoolSize uint64 = 1
 
+// 获取龙虎榜数据
+func GetLongHu(date string) {
+	result := []model.LongHu{}
+	//https://data.10jqka.com.cn/ifmarket/lhbggxq/report/2023-02-07/
+	url := "https://data.10jqka.com.cn/ifmarket/lhbggxq/report/" + date + "/"
+	visit(url, "div[class='twrap'] > table[class='m-table'] > tbody > tr", func(e *colly.HTMLElement) {
+		longhu := model.LongHu{}
+		e.ForEach("td", func(i int, e *colly.HTMLElement) {
+			switch i {
+			case 1:
+				longhu.Symbol = e.Text
+			case 2:
+				longhu.Name = e.ChildText("a")
+			case 3:
+				value, _ := strconv.ParseFloat(e.Text, 64)
+				longhu.Close = value
+			case 4: //10.01%
+				text := util.Substr(e.Text, 0, len(e.Text)-1)
+				value, _ := strconv.ParseFloat(text, 64)
+				longhu.PctChg = value
+			case 5: //2.90亿	6579.75万
+				text := util.Substr(e.Text, 0, len(e.Text)-1)
+				value, _ := strconv.ParseFloat(text, 64)
+				longhu.Amount = value
+			case 6: //-5677.96万 1.02亿
+				text := util.Substr(e.Text, 0, len(e.Text)-1)
+				value, _ := strconv.ParseFloat(text, 64)
+				longhu.Buy = value
+			}
+		})
+		result = append(result, longhu)
+	})
+
+	dao.InsertLongHu(&result)
+}
+
 // 根据股票编码查询所属概念
 func GetThsGnBySymbol(symbol string) *[]string {
-	var result []string
+	var result []string = []string{}
 	thsGn := ""
 	text := ""
 	url := "http://stockpage.10jqka.com.cn/" + symbol + "/"
-	visit(url, "dl[class='company_details']", func(e *colly.HTMLElement) {
-		e.ForEach("dd", func(i int, e *colly.HTMLElement) {
-			if i == 1 {
-				title := e.Attr("title")
-				thsGn = title
-			}
-		})
+	visit(url, "dl[class='company_details'] > dd", func(e *colly.HTMLElement) {
+		title := e.Attr("title")
+		if title != "" && thsGn == "" {
+			thsGn = title
+		}
 	})
+	reg := regexp.MustCompile(`^\s+`)
+	flag := reg.MatchString(thsGn)
+	if flag {
+		return &result
+	}
 	result = strings.Split(thsGn, "，")
 	if text != "--" && (len(result) == 0 || thsGn == "") {
 		return GetThsGnBySymbol(symbol)
