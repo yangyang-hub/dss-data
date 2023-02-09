@@ -14,8 +14,8 @@ func InitScheduler() {
 	s := gocron.NewScheduler(timezone)
 	// 每天下午六点执行 定时任务-插入每日行情数据
 	s.Every(1).Days().At("18:00").Do(taskCreateDailyData)
-	// 每天上午3.30点执行 定时任务-刷新同花顺概念
-	s.Every(1).Days().At("03:30").Do(taskRefreshThsGn)
+	// 每天上午1.30点执行 定时任务-刷新同花顺概念
+	s.Every(1).Days().At("01:30").Do(taskRefreshThsGn)
 	go s.StartBlocking()
 }
 
