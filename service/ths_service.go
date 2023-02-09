@@ -13,6 +13,12 @@ import (
 )
 
 // 根据股票编码查询所属概念
+func GetLongHu(date string) *[]model.LongHu {
+	result := robot.GetLongHu(date)
+	return result
+}
+
+// 根据股票编码查询所属概念
 func GetThsGnBySymbols(symbols string) *map[string][]string {
 	params := []string{}
 	for _, symbol := range strings.Split(symbols, ",") {
@@ -68,7 +74,7 @@ func RobotAllThsGnBySymbols() {
 				dao.InsertThsGnRelSymbol(&rel)
 			}
 		}
-		time.Sleep(2 * time.Second)
+		// time.Sleep(2 * time.Second)
 	}
 	log.Printf("RobotAllThsGnBySymbols end,spend time %v", time.Since(start))
 }

@@ -14,7 +14,7 @@ triggers:
       include:
         - ^v\d+.\d+.\d+.*
 variables:
-  BUILD_VERSION: dss-pod/dss-data:v1.3.10
+  BUILD_VERSION: dss-pod/dss-data:v1.3.11
 stages:
   - name: compile
     displayName: 编译

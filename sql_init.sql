@@ -27,7 +27,7 @@ CREATE TABLE `stock_company`  (
   `chairman` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '法人代表',
   `manager` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '总经理',
   `secretary` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '董秘',
-  `reg_capital` float(30, 8) NULL DEFAULT NULL COMMENT '注册资本',
+  `reg_capital` float(30, 2) NULL DEFAULT NULL COMMENT '注册资本',
   `setup_date` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '注册日期',
   `province` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所在省份',
   `city` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '所在城市',
@@ -96,68 +96,81 @@ CREATE TABLE `ths_gn_rel_symbol`  (
   PRIMARY KEY (`gn_name`, `symbol`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺概念与股票代码关联关系' ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Table structure for ths_hy
--- ----------------------------
-DROP TABLE IF EXISTS `ths_hy`;
-CREATE TABLE `ths_hy`  (
-  `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '同花顺行业代码',
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '同花顺行业名称',
-  PRIMARY KEY (`code`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺行业' ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Table structure for ths_hy_rel_symbol
--- ----------------------------
-DROP TABLE IF EXISTS `ths_hy_rel_symbol`;
-CREATE TABLE `ths_hy_rel_symbol`  (
-  `hy_code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '同花顺行业代码',
+DROP TABLE IF EXISTS `long_hu`;
+CREATE TABLE `long_hu`  (
   `symbol` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '股票代码',
-  PRIMARY KEY (`hy_code`, `symbol`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺行业与股票代码关联关系' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Table structure for ths_hy_quote
--- ----------------------------
-DROP TABLE IF EXISTS `ths_hy_quote`;
-CREATE TABLE `ths_hy_quote`  (
-  `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '行业代码',
   `trade_date` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '交易日期',
-  `open` float(30, 4) NULL DEFAULT NULL COMMENT '开盘价',
-  `close` float(30, 4) NULL DEFAULT NULL COMMENT '收盘价',
-  `low` float(30, 4) NULL DEFAULT NULL COMMENT '最低价',
-  `high` float(30, 4) NULL DEFAULT NULL COMMENT '最高价',
-  `pre_close` float(30, 4) NULL DEFAULT NULL COMMENT '昨收价',
-  `change` float(30, 4) NULL DEFAULT NULL COMMENT '资金流入(亿)',
-  `pct_chg` float(30, 4) NULL DEFAULT NULL COMMENT '涨跌幅',
-  `vol` float(30, 4) NULL DEFAULT NULL COMMENT '成交量(万手)',
-  `amount` float(30, 4) NULL DEFAULT NULL COMMENT '成交额(亿)',
-  `rank` int(0) NULL DEFAULT NULL COMMENT '涨幅排名',
-  `rise_count` int(0) NULL DEFAULT NULL COMMENT '上涨家数',
-  `fall_count` int(0) NULL DEFAULT NULL COMMENT '下跌家数',
-  PRIMARY KEY (`code`, `trade_date`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺行业行情' ROW_FORMAT = Dynamic;
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '股票名称',
+  `close` float(30, 2) NULL DEFAULT NULL COMMENT '收盘价',
+  `pct_chg` float(30, 2) NULL DEFAULT NULL COMMENT '涨跌幅',
+  `amount` float(30, 2) NULL DEFAULT NULL COMMENT '成交额',
+  `buy` float(30, 2) NULL DEFAULT NULL COMMENT '净买入额',
+  PRIMARY KEY (`symbol`, `trade_date`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
--- ----------------------------
--- Table structure for ths_gn_quote
--- ----------------------------
-DROP TABLE IF EXISTS `ths_gn_quote`;
-CREATE TABLE `ths_gn_quote`  (
-  `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '概念代码',
-  `trade_date` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '交易日期',
-  `open` float(30, 4) NULL DEFAULT NULL COMMENT '开盘价',
-  `close` float(30, 4) NULL DEFAULT NULL COMMENT '收盘价',
-  `low` float(30, 4) NULL DEFAULT NULL COMMENT '最低价',
-  `high` float(30, 4) NULL DEFAULT NULL COMMENT '最高价',
-  `pre_close` float(30, 4) NULL DEFAULT NULL COMMENT '昨收价',
-  `change` float(30, 4) NULL DEFAULT NULL COMMENT '资金流入(亿)',
-  `pct_chg` float(30, 4) NULL DEFAULT NULL COMMENT '涨跌幅',
-  `vol` float(30, 4) NULL DEFAULT NULL COMMENT '成交量(万手)',
-  `amount` float(30, 4) NULL DEFAULT NULL COMMENT '成交额(亿)',
-  `rank` int(0) NULL DEFAULT NULL COMMENT '涨幅排名',
-  `rise_count` int(0) NULL DEFAULT NULL COMMENT '上涨家数',
-  `fall_count` int(0) NULL DEFAULT NULL COMMENT '下跌家数',
-  PRIMARY KEY (`code`, `trade_date`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺概念行情' ROW_FORMAT = Dynamic;
+-- -- ----------------------------
+-- -- Table structure for ths_hy
+-- -- ----------------------------
+-- DROP TABLE IF EXISTS `ths_hy`;
+-- CREATE TABLE `ths_hy`  (
+--   `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '同花顺行业代码',
+--   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '同花顺行业名称',
+--   PRIMARY KEY (`code`) USING BTREE
+-- ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺行业' ROW_FORMAT = Dynamic;
 
-SET FOREIGN_KEY_CHECKS = 1;
+-- -- ----------------------------
+-- -- Table structure for ths_hy_rel_symbol
+-- -- ----------------------------
+-- DROP TABLE IF EXISTS `ths_hy_rel_symbol`;
+-- CREATE TABLE `ths_hy_rel_symbol`  (
+--   `hy_code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '同花顺行业代码',
+--   `symbol` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '股票代码',
+--   PRIMARY KEY (`hy_code`, `symbol`) USING BTREE
+-- ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺行业与股票代码关联关系' ROW_FORMAT = Dynamic;
+
+-- -- ----------------------------
+-- -- Table structure for ths_hy_quote
+-- -- ----------------------------
+-- DROP TABLE IF EXISTS `ths_hy_quote`;
+-- CREATE TABLE `ths_hy_quote`  (
+--   `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '行业代码',
+--   `trade_date` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '交易日期',
+--   `open` float(30, 4) NULL DEFAULT NULL COMMENT '开盘价',
+--   `close` float(30, 4) NULL DEFAULT NULL COMMENT '收盘价',
+--   `low` float(30, 4) NULL DEFAULT NULL COMMENT '最低价',
+--   `high` float(30, 4) NULL DEFAULT NULL COMMENT '最高价',
+--   `pre_close` float(30, 4) NULL DEFAULT NULL COMMENT '昨收价',
+--   `change` float(30, 4) NULL DEFAULT NULL COMMENT '资金流入(亿)',
+--   `pct_chg` float(30, 4) NULL DEFAULT NULL COMMENT '涨跌幅',
+--   `vol` float(30, 4) NULL DEFAULT NULL COMMENT '成交量(万手)',
+--   `amount` float(30, 4) NULL DEFAULT NULL COMMENT '成交额(亿)',
+--   `rank` int(0) NULL DEFAULT NULL COMMENT '涨幅排名',
+--   `rise_count` int(0) NULL DEFAULT NULL COMMENT '上涨家数',
+--   `fall_count` int(0) NULL DEFAULT NULL COMMENT '下跌家数',
+--   PRIMARY KEY (`code`, `trade_date`) USING BTREE
+-- ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺行业行情' ROW_FORMAT = Dynamic;
+
+-- -- ----------------------------
+-- -- Table structure for ths_gn_quote
+-- -- ----------------------------
+-- DROP TABLE IF EXISTS `ths_gn_quote`;
+-- CREATE TABLE `ths_gn_quote`  (
+--   `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '概念代码',
+--   `trade_date` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '交易日期',
+--   `open` float(30, 4) NULL DEFAULT NULL COMMENT '开盘价',
+--   `close` float(30, 4) NULL DEFAULT NULL COMMENT '收盘价',
+--   `low` float(30, 4) NULL DEFAULT NULL COMMENT '最低价',
+--   `high` float(30, 4) NULL DEFAULT NULL COMMENT '最高价',
+--   `pre_close` float(30, 4) NULL DEFAULT NULL COMMENT '昨收价',
+--   `change` float(30, 4) NULL DEFAULT NULL COMMENT '资金流入(亿)',
+--   `pct_chg` float(30, 4) NULL DEFAULT NULL COMMENT '涨跌幅',
+--   `vol` float(30, 4) NULL DEFAULT NULL COMMENT '成交量(万手)',
+--   `amount` float(30, 4) NULL DEFAULT NULL COMMENT '成交额(亿)',
+--   `rank` int(0) NULL DEFAULT NULL COMMENT '涨幅排名',
+--   `rise_count` int(0) NULL DEFAULT NULL COMMENT '上涨家数',
+--   `fall_count` int(0) NULL DEFAULT NULL COMMENT '下跌家数',
+--   PRIMARY KEY (`code`, `trade_date`) USING BTREE
+-- ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '同花顺概念行情' ROW_FORMAT = Dynamic;
+
+-- SET FOREIGN_KEY_CHECKS = 1;

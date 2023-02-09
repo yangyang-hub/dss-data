@@ -11,7 +11,6 @@ import (
 	"time"
 
 	configs "dss-data/configs"
-	"dss-data/dao"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/robertkrimen/otto"
@@ -25,7 +24,7 @@ var MaxDepth int = 5
 var PoolSize uint64 = 1
 
 // 获取龙虎榜数据
-func GetLongHu(date string) {
+func GetLongHu(date string) *[]model.LongHu {
 	result := []model.LongHu{}
 	//https://data.10jqka.com.cn/ifmarket/lhbggxq/report/2023-02-07/
 	url := "https://data.10jqka.com.cn/ifmarket/lhbggxq/report/" + date + "/"
@@ -45,19 +44,14 @@ func GetLongHu(date string) {
 				value, _ := strconv.ParseFloat(text, 64)
 				longhu.PctChg = value
 			case 5: //2.90亿	6579.75万
-				text := util.Substr(e.Text, 0, len(e.Text)-1)
-				value, _ := strconv.ParseFloat(text, 64)
-				longhu.Amount = value
+				longhu.Amount = util.UnitConversion(e.Text)
 			case 6: //-5677.96万 1.02亿
-				text := util.Substr(e.Text, 0, len(e.Text)-1)
-				value, _ := strconv.ParseFloat(text, 64)
-				longhu.Buy = value
+				longhu.Buy = util.UnitConversion(e.Text)
 			}
 		})
 		result = append(result, longhu)
 	})
-
-	dao.InsertLongHu(&result)
+	return &result
 }
 
 // 根据股票编码查询所属概念
@@ -72,7 +66,7 @@ func GetThsGnBySymbol(symbol string) *[]string {
 			thsGn = title
 		}
 	})
-	reg := regexp.MustCompile(`^\s+`)
+	reg := regexp.MustCompile(`　+.*`)
 	flag := reg.MatchString(thsGn)
 	if flag {
 		return &result

@@ -5,6 +5,7 @@ import (
 	"dss-data/service"
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,9 +13,24 @@ import (
 func init() {
 	party := "/ths"
 	log.Printf("init router %v", party)
+	router.RegisterHandler("Post", party, "/getLongHu", getLongHu)
 	router.RegisterHandler("Post", party, "/getGnBySymbols", getGnBySymbols)
 	router.RegisterHandler("Post", party, "/getSymbolsByGn", getSymbolsByGn)
 	router.RegisterHandler("Get", party, "/refreshThsGn", refreshThsGn)
+}
+
+// 获取龙虎榜数据
+func getLongHu(ctx *gin.Context) {
+	var params map[string]string
+	b, _ := ctx.GetRawData()
+	json.Unmarshal(b, &params)
+	date := params["date"]
+	if date == "" {
+		log.Panicln("未传入date参数,默认获取当日龙虎榜数据")
+		date = time.Now().Format("2006-01-02")
+	}
+	result := service.GetLongHu(date)
+	ctx.JSON(200, result)
 }
 
 // 根据股票编码查询所属概念
