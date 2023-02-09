@@ -2,6 +2,7 @@ package service
 
 import (
 	dao "dss-data/dao"
+	"dss-data/robot"
 	tushare "dss-data/tushare"
 	"log"
 	"sync"
@@ -151,5 +152,8 @@ func CreateDailyData(trade_date string) {
 	log.Println("更新k线信息")
 	data := tushare.GetStockQuoteData(map[string]interface{}{"trade_date": trade_date}, "daily")
 	dao.InsertStockQuote(data)
+	log.Println("更新龙虎榜数据")
+	longHu := robot.GetLongHu(time.Now().Format("2006-01-02"))
+	dao.InsertLongHu(longHu)
 	log.Printf("CreateDailyData end,spend time %v", time.Since(start))
 }

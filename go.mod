@@ -8,7 +8,7 @@ require (
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/robertkrimen/otto v0.2.1
 	github.com/spf13/viper v1.14.0
-	github.com/yangyang-hub/dss-common v1.0.15
+	github.com/yangyang-hub/dss-common v1.0.18
 	golang.org/x/text v0.6.0
 	gorm.io/driver/mysql v1.4.4
 	gorm.io/gorm v1.24.2

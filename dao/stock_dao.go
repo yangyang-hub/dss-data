@@ -117,8 +117,8 @@ func InitCreateStockQuoteTable(startDate string) bool {
 				"  `pre_close` float(30, 2) NULL DEFAULT NULL COMMENT '昨收价(前复权)',\n" +
 				"  `change` float(30, 2) NULL DEFAULT NULL COMMENT '涨跌额',\n" +
 				"  `pct_chg` float(30, 2) NULL DEFAULT NULL COMMENT '涨跌幅(未复权)',\n" +
-				"  `vol` float(30, 2) NULL DEFAULT NULL COMMENT '成交量(手)',\n" +
-				"  `amount` float(30, 2) NULL DEFAULT NULL COMMENT '成交额(千元)',\n" +
+				"  `vol` float(30, 2) NULL DEFAULT NULL COMMENT '成交量(万手)',\n" +
+				"  `amount` float(30, 2) NULL DEFAULT NULL COMMENT '成交额(万元)',\n" +
 				"  `limit_up` tinyint(1) NULL DEFAULT NULL COMMENT '涨停板',\n" +
 				"  PRIMARY KEY (`ts_code`, `trade_date`) USING BTREE\n)" +
 				" ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '股票行情' ROW_FORMAT = Dynamic;"

@@ -66,7 +66,7 @@ func TencentLiveData(symbols []string) (*[]model.LiveData, error) {
 			continue
 		}
 		code := util.Substr(line, 2, 8)
-		dataStr := util.Substr(line, 12, len(line)-2)
+		dataStr := util.Substr(line, 12, len([]rune(line))-2)
 		values := strings.Split(dataStr, "~")
 		livaData := model.LiveData{Code: code}
 		livaData.Name = values[1]

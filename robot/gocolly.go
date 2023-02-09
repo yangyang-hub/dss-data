@@ -75,6 +75,7 @@ func GetThsGnBySymbol(symbol string) *[]string {
 	if text != "--" && (len(result) == 0 || thsGn == "") {
 		return GetThsGnBySymbol(symbol)
 	}
+	result = util.RemoveDuplicateElement(result)
 	return &result
 }
 
