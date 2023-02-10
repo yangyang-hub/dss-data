@@ -110,6 +110,13 @@ func CreateBaseData(startDate string) {
 	wg.Wait()
 	// 安全关闭任务池（保证已加入池中的任务被消费完）
 	pool.Close()
+	tradeCals := tushare.GetTradeCal(time.Now().AddDate(0, -1, 0).Format("20060102"), time.Now().Format("20060102"))
+	log.Println("更新龙虎榜数据")
+	for _, item := range *tradeCals {
+		t, _ := time.Parse("20060102", item.CalDate)
+		longHu := robot.GetLongHu(t.Format("2006-01-02"))
+		dao.InsertLongHu(longHu)
+	}
 	log.Printf("InitData end,spend time %v", time.Since(start))
 }
 
@@ -153,7 +160,8 @@ func CreateDailyData(trade_date string) {
 	data := tushare.GetStockQuoteData(map[string]interface{}{"trade_date": trade_date}, "daily")
 	dao.InsertStockQuote(data)
 	log.Println("更新龙虎榜数据")
-	longHu := robot.GetLongHu(time.Now().Format("2006-01-02"))
+	t, _ := time.Parse("20060102", trade_date)
+	longHu := robot.GetLongHu(t.Format("2006-01-02"))
 	dao.InsertLongHu(longHu)
 	log.Printf("CreateDailyData end,spend time %v", time.Since(start))
 }
