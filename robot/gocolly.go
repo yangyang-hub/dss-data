@@ -29,7 +29,8 @@ func GetLongHu(date string) *[]model.LongHu {
 	//https://data.10jqka.com.cn/ifmarket/lhbggxq/report/2023-02-07/
 	url := "https://data.10jqka.com.cn/ifmarket/lhbggxq/report/" + date + "/"
 	visit(url, "div[class='twrap'] > table[class='m-table'] > tbody > tr", func(e *colly.HTMLElement) {
-		longhu := model.LongHu{}
+		tradeDate := strings.ReplaceAll(date, "-", "")
+		longhu := model.LongHu{TradeDate: tradeDate}
 		e.ForEach("td", func(i int, e *colly.HTMLElement) {
 			switch i {
 			case 1:
