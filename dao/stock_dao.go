@@ -120,7 +120,9 @@ func InitCreateStockQuoteTable(startDate string) bool {
 				"  `vol` float(30, 2) NULL DEFAULT NULL COMMENT '成交量(万手)',\n" +
 				"  `amount` float(30, 2) NULL DEFAULT NULL COMMENT '成交额(万元)',\n" +
 				"  `limit_up` tinyint(1) NULL DEFAULT NULL COMMENT '涨停板',\n" +
-				"  PRIMARY KEY (`ts_code`, `trade_date`) USING BTREE\n)" +
+				"  PRIMARY KEY (`ts_code`, `trade_date`) USING BTREE,\n" +
+				"  INDEX `trade_date_index`(`trade_date`) USING BTREE,\n" +
+				"  INDEX `ts_code_index`(`ts_code`) USING BTREE\n)" +
 				" ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '股票行情' ROW_FORMAT = Dynamic;"
 			res := db.Mysql.Exec(sql)
 			if res.Error != nil {

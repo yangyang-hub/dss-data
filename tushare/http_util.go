@@ -9,6 +9,7 @@ import (
 	"reflect"
 
 	"github.com/shopspring/decimal"
+	"github.com/yangyang-hub/dss-common/util"
 )
 
 func HandleErrorStr(err error, format string, a ...any) bool {
@@ -122,6 +123,11 @@ func (res *responseData[T]) resultToStruct() {
 			l1 := decimal.NewFromFloat(vol)
 			l2, _ := l1.Div(decimal.NewFromFloat(10000)).Round(2).Float64()
 			reflect.ValueOf(&*entity).Elem().FieldByName("Vol").SetFloat(l2)
+
+			// ts_code
+			code := reflect.ValueOf(&*entity).Elem().FieldByName("TsCode").String()
+			tsCode := util.Substr(code, 0, 6)
+			reflect.ValueOf(&*entity).Elem().FieldByName("TsCode").SetString(tsCode)
 		}
 		result = append(result, *entity)
 	}
