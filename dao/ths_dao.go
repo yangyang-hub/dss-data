@@ -11,7 +11,7 @@ import (
 // 查询龙虎榜数据
 func QueryLongHu(dates []string) *[]model.LongHu {
 	rels := []model.LongHu{}
-	res := db.Mysql.Joins("long_hu_detail").Where("trade_date IN ?", dates).Find(&rels).Error
+	res := db.Mysql.Preload("Detail").Where("trade_date IN ?", dates).Find(&rels).Error
 	if res != nil {
 		log.Println(res.Error())
 	}

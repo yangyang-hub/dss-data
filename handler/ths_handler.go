@@ -5,7 +5,6 @@ import (
 	"dss-data/service"
 	"encoding/json"
 	"log"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,8 +25,7 @@ func getLongHu(ctx *gin.Context) {
 	json.Unmarshal(b, &params)
 	date := params["date"]
 	if date == "" {
-		log.Panicln("未传入date参数,默认获取当日龙虎榜数据")
-		date = time.Now().Format("2006-01-02")
+		ctx.JSON(200, "请传入参数date")
 	}
 	result := service.GetLongHu(date)
 	ctx.JSON(200, result)
