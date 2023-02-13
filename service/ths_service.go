@@ -12,7 +12,19 @@ import (
 	"github.com/yangyang-hub/dss-common/util"
 )
 
-// 根据股票编码查询所属概念
+// 爬取龙虎榜数据
+func RobotLongHu(dates string) {
+	start := time.Now()
+	for _, date := range strings.Split(dates, ",") {
+		longHu, longHuDetail := robot.GetLongHu(date)
+		dao.InsertLongHu(longHu)
+		dao.InsertLongHuDetail(longHuDetail)
+		log.Printf("RobotLongHu %v end", date)
+	}
+	log.Printf("RobotLongHu end,spend time %v", time.Since(start))
+}
+
+// 查询龙虎榜数据
 func GetLongHu(date string) *[]model.LongHu {
 	dates := strings.Split(date, ",")
 	result := dao.QueryLongHu(dates)

@@ -16,6 +16,20 @@ func init() {
 	router.RegisterHandler("Post", party, "/getGnBySymbols", getGnBySymbols)
 	router.RegisterHandler("Post", party, "/getSymbolsByGn", getSymbolsByGn)
 	router.RegisterHandler("Get", party, "/refreshThsGn", refreshThsGn)
+	router.RegisterHandler("Post", party, "/robotLongHu", robotLongHu)
+}
+
+// 爬取龙虎榜数据
+func robotLongHu(ctx *gin.Context) {
+	var params map[string]string
+	b, _ := ctx.GetRawData()
+	json.Unmarshal(b, &params)
+	date := params["date"]
+	if date == "" {
+		ctx.JSON(200, "请传入参数date")
+	}
+	go service.RobotLongHu(date)
+	ctx.JSON(200, "robotLongHu")
 }
 
 // 获取龙虎榜数据

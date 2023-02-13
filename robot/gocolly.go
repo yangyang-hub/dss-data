@@ -28,60 +28,60 @@ var PoolSize uint64 = 1
 // 获取龙虎榜数据
 func GetLongHu(date string) (*[]model.LongHu, *[]model.LongHuDetail) {
 	result := []model.LongHu{}
+	resultDetail := []model.LongHuDetail{}
 	tradeDate := strings.ReplaceAll(date, "-", "")
 	codeMap := map[string]string{}
 	//https://data.10jqka.com.cn/ifmarket/lhbggxq/report/2023-02-07/
 	url := "https://data.10jqka.com.cn/ifmarket/lhbggxq/report/" + date + "/"
-	visit(url, "div[class='twrap'] > table[class='m-table'] > tbody > tr", func(e *colly.HTMLElement) {
-		id := uuid.NewV4().String()
-		longhu := model.LongHu{TradeDate: tradeDate, Id: id}
-		e.ForEach("td", func(i int, e *colly.HTMLElement) {
-			switch i {
-			case 0:
-				longhu.Type = strings.TrimSpace(e.Text)
-			case 1:
-				longhu.Symbol = e.Text
-			case 2:
-				longhu.Name = e.ChildText("a")
-				rid := e.ChildAttr("a", "rid")
-				codeMap[rid] = id
-			case 3:
-				value, _ := strconv.ParseFloat(e.Text, 64)
-				longhu.Close = value
-			case 4: //10.01%
-				text := util.Substr(e.Text, 0, len(e.Text)-1)
-				value, _ := strconv.ParseFloat(text, 64)
-				longhu.PctChg = value
-			case 5: //2.90亿	6579.75万
-				longhu.Amount = util.UnitConversion(e.Text)
-			case 6: //-5677.96万 1.02亿
-				longhu.NetWorth = util.UnitConversion(e.Text)
-			}
+	visit(url, "div[class='ggmx clearfix']", func(e *colly.HTMLElement) {
+		e.ForEach("div[class='leftcol fl'] > div[class='page-table'] > div[class='twrap'] > table[class='m-table'] > tbody > tr", func(a int, e *colly.HTMLElement) {
+			id := uuid.NewV4().String()
+			longhu := model.LongHu{TradeDate: tradeDate, Id: id}
+			e.ForEach("td", func(i int, e *colly.HTMLElement) {
+				switch i {
+				case 0:
+					longhu.Type = strings.TrimSpace(e.Text)
+				case 1:
+					longhu.Symbol = e.Text
+				case 2:
+					longhu.Name = e.ChildText("a")
+					rid := e.ChildAttr("a", "rid")
+					codeMap[rid] = id
+				case 3:
+					value, _ := strconv.ParseFloat(e.Text, 64)
+					longhu.Close = value
+				case 4: //10.01%
+					text := util.Substr(e.Text, 0, len(e.Text)-1)
+					value, _ := strconv.ParseFloat(text, 64)
+					longhu.PctChg = value
+				case 5: //2.90亿	6579.75万
+					longhu.Amount = util.UnitConversion(e.Text)
+				case 6: //-5677.96万 1.02亿
+					longhu.NetWorth = util.UnitConversion(e.Text)
+				}
+			})
+			result = append(result, longhu)
 		})
-		result = append(result, longhu)
-	})
-
-	resultDetail := []model.LongHuDetail{}
-	// 龙虎榜详情
-	visit(url, "div[class='rightcol fr'] > div[class='stockcont']", func(e *colly.HTMLElement) {
-		rid := e.Attr("rid")
-		e.ForEach("table", func(i int, e *colly.HTMLElement) {
-			e.ForEach("tbody > tr", func(i int, e *colly.HTMLElement) {
-				longHuDetail := model.LongHuDetail{LongHuId: codeMap[rid]}
-				e.ForEach("td", func(j int, e *colly.HTMLElement) {
-					switch j {
-					case 0:
-						longHuDetail.Dept = e.ChildAttr("a", "title")
-						longHuDetail.Label = e.ChildText("label")
-					case 1:
-						longHuDetail.Buy = util.UnitConversion(e.Text)
-					case 2:
-						longHuDetail.Sell = util.UnitConversion(e.Text)
-					case 3:
-						longHuDetail.NetWorth = util.UnitConversion(e.Text)
-					}
+		e.ForEach("div[class='rightcol fr'] > div[class='stockcont']", func(a int, e *colly.HTMLElement) {
+			rid := e.Attr("rid")
+			e.ForEach("table", func(i int, e *colly.HTMLElement) {
+				e.ForEach("tbody > tr", func(i int, e *colly.HTMLElement) {
+					longHuDetail := model.LongHuDetail{LongHuId: codeMap[rid]}
+					e.ForEach("td", func(j int, e *colly.HTMLElement) {
+						switch j {
+						case 0:
+							longHuDetail.Dept = e.ChildAttr("a", "title")
+							longHuDetail.Label = e.ChildText("label")
+						case 1:
+							longHuDetail.Buy = util.UnitConversion(e.Text)
+						case 2:
+							longHuDetail.Sell = util.UnitConversion(e.Text)
+						case 3:
+							longHuDetail.NetWorth = util.UnitConversion(e.Text)
+						}
+					})
+					resultDetail = append(resultDetail, longHuDetail)
 				})
-				resultDetail = append(resultDetail, longHuDetail)
 			})
 		})
 	})
