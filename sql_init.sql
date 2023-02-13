@@ -99,15 +99,30 @@ CREATE TABLE `ths_gn_rel_symbol`  (
 
 DROP TABLE IF EXISTS `long_hu`;
 CREATE TABLE `long_hu`  (
-  `symbol` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '股票代码',
-  `trade_date` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '交易日期',
+  `id` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT 'id',
+  `type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '类型',
+  `symbol` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '股票代码',
+  `trade_date` varchar(8) CHARACTER SET utf8 COLLATE utf8_general_ci COMMENT '交易日期',
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '股票名称',
   `close` float(30, 2) NULL DEFAULT NULL COMMENT '收盘价',
   `pct_chg` float(30, 2) NULL DEFAULT NULL COMMENT '涨跌幅',
   `amount` float(30, 2) NULL DEFAULT NULL COMMENT '成交额',
-  `buy` float(30, 2) NULL DEFAULT NULL COMMENT '净买入额',
-  PRIMARY KEY (`symbol`, `trade_date`) USING BTREE
+  `net_worth` float(30, 2) NULL DEFAULT NULL COMMENT '净买入额',
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for long_hu_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `long_hu_detail`;
+CREATE TABLE `long_hu_detail`  (
+  `long_hu_id` varchar(36) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '龙虎榜id',
+  `dept` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '营业部',
+  `label` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '标签',
+  `buy` float(11, 2) NULL DEFAULT NULL COMMENT '买入额',
+  `sell` float(11, 2) NULL DEFAULT NULL COMMENT '卖出额',
+  `net_worth` float(11, 2) NULL DEFAULT NULL COMMENT '净买入额'
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '龙虎榜详情' ROW_FORMAT = Dynamic;
 
 -- -- ----------------------------
 -- -- Table structure for ths_hy

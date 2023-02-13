@@ -114,8 +114,9 @@ func CreateBaseData(startDate string) {
 	log.Println("更新龙虎榜数据")
 	for _, item := range *tradeCals {
 		t, _ := time.Parse("20060102", item.CalDate)
-		longHu := robot.GetLongHu(t.Format("2006-01-02"))
+		longHu, longHuDetail := robot.GetLongHu(t.Format("2006-01-02"))
 		dao.InsertLongHu(longHu)
+		dao.InsertLongHuDetail(longHuDetail)
 	}
 	log.Printf("InitData end,spend time %v", time.Since(start))
 }
@@ -161,7 +162,8 @@ func CreateDailyData(trade_date string) {
 	dao.InsertStockQuote(data)
 	log.Println("更新龙虎榜数据")
 	t, _ := time.Parse("20060102", trade_date)
-	longHu := robot.GetLongHu(t.Format("2006-01-02"))
+	longHu, longHuDetail := robot.GetLongHu(t.Format("2006-01-02"))
 	dao.InsertLongHu(longHu)
+	dao.InsertLongHuDetail(longHuDetail)
 	log.Printf("CreateDailyData end,spend time %v", time.Since(start))
 }

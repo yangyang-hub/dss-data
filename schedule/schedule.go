@@ -2,6 +2,7 @@ package schedule
 
 import (
 	service "dss-data/service"
+	"dss-data/tushare"
 	"log"
 	"time"
 
@@ -27,6 +28,13 @@ func taskCreateDailyData() {
 
 //定时任务-刷新同花顺概念
 func taskRefreshThsGn() {
-	log.Printf("Start Scheduler RefreshThsGn date(%v)", time.Now().Format("20060102"))
+	trade_date := time.Now().Format("20060102")
+	//查询是否为交易日
+	tradeCals := tushare.GetTradeCal(trade_date, trade_date)
+	if len(*tradeCals) < 1 {
+		log.Printf("(%v)为非交易日,结束任务 RefreshThsGn", trade_date)
+		return
+	}
+	log.Printf("Start Scheduler RefreshThsGn date(%v)", trade_date)
 	service.RobotAllThsGnBySymbols()
 }

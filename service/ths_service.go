@@ -14,8 +14,8 @@ import (
 
 // 根据股票编码查询所属概念
 func GetLongHu(date string) *[]model.LongHu {
-	result := robot.GetLongHu(date)
-	log.Println(result)
+	dates := strings.Split(date, ",")
+	result := dao.QueryLongHu(dates)
 	return result
 }
 

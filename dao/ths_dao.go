@@ -8,9 +8,27 @@ import (
 	"github.com/yangyang-hub/dss-common/model"
 )
 
+// 查询龙虎榜数据
+func QueryLongHu(dates []string) *[]model.LongHu {
+	rels := []model.LongHu{}
+	res := db.Mysql.Joins("long_hu_detail").Where("trade_date IN ?", dates).Find(&rels).Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+	return &rels
+}
+
 // 新增龙虎榜数据
 func InsertLongHu(longHus *[]model.LongHu) {
 	res := db.Mysql.CreateInBatches(longHus, constant.InsertBatchSize).Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+}
+
+// 新增龙虎榜数据详情
+func InsertLongHuDetail(longHuDetails *[]model.LongHuDetail) {
+	res := db.Mysql.CreateInBatches(longHuDetails, constant.InsertBatchSize).Error
 	if res != nil {
 		log.Println(res.Error())
 	}
