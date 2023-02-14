@@ -33,7 +33,7 @@ func init() {
 func main() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath("configs")
+	viper.AddConfigPath("/")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Panicln("读取配置文件失败")

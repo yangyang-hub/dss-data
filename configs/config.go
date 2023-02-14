@@ -22,7 +22,7 @@ func ConfigRead() {
 	defer log.Println("success init config")
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath("./configs")
+	viper.AddConfigPath("./")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Println(err.Error())
