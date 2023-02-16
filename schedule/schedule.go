@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron"
+	"github.com/yangyang-hub/dss-common/constant"
 )
 
 func InitScheduler() {
@@ -22,13 +23,13 @@ func InitScheduler() {
 
 //定时任务-插入每日行情数据
 func taskCreateDailyData() {
-	log.Printf("Start Scheduler CreateDailyData date(%v)", time.Now().Format("20060102"))
+	log.Printf("Start Scheduler CreateDailyData date(%v)", time.Now().Format(constant.TimeFormatA))
 	service.CreateDailyData("")
 }
 
 //定时任务-刷新同花顺概念
 func taskRefreshThsGn() {
-	trade_date := time.Now().Format("20060102")
+	trade_date := time.Now().Format(constant.TimeFormatA)
 	//查询是否为交易日
 	tradeCals := tushare.GetTradeCal(trade_date, trade_date)
 	if len(*tradeCals) < 1 {

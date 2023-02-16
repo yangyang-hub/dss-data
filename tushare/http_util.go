@@ -2,6 +2,7 @@ package tushare
 
 import (
 	"bytes"
+	"dss-data/dao"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -69,6 +70,7 @@ func (res *responseData[T]) resultToStruct() {
 	for i := 0; i < len(fields); i++ {
 		fieldsMap[i] = fields[i]
 	}
+	stStock := map[string]string{}
 	for _, item := range items {
 		entity := new(T)
 		t := reflect.TypeOf(*entity)
@@ -99,19 +101,19 @@ func (res *responseData[T]) resultToStruct() {
 				}
 			}
 		}
-		//计算涨停板
 		if t.Name() == "StockQuote" {
+			if len(stStock) == 0 {
+				sts, _ := dao.GetAllSTStock()
+				for _, v := range *sts {
+					stStock[v.TsCode] = v.Name
+				}
+			}
+			code := reflect.ValueOf(&*entity).Elem().FieldByName("TsCode").String()
+			//计算涨停板
 			v1 := reflect.ValueOf(&*entity).Elem().FieldByName("PreClose").Float()
 			v2 := reflect.ValueOf(&*entity).Elem().FieldByName("Change").Float()
-			preClose := decimal.NewFromFloat(v1)
-			p := decimal.NewFromFloat(0.1)
-			limit := preClose.Mul(p).Round(2)
-			res := decimal.NewFromFloat(v2).Cmp(limit)
-			if res >= 0 {
-				reflect.ValueOf(&*entity).Elem().FieldByName("LimitUp").SetInt(1)
-			} else {
-				reflect.ValueOf(&*entity).Elem().FieldByName("LimitUp").SetInt(0)
-			}
+			limitUp := util.CalLimitUp(code, v1, v2, stStock)
+			reflect.ValueOf(&*entity).Elem().FieldByName("LimitUp").SetInt(limitUp)
 			// 转换成交额
 			amount := reflect.ValueOf(&*entity).Elem().FieldByName("Amount").Float()
 			a1 := decimal.NewFromFloat(amount)
@@ -125,7 +127,6 @@ func (res *responseData[T]) resultToStruct() {
 			reflect.ValueOf(&*entity).Elem().FieldByName("Vol").SetFloat(l2)
 
 			// ts_code
-			code := reflect.ValueOf(&*entity).Elem().FieldByName("TsCode").String()
 			tsCode := util.Substr(code, 0, 6)
 			reflect.ValueOf(&*entity).Elem().FieldByName("TsCode").SetString(tsCode)
 		}

@@ -18,6 +18,13 @@ func init() {
 	router.RegisterHandler("Get", party, "/dailyData/:date", createDailyData)
 	router.RegisterHandler("Post", party, "/getLiveData", getLiveData)
 	router.RegisterHandler("Get", party, "/getAllStockInfo", getAllStockInfo)
+	router.RegisterHandler("Get", party, "/getConStock", getConStock)
+}
+
+//查询最近连板股
+func getConStock(ctx *gin.Context) {
+	result := service.GetConStock()
+	ctx.JSON(200, &result)
 }
 
 //获取所有股票信息

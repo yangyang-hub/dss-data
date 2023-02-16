@@ -14,6 +14,20 @@ import (
 	"github.com/yangyang-hub/dss-common/model"
 )
 
+// 查询近X日连板股
+func GetConStock(dates []string) (*[]string, error) {
+	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_quote_2023 WHERE trade_date IN ? AND limit_up = '1' GROUP BY ts_code HAVING COUNT(1)  = ?", dates, len(dates)).Rows()
+	res := scanRows2List(rows)
+	return &res, nil
+}
+
+//查询所有ST股票
+func GetAllSTStock() (*[]model.StockInfo, error) {
+	stockInfos := []model.StockInfo{}
+	res := db.Mysql.Where("name like '%ST%'").Find(&stockInfos).Error
+	return &stockInfos, res
+}
+
 //查询所有股票信息
 func GetAllStockInfo() (*[]model.StockInfo, error) {
 	stockInfos := []model.StockInfo{}

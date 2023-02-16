@@ -75,7 +75,7 @@ func TencentLiveData(symbols []string) (*[]model.LiveData, error) {
 		tmp2, _ := strconv.ParseFloat(values[31], 64)
 		livaData.Change = tmp2
 		tmp3, _ := strconv.ParseFloat(values[32], 64)
-		livaData.ChangePercent = tmp3
+		livaData.PctChg = tmp3
 		livaData.Time = values[30]
 		tmp4, _ := strconv.ParseFloat(values[33], 64)
 		livaData.Max = tmp4

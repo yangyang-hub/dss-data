@@ -23,8 +23,8 @@ func InitData() {
 	log.Printf("InitData already completed...")
 	//检查以前的行情数据是否有遗漏 最近一个月为核查标准
 	//获取近一个月的交易日历
-	startDate := time.Now().AddDate(0, -1, 0).Format("20060102")
-	tradeCals := tushare.GetTradeCal(startDate, time.Now().Format("20060102"))
+	startDate := time.Now().AddDate(0, -1, 0).Format(constant.TimeFormatA)
+	tradeCals := tushare.GetTradeCal(startDate, time.Now().Format(constant.TimeFormatA))
 	tradeDates := []string{}
 	for _, item := range *tradeCals {
 		tradeDates = append(tradeDates, item.CalDate)
@@ -97,7 +97,7 @@ func CreateBaseData(startDate string) {
 	}
 	wg := new(sync.WaitGroup)
 	for _, tsCode := range tsCodes {
-		data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "start_date": startDate, "end_date": time.Now().Format("20060102")}, "daily")
+		data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "start_date": startDate, "end_date": time.Now().Format(constant.TimeFormatA)}, "daily")
 		// 将任务放入任务池
 		wg.Add(1)
 		pool.Put(&thread.Task{
@@ -110,11 +110,11 @@ func CreateBaseData(startDate string) {
 	wg.Wait()
 	// 安全关闭任务池（保证已加入池中的任务被消费完）
 	pool.Close()
-	tradeCals := tushare.GetTradeCal(time.Now().AddDate(0, -1, 0).Format("20060102"), time.Now().Format("20060102"))
+	tradeCals := tushare.GetTradeCal(time.Now().AddDate(0, -1, 0).Format(constant.TimeFormatA), time.Now().Format(constant.TimeFormatA))
 	log.Println("更新龙虎榜数据")
 	for _, item := range *tradeCals {
-		t, _ := time.Parse("20060102", item.CalDate)
-		longHu, longHuDetail := robot.GetLongHu(t.Format("2006-01-02"))
+		t, _ := time.Parse(constant.TimeFormatA, item.CalDate)
+		longHu, longHuDetail := robot.GetLongHu(t.Format(constant.TimeFormatB))
 		dao.InsertLongHu(longHu)
 		dao.InsertLongHuDetail(longHuDetail)
 	}
@@ -126,7 +126,7 @@ trade_date:日期
 */
 func CreateDailyData(trade_date string) {
 	//trade_date为空则默认查询当日数据
-	nowDate := time.Now().Format("20060102")
+	nowDate := time.Now().Format(constant.TimeFormatA)
 	if trade_date == "" {
 		trade_date = nowDate
 	}
@@ -161,9 +161,45 @@ func CreateDailyData(trade_date string) {
 	data := tushare.GetStockQuoteData(map[string]interface{}{"trade_date": trade_date}, "daily")
 	dao.InsertStockQuote(data)
 	log.Println("更新龙虎榜数据")
-	t, _ := time.Parse("20060102", trade_date)
-	longHu, longHuDetail := robot.GetLongHu(t.Format("2006-01-02"))
+	t, _ := time.Parse(constant.TimeFormatA, trade_date)
+	longHu, longHuDetail := robot.GetLongHu(t.Format(constant.TimeFormatB))
 	dao.InsertLongHu(longHu)
 	dao.InsertLongHuDetail(longHuDetail)
 	log.Printf("CreateDailyData end,spend time %v", time.Since(start))
+}
+
+//查询最近连板股
+func GetConStock() *map[int][]string {
+	day := 2
+	startDate := time.Now()
+	hour := time.Now().Hour()
+	if hour < 18 {
+		startDate = time.Now().AddDate(0, 0, -1)
+	}
+	result := map[int][]string{}
+	dates := []string{}
+	c := 0
+	a := 0
+	for {
+		for {
+			date := startDate.AddDate(0, 0, -a).Format(constant.TimeFormatA)
+			tradeCals := tushare.GetTradeCal(date, date)
+			if len(*tradeCals) >= 1 {
+				dates = append(dates, date)
+				c++
+			}
+			a++
+			if c == day {
+				break
+			}
+		}
+		res, _ := dao.GetConStock(dates)
+		if len(*res) > 0 {
+			result[day] = *res
+			day++
+		} else {
+			break
+		}
+	}
+	return &result
 }
