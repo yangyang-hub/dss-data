@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/shopspring/decimal"
 	"github.com/yangyang-hub/dss-common/util"
 )
 
@@ -116,14 +115,12 @@ func (res *responseData[T]) resultToStruct() {
 			reflect.ValueOf(&*entity).Elem().FieldByName("LimitUp").SetInt(limitUp)
 			// 转换成交额
 			amount := reflect.ValueOf(&*entity).Elem().FieldByName("Amount").Float()
-			a1 := decimal.NewFromFloat(amount)
-			a2, _ := a1.Div(decimal.NewFromFloat(10)).Round(2).Float64()
+			a2 := util.FloatDiv(amount, 10)
 			reflect.ValueOf(&*entity).Elem().FieldByName("Amount").SetFloat(a2)
 
 			// 转换成交量
 			vol := reflect.ValueOf(&*entity).Elem().FieldByName("Vol").Float()
-			l1 := decimal.NewFromFloat(vol)
-			l2, _ := l1.Div(decimal.NewFromFloat(10000)).Round(2).Float64()
+			l2 := util.FloatDiv(vol, 10000)
 			reflect.ValueOf(&*entity).Elem().FieldByName("Vol").SetFloat(l2)
 
 			// ts_code
