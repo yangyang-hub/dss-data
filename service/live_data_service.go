@@ -65,11 +65,11 @@ func TencentLiveData(symbols []string) (*[]model.LiveData, error) {
 		if line == "" {
 			continue
 		}
-		code := util.Substr(line, 2, 8)
 		dataStr := util.Substr(line, 12, len([]rune(line))-2)
 		values := strings.Split(dataStr, "~")
-		livaData := model.LiveData{Code: code}
+		livaData := model.LiveData{}
 		livaData.Name = values[1]                    //名称
+		livaData.Code = values[2]                    //编码
 		tmp1, _ := strconv.ParseFloat(values[3], 64) //当前价
 		livaData.Now = tmp1
 		tmp4, _ := strconv.ParseFloat(values[4], 64) //昨收价

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"dss-data/robot"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,6 +12,21 @@ import (
 	"github.com/shopspring/decimal"
 	"github.com/yangyang-hub/dss-common/util"
 )
+
+func TestGetAllStock(t *testing.T) {
+	res := robot.GetAllStock()
+	fmt.Println(res)
+}
+
+func TestGetLongHu(t *testing.T) {
+	res := robot.GetLonghu()
+	fmt.Println(res)
+}
+
+func TestGetTradeCal(t *testing.T) {
+	res := robot.GetTradeCal()
+	fmt.Println(res)
+}
 
 func TestGetThsGnBySymbol(t *testing.T) {
 	v := "1.97亿"

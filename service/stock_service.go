@@ -171,23 +171,15 @@ func CreateDailyData(trade_date string) {
 //查询最近连板股
 func GetConStock() *map[int][]string {
 	day := 2
-	startDate := time.Now()
-	hour := time.Now().Hour()
-	if hour < 18 {
-		startDate = time.Now().AddDate(0, 0, -1)
-	}
 	result := map[int][]string{}
 	dates := []string{}
 	c := 0
 	a := 0
 	for {
 		for {
-			date := startDate.AddDate(0, 0, -a).Format(constant.TimeFormatA)
-			tradeCals := tushare.GetTradeCal(date, date)
-			if len(*tradeCals) >= 1 {
-				dates = append(dates, date)
-				c++
-			}
+			date := dao.QueryXTradeDate(a)
+			dates = append(dates, date)
+			c++
 			a++
 			if c == day {
 				break
@@ -195,6 +187,29 @@ func GetConStock() *map[int][]string {
 		}
 		res, _ := dao.GetConStock(dates)
 		if len(*res) > 0 {
+			dup := result[day-1]
+			if len(dup) > 0 {
+				same := []string{}
+				for _, v := range *res {
+					for _, d := range dup {
+						if v == d {
+							same = append(same, d)
+						}
+					}
+				}
+				newDup := []string{}
+				m := make(map[string]int)
+				for _, v := range same {
+					m[v]++
+				}
+				for _, value := range dup {
+					times := m[value]
+					if times == 0 {
+						newDup = append(newDup, value)
+					}
+				}
+				result[day-1] = newDup
+			}
 			result[day] = *res
 			day++
 		} else {
@@ -202,4 +217,16 @@ func GetConStock() *map[int][]string {
 		}
 	}
 	return &result
+}
+
+func GetLimitUpXDayStock(day int) *[]string {
+	dates, _ := dao.GetXDayTradeDate(day)
+	res, _ := dao.GetLimitUpXDayStock(*dates)
+	return res
+}
+
+func GetXDayUpYStock(day, percentage int) *[]string {
+	dates, _ := dao.GetXDayTradeDate(day)
+	res, _ := dao.GetXDayUpYStock(*dates, percentage)
+	return res
 }

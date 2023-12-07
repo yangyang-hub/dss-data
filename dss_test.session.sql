@@ -1,0 +1,1 @@
+SELECT ts_code FROM stock_quote_2023 WHERE trade_date in ('20230215','20230216','20230214') GROUP BY ts_code HAVING SUM(pct_chg) > 10

@@ -14,6 +14,45 @@ import (
 	"github.com/yangyang-hub/dss-common/model"
 )
 
+// 查询前第X个交易日
+func GetXDayUpYStock(dates []string, percentage int) (*[]string, error) {
+	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_quote_2023 WHERE trade_date in ? GROUP BY ts_code HAVING SUM(pct_chg) > ?", dates, percentage).Rows()
+	res := scanRows2List(rows)
+	return &res, nil
+}
+
+// 查询前第X个交易日
+func QueryXTradeDate(day int) string {
+	rows, _ := db.Mysql.Raw("SELECT DISTINCT trade_date FROM stock_quote_2023 ORDER BY trade_date DESC LIMIT ?,1", day).Rows()
+	res := scanRows2List(rows)
+	return res[0]
+}
+
+// 查询某天是否为交易日
+func QueryTradeDate(date string) bool {
+	var count int64
+	db.Mysql.Table("stock_quote_2023").Where("trade_date = ?", date).Count(&count)
+	if count == 0 {
+		return false
+	} else {
+		return true
+	}
+}
+
+// 查询近X交易日
+func GetXDayTradeDate(day int) (*[]string, error) {
+	rows, _ := db.Mysql.Raw("SELECT DISTINCT trade_date FROM stock_quote_2023 ORDER BY trade_date DESC LIMIT 0,?", day).Rows()
+	res := scanRows2List(rows)
+	return &res, nil
+}
+
+// 查询近X日有涨停的股
+func GetLimitUpXDayStock(dates []string) (*[]string, error) {
+	rows, _ := db.Mysql.Raw("SELECT DISTINCT ts_code FROM stock_quote_2023 WHERE trade_date IN ? AND limit_up = '1'", dates).Rows()
+	res := scanRows2List(rows)
+	return &res, nil
+}
+
 // 查询近X日连板股
 func GetConStock(dates []string) (*[]string, error) {
 	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_quote_2023 WHERE trade_date IN ? AND limit_up = '1' GROUP BY ts_code HAVING COUNT(1)  = ?", dates, len(dates)).Rows()

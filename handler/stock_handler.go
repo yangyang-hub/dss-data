@@ -19,6 +19,38 @@ func init() {
 	router.RegisterHandler("Post", party, "/getLiveData", getLiveData)
 	router.RegisterHandler("Get", party, "/getAllStockInfo", getAllStockInfo)
 	router.RegisterHandler("Get", party, "/getConStock", getConStock)
+	router.RegisterHandler("Post", party, "/getLimitUpXDayStock", getLimitUpXDayStock)
+	router.RegisterHandler("Post", party, "/getXDayUpYStock", getXDayUpYStock)
+}
+
+// 查询近X日上涨超过Y%的股
+func getXDayUpYStock(ctx *gin.Context) {
+	var params map[string]int
+	b, _ := ctx.GetRawData()
+	json.Unmarshal(b, &params)
+	day := params["day"]
+	if day == 0 {
+		ctx.JSON(200, "请传入天数")
+	}
+	percentage := params["percentage"]
+	if percentage == 0 {
+		ctx.JSON(200, "请传入上涨幅度")
+	}
+	result := service.GetXDayUpYStock(day, percentage)
+	ctx.JSON(200, &result)
+}
+
+// 查询近X日有涨停的股
+func getLimitUpXDayStock(ctx *gin.Context) {
+	var params map[string]int
+	b, _ := ctx.GetRawData()
+	json.Unmarshal(b, &params)
+	day := params["day"]
+	if day == 0 {
+		ctx.JSON(200, "请传入天数")
+	}
+	result := service.GetLimitUpXDayStock(day)
+	ctx.JSON(200, &result)
 }
 
 //查询最近连板股
