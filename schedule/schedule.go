@@ -1,13 +1,13 @@
 package schedule
 
 import (
-	service "dss-data/service"
 	"dss-data/tushare"
 	"log"
 	"time"
 
+	"dss-data/constant"
+
 	"github.com/go-co-op/gocron"
-	"github.com/yangyang-hub/dss-common/constant"
 )
 
 func InitScheduler() {
@@ -24,7 +24,7 @@ func InitScheduler() {
 //定时任务-插入每日行情数据
 func taskCreateDailyData() {
 	log.Printf("Start Scheduler CreateDailyData date(%v)", time.Now().Format(constant.TimeFormatA))
-	service.CreateDailyData("")
+	// service.CreateDailyData("")
 }
 
 //定时任务-刷新同花顺概念
@@ -37,5 +37,5 @@ func taskRefreshThsGn() {
 		return
 	}
 	log.Printf("Start Scheduler RefreshThsGn date(%v)", trade_date)
-	service.RobotAllThsGnBySymbols()
+	// service.RobotAllThsGnBySymbols()
 }

@@ -5,8 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/yangyang-hub/dss-common/model"
-	"github.com/yangyang-hub/dss-common/util"
+	"dss-data/model"
+	"dss-data/util"
+
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 

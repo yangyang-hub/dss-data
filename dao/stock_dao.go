@@ -10,8 +10,8 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/yangyang-hub/dss-common/constant"
-	"github.com/yangyang-hub/dss-common/model"
+	"dss-data/constant"
+	"dss-data/model"
 )
 
 // 查询前第X个交易日
@@ -88,6 +88,22 @@ func GetAllTsCode() ([]string, error) {
 	return res, nil
 }
 
+// 新增龙虎榜数据
+func InsertLongHu(longHus *[]model.LongHu) {
+	res := db.Mysql.CreateInBatches(longHus, constant.InsertBatchSize).Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+}
+
+// 新增龙虎榜数据详情
+func InsertLongHuDetail(longHuDetails *[]model.LongHuDetail) {
+	res := db.Mysql.CreateInBatches(longHuDetails, constant.InsertBatchSize).Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+}
+
 //新增tushare stock_basic数据
 func InsertStockBasic(stockInfos *[]model.StockInfo) bool {
 	res := db.Mysql.CreateInBatches(stockInfos, constant.InsertBatchSize).Error
@@ -112,7 +128,7 @@ func InsertStockCompany(stockCompanys *[]model.StockCompany) bool {
 func MergeStockBasic(stockInfos *[]model.StockInfo) error {
 	for _, stockInfo := range *stockInfos {
 		var count int64
-		db.Mysql.Table(stockInfo.TableName()).Where("ts_code = ?", stockInfo.TsCode).Count(&count)
+		db.Mysql.Table(stockInfo.TableName()).Where("ts_code = ?", stockInfo.Code).Count(&count)
 		if count == 0 {
 			results := db.Mysql.Create(stockInfo)
 			if results.Error != nil {

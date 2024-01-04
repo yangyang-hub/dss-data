@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/yangyang-hub/dss-common/model"
+	"dss-data/model"
 )
 
 //记录定时任务执行记录

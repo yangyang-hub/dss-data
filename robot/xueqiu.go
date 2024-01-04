@@ -1,45 +1,17 @@
 package robot
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"time"
 
+	"dss-data/model"
+	"dss-data/util"
+
 	"github.com/gocolly/colly/v2"
 	uuid "github.com/satori/go.uuid"
-	"github.com/yangyang-hub/dss-common/util"
 )
-
-type LongHu struct {
-	Id        string         `json:"id" gorm:"column:id;primary_key"`                   //id
-	Type      string         `json:"type" gorm:"column:type"`                           //类型
-	Symbol    string         `json:"symbol" gorm:"column:symbol"`                       //股票代码
-	TradeDate string         `json:"trade_date" gorm:"column:trade_date"`               //交易日期
-	Name      string         `json:"name" gorm:"column:name"`                           //股票名称
-	Close     float64        `json:"close" gorm:"column:close;float(11,2)"`             //收盘价
-	PctChg    float64        `json:"pct_chg" gorm:"column:pct_chg;float(11,2)"`         //涨跌幅
-	Volume    float64        `json:"volume" gorm:"column:volume;float(11,2)"`           //成交量
-	Amount    float64        `json:"amount" gorm:"column:amount;float(11,2)"`           //成交额
-	NetWorth  float64        `json:"net_worth" gorm:"column:net_worth;float(11,2)"`     //净买入额
-	Detail    []LongHuDetail `json:"detail" gorm:"foreignKey:long_hu_id;references:id"` //详情
-}
-
-type LongHuDetail struct {
-	LongHuId string  `json:"long_hu_id" gorm:"column:long_hu_id"`           //龙虎榜id
-	Dept     string  `json:"dept" gorm:"column:dept"`                       //营业部
-	Buy      float64 `json:"buy" gorm:"column:buy;float(11,2)"`             //买入额
-	Sell     float64 `json:"sell" gorm:"column:sell;float(11,2)"`           //卖出额
-	Ratio    float64 `json:"ratio" gorm:"column:ratio;float(11,2)"`         //买入额
-	NetWorth float64 `json:"net_worth" gorm:"column:net_worth;float(11,2)"` //净买入额
-}
-
-type StockInfo struct {
-	Code     string `json:"code" gorm:"column:code;primary_key"` //代码
-	Symbol   string `json:"symbol" gorm:"column:symbol"`         //股票代码
-	Exchange string `json:"exchange" gorm:"column:exchange"`     //交易所代码
-	Market   string `json:"market" gorm:"column:market"`         //市场类型（主板/创业板/科创板/CDR）
-	Name     string `json:"name" gorm:"column:name"`             //股票名称
-}
 
 var (
 	xueqiuCookie     string
@@ -47,13 +19,13 @@ var (
 )
 
 // 查询所有股票代码
-func GetAllStock() *[]StockInfo {
+func GetAllStock() *[]model.StockInfo {
 	return getStockByPage(1, 60)
 }
 
 // 分页查询股票代码
-func getStockByPage(page, size int) *[]StockInfo {
-	result := []StockInfo{}
+func getStockByPage(page, size int) *[]model.StockInfo {
+	result := []model.StockInfo{}
 	url := "https://stock.xueqiu.com/v5/stock/screener/quote/list.json?page=" + strconv.Itoa(page) + "&size=" + strconv.Itoa(size) + "&order=desc&orderby=percent&order_by=percent&market=CN&type=sh_sz"
 	respone := visitXueQiuJson(url)
 	data, _ := (*respone)["data"].(map[string]interface{})
@@ -62,7 +34,7 @@ func getStockByPage(page, size int) *[]StockInfo {
 		if len(lists) > 0 {
 			for _, list := range lists {
 				item := list.(map[string]interface{})
-				stockInfo := StockInfo{}
+				stockInfo := model.StockInfo{}
 				for key, value := range item {
 					switch key {
 					case "symbol":
@@ -87,10 +59,10 @@ func getStockByPage(page, size int) *[]StockInfo {
 }
 
 // 访问雪球当日龙虎榜数据
-func GetLonghu() *[]LongHu {
-	result := []LongHu{}
+func GetLonghu() (*[]model.LongHu, *[]model.LongHuDetail) {
+	result := []model.LongHu{}
+	resultDetail := []model.LongHuDetail{}
 	date := time.Now().Format("20060102")
-	// date := "20230829"
 	url := "http://stock.xueqiu.com/v5/stock/hq/longhu.json?date=" + getUnix(date)
 	respone := visitXueQiuJson(url)
 	data, _ := (*respone)["data"].(map[string]interface{})
@@ -100,7 +72,7 @@ func GetLonghu() *[]LongHu {
 			for _, ite := range items {
 				item := ite.(map[string]interface{})
 				symbol := ""
-				longhu := LongHu{}
+				longhu := model.LongHu{}
 				longhu.TradeDate = date
 				longHuId := uuid.NewV4().String()
 				longhu.Id = longHuId
@@ -116,9 +88,13 @@ func GetLonghu() *[]LongHu {
 					case "percent":
 						longhu.PctChg = value.(float64)
 					case "volume":
-						longhu.Volume = value.(float64)
+						s := fmt.Sprintf("%f", value.(float64))
+						f, _ := strconv.ParseFloat(s, 64)
+						longhu.Volume = util.FloatMul(f, 10000)
 					case "amount":
-						longhu.Amount = value.(float64)
+						s := fmt.Sprintf("%f", value.(float64))
+						f, _ := strconv.ParseFloat(s, 64)
+						longhu.Amount = util.FloatMul(f, 10000)
 					case "type_name":
 						typeNames := value.([]interface{})
 						str := ""
@@ -129,17 +105,17 @@ func GetLonghu() *[]LongHu {
 					}
 				}
 				longhuDetails := getLonghuDetail(symbol, longHuId)
-				longhu.Detail = *longhuDetails
+				resultDetail = append(resultDetail, *longhuDetails...)
 				result = append(result, longhu)
 			}
 		}
 	}
-	return &result
+	return &result, &resultDetail
 }
 
 // 访问雪球龙虎榜数据详情
-func getLonghuDetail(symbol, longHuId string) *[]LongHuDetail {
-	result := []LongHuDetail{}
+func getLonghuDetail(symbol, longHuId string) *[]model.LongHuDetail {
+	result := []model.LongHuDetail{}
 	url := "http://stock.xueqiu.com/v5/stock/capital/longhu.json?symbol=" + symbol + "&page=1&size=1"
 	respone := visitXueQiuJson(url)
 	data, _ := (*respone)["data"].(map[string]interface{})
@@ -155,20 +131,26 @@ func getLonghuDetail(symbol, longHuId string) *[]LongHuDetail {
 						if len(branches) > 0 {
 							for _, branch1 := range branches {
 								branch := branch1.(map[string]interface{})
-								longHuDetail := LongHuDetail{}
+								longHuDetail := model.LongHuDetail{}
 								longHuDetail.LongHuId = longHuId
 								for key, value := range branch {
 									switch key {
 									case "branch_name":
 										longHuDetail.Dept = value.(string)
 									case "buy_amt":
-										longHuDetail.Buy = value.(float64)
+										s := fmt.Sprintf("%f", value.(float64))
+										f, _ := strconv.ParseFloat(s, 64)
+										longHuDetail.Buy = util.FloatMul(f, 10000)
 									case "sell_amt":
-										longHuDetail.Sell = value.(float64)
+										s := fmt.Sprintf("%f", value.(float64))
+										f, _ := strconv.ParseFloat(s, 64)
+										longHuDetail.Sell = util.FloatMul(f, 10000)
 									case "ratio":
 										longHuDetail.Ratio = value.(float64)
 									case "net_amt":
-										longHuDetail.NetWorth = value.(float64)
+										s := fmt.Sprintf("%f", value.(float64))
+										f, _ := strconv.ParseFloat(s, 64)
+										longHuDetail.NetWorth = util.FloatMul(f, 10000)
 									}
 								}
 								result = append(result, longHuDetail)

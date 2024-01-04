@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -85,10 +84,10 @@ func getLiveData(ctx *gin.Context) {
 }
 
 func createDailyData(ctx *gin.Context) {
-	date := ctx.Param("data")
-	if date == "" {
-		date = time.Now().Format("20060102")
-	}
-	go service.CreateDailyData(date)
-	ctx.JSON(200, "开始更新("+date+")数据任务")
+	// date := ctx.Param("data")
+	// if date == "" {
+	// 	date = time.Now().Format("20060102")
+	// }
+	// go service.CreateDailyData(date)
+	// ctx.JSON(200, "开始更新("+date+")数据任务")
 }

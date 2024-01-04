@@ -7,7 +7,6 @@ import (
 	_ "dss-data/robot"
 	router "dss-data/router"
 	schedule "dss-data/schedule"
-	service "dss-data/service"
 	"flag"
 	"log"
 	"os"
@@ -26,8 +25,6 @@ func init() {
 	db.InitMysql()
 	//初始化定时任务
 	schedule.InitScheduler()
-	//初始化基本数据
-	service.InitData()
 }
 
 func main() {

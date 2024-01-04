@@ -3,7 +3,7 @@ package tushare
 import (
 	configs "dss-data/configs"
 
-	model "github.com/yangyang-hub/dss-common/model"
+	model "dss-data/model"
 )
 
 //交易日历
@@ -60,13 +60,13 @@ func GetStockCompanyData(params map[string]interface{}) *[]model.StockCompany {
 //获取股票行情
 func GetStockQuoteData(params map[string]interface{}, quoteType string) *[]model.StockQuote {
 	client := httpClient[model.StockQuote]{
-		url:         configs.Config.TushareUrl,
+		url:         "http://api.tushare.pro",
 		contentType: "application/json;charset=utf-8",
 		param: map[string]interface{}{
 			"api_name": quoteType,
 			"params":   params,
 			"fields":   "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount",
-			"token":    configs.Config.TushareToken,
+			"token":    "48664f289b98d05be6737d086fd711ca62f7ba08d17410a73cfa8181",
 		},
 	}
 	response := client.sendPost()

@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"testing"
 
+	"dss-data/util"
+
 	"github.com/robertkrimen/otto"
 	"github.com/shopspring/decimal"
-	"github.com/yangyang-hub/dss-common/util"
 )
 
 func TestGetAllStock(t *testing.T) {
@@ -19,8 +20,9 @@ func TestGetAllStock(t *testing.T) {
 }
 
 func TestGetLongHu(t *testing.T) {
-	res := robot.GetLonghu()
+	res, resd := robot.GetLonghu()
 	fmt.Println(res)
+	fmt.Println(resd)
 }
 
 func TestGetTradeCal(t *testing.T) {

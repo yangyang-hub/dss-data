@@ -1,8 +1,13 @@
 package robot
 
 import (
+	configs "dss-data/configs"
+	"dss-data/util"
 	"encoding/json"
+	"fmt"
 	"log"
+	"strconv"
+	"strings"
 
 	"github.com/gocolly/colly/v2"
 )
@@ -58,4 +63,44 @@ func visitHtml(url, cookie, goquerySelector string, f colly.HTMLCallback) {
 		deleteProxy(proxy)
 		visit(url, goquerySelector, f)
 	}
+}
+func visit(url string, goquerySelector string, f colly.HTMLCallback) {
+	c := colly.NewCollector()
+	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299"
+	proxy := getProxy()
+	c.SetProxy(proxy)
+	// c.OnError(func(r *colly.Response, err error) {
+	// 	log.Printf("Something went wrong: %v, Proxy Address: %v\n", err, proxy)
+	// })
+	c.OnHTML(goquerySelector, f)
+	err := c.Visit(url)
+	c.Wait()
+	if err != nil {
+		//重试 并删除无效代理
+		deleteProxy(proxy)
+		visit(url, goquerySelector, f)
+	}
+}
+
+func getProxy() string {
+	result, err := util.SendGetResJson(configs.Config.ProxyUrl + "/get/")
+	// result, err := util.SendGetResJson("http://127.0.0.1:5010/get/")
+	if err != nil {
+		log.Println("get proxy wrong:", err)
+	}
+	var proxyUrl string
+	b, _ := strconv.ParseBool(fmt.Sprint(result["https"]))
+	if bool(b) {
+		proxyUrl = fmt.Sprintf("https://%v", fmt.Sprint(result["proxy"]))
+	} else {
+		proxyUrl = fmt.Sprintf("http://%v", fmt.Sprint(result["proxy"]))
+	}
+	return proxyUrl
+}
+
+func deleteProxy(proxyUrl string) {
+	proxy := strings.Split(proxyUrl, "//")[1]
+	// log.Println("delete proxy", proxy)
+	util.SendGetResJson(fmt.Sprintf(configs.Config.ProxyUrl+"/delete/?proxy=%v", proxy))
+	// util.SendGetResJson(fmt.Sprintf("http://127.0.0.1:5010/delete/?proxy=%v", proxy))
 }
