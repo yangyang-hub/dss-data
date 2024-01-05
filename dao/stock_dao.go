@@ -104,8 +104,8 @@ func InsertLongHuDetail(longHuDetails *[]model.LongHuDetail) {
 	}
 }
 
-//新增tushare stock_basic数据
-func InsertStockBasic(stockInfos *[]model.StockInfo) bool {
+//新增 stock_info数据
+func InsertStockInfo(stockInfos *[]model.StockInfo) bool {
 	res := db.Mysql.CreateInBatches(stockInfos, constant.InsertBatchSize).Error
 	if res != nil {
 		log.Println(res.Error())
@@ -124,11 +124,11 @@ func InsertStockCompany(stockCompanys *[]model.StockCompany) bool {
 	return true
 }
 
-//更新（新增）tushare stock_basic数据
-func MergeStockBasic(stockInfos *[]model.StockInfo) error {
+//更新（新增） stock_info数据
+func MergeStockInfo(stockInfos *[]model.StockInfo) error {
 	for _, stockInfo := range *stockInfos {
 		var count int64
-		db.Mysql.Table(stockInfo.TableName()).Where("ts_code = ?", stockInfo.Code).Count(&count)
+		db.Mysql.Table(stockInfo.TableName()).Where("ts_code = ?", stockInfo.TsCode).Count(&count)
 		if count == 0 {
 			results := db.Mysql.Create(stockInfo)
 			if results.Error != nil {

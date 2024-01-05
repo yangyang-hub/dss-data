@@ -41,11 +41,11 @@ type TradeCal struct {
 // 	IsHs       string `json:"is_hs" gorm:"column:is_hs"`                 //是否沪深港通标的，N否 H沪股通 S深股通
 // }
 type StockInfo struct {
-	Code     string `json:"code" gorm:"column:code;primary_key"` //代码
-	Symbol   string `json:"symbol" gorm:"column:symbol"`         //股票代码
-	Exchange string `json:"exchange" gorm:"column:exchange"`     //交易所代码
-	Market   string `json:"market" gorm:"column:market"`         //市场类型（主板/创业板/科创板/CDR）
-	Name     string `json:"name" gorm:"column:name"`             //股票名称
+	TsCode   string `json:"ts_code" gorm:"column:ts_code;primary_key"` //代码
+	Symbol   string `json:"symbol" gorm:"column:symbol"`               //股票代码
+	Exchange string `json:"exchange" gorm:"column:exchange"`           //交易所代码
+	Market   string `json:"market" gorm:"column:market"`               //市场类型（主板/创业板/科创板/CDR）
+	Name     string `json:"name" gorm:"column:name"`                   //股票名称
 }
 
 func (stockInfo StockInfo) TableName() string {

@@ -21,8 +21,8 @@ func TestGetAllStock(t *testing.T) {
 
 func TestGetLongHu(t *testing.T) {
 	res, resd := robot.GetLonghu()
-	fmt.Println(res)
-	fmt.Println(resd)
+	fmt.Println(*res)
+	fmt.Println(*resd)
 }
 
 func TestGetTradeCal(t *testing.T) {

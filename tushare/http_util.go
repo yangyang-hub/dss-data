@@ -104,7 +104,7 @@ func (res *responseData[T]) resultToStruct() {
 			if len(stStock) == 0 {
 				sts, _ := dao.GetAllSTStock()
 				for _, v := range *sts {
-					stStock[v.Code] = v.Name
+					stStock[v.TsCode] = v.Name
 				}
 			}
 			code := reflect.ValueOf(&*entity).Elem().FieldByName("TsCode").String()

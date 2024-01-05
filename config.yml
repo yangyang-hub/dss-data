@@ -9,5 +9,5 @@ proxy:
   url: http://127.0.0.1:5010
   
 mysql:
-  url: dss:yYzJmeL73FjG3KB4@tcp(127.0.0.1:3306)/dss?parseTime=True&loc=Local
+  url: dss:yYzJmeL73FjG3KB4@tcp(ubuntu:3306)/dss?parseTime=True&loc=Local
   database: dss

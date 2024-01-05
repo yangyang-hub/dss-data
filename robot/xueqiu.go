@@ -1,7 +1,6 @@
 package robot
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -38,12 +37,12 @@ func getStockByPage(page, size int) *[]model.StockInfo {
 				for key, value := range item {
 					switch key {
 					case "symbol":
-						symbol := value.(string)
-						code := util.Substr(symbol, 2, len(symbol))
+						tsCode := value.(string)
+						symbol := util.Substr(tsCode, 2, len(tsCode))
 						stockInfo.Symbol = symbol
-						stockInfo.Code = code
-						stockInfo.Exchange = util.Substr(symbol, 0, 2)
-						stockInfo.Market = getMarket(code)
+						stockInfo.TsCode = tsCode
+						stockInfo.Exchange = util.Substr(tsCode, 0, 2)
+						stockInfo.Market = getMarket(symbol)
 					case "name":
 						stockInfo.Name = value.(string)
 					}
@@ -88,13 +87,9 @@ func GetLonghu() (*[]model.LongHu, *[]model.LongHuDetail) {
 					case "percent":
 						longhu.PctChg = value.(float64)
 					case "volume":
-						s := fmt.Sprintf("%f", value.(float64))
-						f, _ := strconv.ParseFloat(s, 64)
-						longhu.Volume = util.FloatMul(f, 10000)
+						longhu.Volume = util.FloatDiv(value.(float64), 10000)
 					case "amount":
-						s := fmt.Sprintf("%f", value.(float64))
-						f, _ := strconv.ParseFloat(s, 64)
-						longhu.Amount = util.FloatMul(f, 10000)
+						longhu.Amount = util.FloatDiv(value.(float64), 10000)
 					case "type_name":
 						typeNames := value.([]interface{})
 						str := ""
@@ -138,19 +133,13 @@ func getLonghuDetail(symbol, longHuId string) *[]model.LongHuDetail {
 									case "branch_name":
 										longHuDetail.Dept = value.(string)
 									case "buy_amt":
-										s := fmt.Sprintf("%f", value.(float64))
-										f, _ := strconv.ParseFloat(s, 64)
-										longHuDetail.Buy = util.FloatMul(f, 10000)
+										longHuDetail.Buy = util.FloatDiv(value.(float64), 10000)
 									case "sell_amt":
-										s := fmt.Sprintf("%f", value.(float64))
-										f, _ := strconv.ParseFloat(s, 64)
-										longHuDetail.Sell = util.FloatMul(f, 10000)
+										longHuDetail.Sell = util.FloatDiv(value.(float64), 10000)
 									case "ratio":
 										longHuDetail.Ratio = value.(float64)
 									case "net_amt":
-										s := fmt.Sprintf("%f", value.(float64))
-										f, _ := strconv.ParseFloat(s, 64)
-										longHuDetail.NetWorth = util.FloatMul(f, 10000)
+										longHuDetail.NetWorth = util.FloatDiv(value.(float64), 10000)
 									}
 								}
 								result = append(result, longHuDetail)

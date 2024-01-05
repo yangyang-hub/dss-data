@@ -4,7 +4,6 @@ import (
 	dao "dss-data/dao"
 	"dss-data/robot"
 	tushare "dss-data/tushare"
-	"log"
 	"sync"
 	"time"
 
@@ -18,11 +17,17 @@ func GetLongHuDaily() {
 	dao.InsertLongHuDetail(longHuDetail)
 }
 
+// 更新stockInfo
+func UpdateStockInfo() {
+	stocks := robot.GetAllStock()
+	dao.MergeStockInfo(stocks)
+}
+
 func GetDailyData(startDate string) {
 	allStock := robot.GetAllStock()
 	tsCodes := []string{}
 	for _, item := range *allStock {
-		tsCodes = append(tsCodes, item.Code+"."+item.Exchange)
+		tsCodes = append(tsCodes, item.Symbol+"."+item.Exchange)
 	}
 	// 创建容量为 100 的任务池
 	pool, err := thread.NewPool(100)
@@ -31,7 +36,6 @@ func GetDailyData(startDate string) {
 	}
 	wg := new(sync.WaitGroup)
 	for _, tsCode := range tsCodes {
-		log.Printf(tsCode)
 		data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "start_date": startDate, "end_date": time.Now().Format(constant.TimeFormatA)}, "daily")
 		// 将任务放入任务池
 		wg.Add(1)
