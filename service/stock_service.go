@@ -139,7 +139,7 @@ func liveToQuote(liveDatas *[]model.LiveData) *[]model.StockQuote {
 	for _, data := range *liveDatas {
 		stockQuote := model.StockQuote{}
 		stockQuote.TsCode = data.Code
-		stockQuote.TradeDate = data.Time
+		stockQuote.TradeDate = util.Substr(data.Time, 0, 8)
 		stockQuote.Open = data.Open
 		stockQuote.High = data.Max
 		stockQuote.Low = data.Min

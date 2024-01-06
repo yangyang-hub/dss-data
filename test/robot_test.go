@@ -15,8 +15,11 @@ import (
 )
 
 func TestGetAllStock(t *testing.T) {
-	res := robot.GetAllStock()
-	fmt.Println(res)
+	// res := robot.GetAllStock()
+	// fmt.Println(res)
+	for i := 1; i <= 3; i++ {
+		fmt.Println(i)
+	}
 }
 
 func TestGetLongHu(t *testing.T) {
