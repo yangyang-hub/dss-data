@@ -11,9 +11,6 @@ func TestGetLiveData(t *testing.T) {
 	res, _ := service.GetLiveData(param)
 	fmt.Println(res)
 }
-func TestGetDailyData(t *testing.T) {
-	service.GetDailyData("20230101")
-}
 func TestGetLongHuDaily(t *testing.T) {
 	service.GetLongHuDaily()
 }

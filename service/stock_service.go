@@ -16,11 +16,30 @@ import (
 // 更新stockInfo&获取当日股票详情数据入库&获取当日龙虎榜信息
 func CreateDailyData() {
 	UpdateStockInfo()
-	symbols, _ := dao.GetAllSymbol()
-	liveDatas, _ := GetLiveData(symbols)
-	quotes := liveToQuote(liveDatas)
-	dao.InsertStockQuote(quotes)
+	symbols, _ := dao.GetAllTsCode()
+	datas := []string{}
+	for i, v := range symbols {
+		datas = append(datas, v)
+		if len(datas) > 50 || i+1 == len(symbols) {
+			liveDatas, _ := GetLiveData(datas)
+			quotes := liveToQuote(liveDatas)
+			dao.InsertStockQuote(quotes)
+			datas = []string{}
+			time.Sleep(1000)
+		}
+	}
 	GetLongHuDaily()
+	UpdateAllBk()
+}
+
+// 更新板块数据
+func UpdateAllBk() {
+	bks, rels, quotes := robot.GetAllBkAndRelSymbol()
+	dao.DeleteBk()
+	dao.DeleteBkRelSymbol()
+	dao.InsertBk(bks)
+	dao.InsertBkRelSymbol(rels)
+	dao.InsertBkQuote(quotes)
 }
 
 // 获取当日龙虎榜数据入库
@@ -37,11 +56,14 @@ func UpdateStockInfo() {
 }
 
 // 获取从xx日开始至今的历史数据
-func GetDailyData(startDate string) {
+func GetDailyData(startDate, endDate string) {
 	allStock := robot.GetAllStock()
 	tsCodes := []string{}
 	for _, item := range *allStock {
 		tsCodes = append(tsCodes, item.Symbol+"."+item.Exchange)
+	}
+	if "" == endDate {
+		endDate = time.Now().Format(constant.TimeFormatA)
 	}
 	// 创建容量为 100 的任务池
 	pool, err := thread.NewPool(100)
@@ -50,7 +72,7 @@ func GetDailyData(startDate string) {
 	}
 	wg := new(sync.WaitGroup)
 	for _, tsCode := range tsCodes {
-		data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "start_date": startDate, "end_date": time.Now().Format(constant.TimeFormatA)}, "daily")
+		data := tushare.GetStockQuoteData(map[string]interface{}{"ts_code": tsCode, "start_date": startDate, "end_date": endDate}, "daily")
 		// 将任务放入任务池
 		wg.Add(1)
 		pool.Put(&thread.Task{
@@ -65,7 +87,7 @@ func GetDailyData(startDate string) {
 	pool.Close()
 }
 
-//查询最近连板股
+// 查询最近连板股
 func GetConStock() *map[int][]string {
 	day := 2
 	result := map[int][]string{}
@@ -139,7 +161,7 @@ func liveToQuote(liveDatas *[]model.LiveData) *[]model.StockQuote {
 	for _, data := range *liveDatas {
 		stockQuote := model.StockQuote{}
 		stockQuote.TsCode = data.Code
-		stockQuote.TradeDate = data.Time
+		stockQuote.TradeDate = util.Substr(data.Time, 0, 8)
 		stockQuote.Open = data.Open
 		stockQuote.High = data.Max
 		stockQuote.Low = data.Min

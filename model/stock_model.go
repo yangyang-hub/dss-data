@@ -14,7 +14,7 @@ type Tabler interface {
 	TableName() string
 }
 
-//交易日历
+// 交易日历
 type TradeCal struct {
 	Exchange     string `json:"exchange"`      //交易所 SSE上交所 SZSE深交所
 	CalDate      string `json:"cal_date"`      //日历日期
@@ -22,24 +22,25 @@ type TradeCal struct {
 	PretradeDate string `json:"pretrade_date"` //上一个交易日
 }
 
-//基础数据
-// type StockInfo struct {
-// 	TsCode     string `json:"ts_code" gorm:"column:ts_code;primary_key"` //TS代码
-// 	Symbol     string `json:"symbol" gorm:"column:symbol"`               //股票代码
-// 	Name       string `json:"name" gorm:"column:name"`                   //股票名称
-// 	Area       string `json:"area" gorm:"column:area"`                   //地域
-// 	Industry   string `json:"industry" gorm:"column:industry"`           //所属行业
-// 	Fullname   string `json:"fullname" gorm:"column:fullname"`           //股票全称
-// 	Enname     string `json:"enname" gorm:"column:enname"`               //英文全称
-// 	Cnspell    string `json:"cnspell" gorm:"column:cnspell"`             //拼音缩写
-// 	Market     string `json:"market" gorm:"column:market"`               //市场类型（主板/创业板/科创板/CDR）
-// 	Exchange   string `json:"exchange" gorm:"column:exchange"`           //交易所代码
-// 	CurrType   string `json:"curr_type" gorm:"column:curr_type"`         //交易货币
-// 	ListStatus string `json:"list_status" gorm:"column:list_status"`     //上市状态 L上市 D退市 P暂停上市
-// 	ListDate   string `json:"list_date" gorm:"column:list_date"`         //上市日期
-// 	DelistDate string `json:"delist_date" gorm:"column:delist_date"`     //退市日期
-// 	IsHs       string `json:"is_hs" gorm:"column:is_hs"`                 //是否沪深港通标的，N否 H沪股通 S深股通
-// }
+// 基础数据
+//
+//	type StockInfo struct {
+//		TsCode     string `json:"ts_code" gorm:"column:ts_code;primary_key"` //TS代码
+//		Symbol     string `json:"symbol" gorm:"column:symbol"`               //股票代码
+//		Name       string `json:"name" gorm:"column:name"`                   //股票名称
+//		Area       string `json:"area" gorm:"column:area"`                   //地域
+//		Industry   string `json:"industry" gorm:"column:industry"`           //所属行业
+//		Fullname   string `json:"fullname" gorm:"column:fullname"`           //股票全称
+//		Enname     string `json:"enname" gorm:"column:enname"`               //英文全称
+//		Cnspell    string `json:"cnspell" gorm:"column:cnspell"`             //拼音缩写
+//		Market     string `json:"market" gorm:"column:market"`               //市场类型（主板/创业板/科创板/CDR）
+//		Exchange   string `json:"exchange" gorm:"column:exchange"`           //交易所代码
+//		CurrType   string `json:"curr_type" gorm:"column:curr_type"`         //交易货币
+//		ListStatus string `json:"list_status" gorm:"column:list_status"`     //上市状态 L上市 D退市 P暂停上市
+//		ListDate   string `json:"list_date" gorm:"column:list_date"`         //上市日期
+//		DelistDate string `json:"delist_date" gorm:"column:delist_date"`     //退市日期
+//		IsHs       string `json:"is_hs" gorm:"column:is_hs"`                 //是否沪深港通标的，N否 H沪股通 S深股通
+//	}
 type StockInfo struct {
 	TsCode   string `json:"ts_code" gorm:"column:ts_code;primary_key"` //代码
 	Symbol   string `json:"symbol" gorm:"column:symbol"`               //股票代码
@@ -53,7 +54,7 @@ func (stockInfo StockInfo) TableName() string {
 	return "stock_info"
 }
 
-//上市公司基本信息
+// 上市公司基本信息
 type StockCompany struct {
 	TsCode        string  `json:"ts_code" gorm:"column:ts_code;primary_key"`           //TS代码
 	Exchange      string  `json:"exchange" gorm:"column:exchange"`                     //交易所代码
@@ -78,7 +79,7 @@ func (stockCompany StockCompany) TableName() string {
 	return "stock_company"
 }
 
-//股票行情
+// 股票行情
 type StockQuote struct {
 	TsCode    string  `json:"ts_code" gorm:"column:ts_code;primary_key"`       //股票代码
 	TradeDate string  `json:"trade_date" gorm:"column:trade_date;primary_key"` //交易日期
@@ -129,4 +130,51 @@ type LongHuDetail struct {
 
 func (longHuDetail LongHuDetail) TableName() string {
 	return "long_hu_detail"
+}
+
+// 东方财富网板块列表
+type Bk struct {
+	Code string `json:"code" gorm:"column:code;primary_key"` //板块代码
+	Name string `json:"name" gorm:"column:name"`             //板块名称
+	Type int    `json:"type" gorm:"column:type"`             //板块类型 1:地域;2:行业;3:概念
+}
+
+func (bk Bk) TableName() string {
+	return "bk"
+}
+
+// 概念关联列表
+type BkRelSymbol struct {
+	Symbol string `json:"symbol" gorm:"column:symbol"`   //股票代码
+	BkCode string `json:"bk_code" gorm:"column:bk_code"` //板块编码
+}
+
+func (bkRelSymbol BkRelSymbol) TableName() string {
+	return "bk_rel_symbol"
+}
+
+// 板块行情
+type BkQuote struct {
+	BkCode     string  `json:"bk_code" gorm:"column:bk_code;primary_key"`           //概念代码
+	TradeDate  string  `json:"trade_date" gorm:"column:trade_date;primary_key"`     //交易日期
+	Rank       int     `json:"rank" gorm:"column:rank;int(11)"`                     //涨幅排名
+	Close      float64 `json:"close" gorm:"column:close;float(30,2)"`               //收盘价
+	Open       float64 `json:"open" gorm:"column:open;float(30,2)"`                 //开盘价
+	High       float64 `json:"high" gorm:"column:high;float(30,2)"`                 //最高价
+	Low        float64 `json:"low" gorm:"column:low;float(30,2)"`                   //最低价
+	PreClose   float64 `json:"pre_close" gorm:"column:pre_close;float(30,2)"`       //昨收价
+	Vol        float64 `json:"vol" gorm:"column:vol;float(30,2)"`                   //成交量(万手)
+	Amount     float64 `json:"amount" gorm:"column:amount;float(30,2)"`             //成交额(亿)
+	Change     float64 `json:"change" gorm:"column:change;float(30,2)"`             //涨跌额
+	PctChg     float64 `json:"pct_chg" gorm:"column:pct_chg;float(30,2)"`           //涨跌幅
+	Total      float64 `json:"total" gorm:"column:total;float(30,2)"`               //总市值
+	Rate       float64 `json:"rate" gorm:"column:rate;float(30,2)"`                 //换手率
+	RiseCount  int     `json:"rise_count" gorm:"column:rise_count;int(11)"`         //上涨家数
+	FallCount  int     `json:"fall_count" gorm:"column:fall_count;int(11)"`         //下跌家数
+	Lead       string  `json:"lead" gorm:"column:lead"`                             //领涨股
+	LeadPctChg float64 `json:"lead_pct_chg" gorm:"column:lead_pct_chg;float(30,2)"` //领涨股涨跌幅
+}
+
+func (bkQuote BkQuote) TableName() string {
+	return "bk_quote"
 }

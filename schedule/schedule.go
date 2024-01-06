@@ -1,6 +1,7 @@
 package schedule
 
 import (
+	"dss-data/dao"
 	"dss-data/robot"
 	"dss-data/service"
 	"log"
@@ -15,16 +16,16 @@ func InitScheduler() {
 	defer log.Println("success init scheduler")
 	timezone, _ := time.LoadLocation("Asia/Shanghai")
 	s := gocron.NewScheduler(timezone)
-	// 每天下午六点执行 定时任务-插入每日行情数据
-	s.Every(1).Days().At("18:00").Do(taskCreateDailyData)
-	// 每天上午1.30点执行 定时任务-刷新同花顺概念
-	s.Every(1).Days().At("01:30").Do(taskRefreshThsGn)
+	// 每天下午六点18执行 定时任务-插入每日行情数据
+	s.Every(1).Days().At("18:18").Do(taskCreateDailyData)
 	go s.StartBlocking()
 }
 
-//定时任务-插入每日行情数据
+// 定时任务-插入每日行情数据
 func taskCreateDailyData() {
 	trade_date := time.Now().Format(constant.TimeFormatA)
+	startTime := time.Now()
+	defer dao.InsertTaskInfo("CreateDailyData", trade_date, startTime)
 	//查询是否为交易日
 	tradeCals := robot.GetTradeCal()
 	if len(tradeCals) < 1 {
@@ -33,17 +34,5 @@ func taskCreateDailyData() {
 	}
 	log.Printf("Start Scheduler CreateDailyData date(%v)", time.Now().Format(constant.TimeFormatA))
 	service.CreateDailyData()
-}
-
-//定时任务-刷新同花顺概念
-func taskRefreshThsGn() {
-	trade_date := time.Now().Format(constant.TimeFormatA)
-	//查询是否为交易日
-	tradeCals := robot.GetTradeCal()
-	if len(tradeCals) < 1 {
-		log.Printf("(%v)为非交易日,结束任务 RefreshThsGn", trade_date)
-		return
-	}
-	log.Printf("Start Scheduler RefreshThsGn date(%v)", trade_date)
-	// service.RobotAllThsGnBySymbols()
+	log.Printf("Scheduler CreateDailyData end,spend time %v", time.Since(startTime))
 }

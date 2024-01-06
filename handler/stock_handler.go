@@ -18,6 +18,8 @@ func init() {
 	router.RegisterHandler("Post", party, "/getLiveData", getLiveData)
 	router.RegisterHandler("Get", party, "/updateStockInfo", updateStockInfo)
 	router.RegisterHandler("Get", party, "/getLongHuDaily", getLongHuDaily)
+	router.RegisterHandler("Get", party, "/updateAllBk", updateAllBk)
+	router.RegisterHandler("Get", party, "/createDailyData", createDailyData)
 }
 
 // 更新股票信息
@@ -26,14 +28,30 @@ func updateStockInfo(ctx *gin.Context) {
 	ctx.JSON(200, "更新股票信息完成")
 }
 
+// 获取当日行情数据
+func createDailyData(ctx *gin.Context) {
+	service.CreateDailyData()
+	ctx.JSON(200, "获取当日行情数据")
+}
+
+// 更新板块信息
+func updateAllBk(ctx *gin.Context) {
+	service.UpdateAllBk()
+	ctx.JSON(200, "更新板块信息完成")
+}
+
 // 从**日开始获取每日数据
 func getDailyData(ctx *gin.Context) {
-	date := ctx.Query("data")
-	if date == "" {
-		date = time.Now().Format("20060102")
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
+	if startDate == "" {
+		startDate = time.Now().Format("20060102")
 	}
-	go service.GetDailyData(date)
-	ctx.JSON(200, "开始更新("+date+")至今的数据任务")
+	if endDate == "" {
+		endDate = time.Now().Format("20060102")
+	}
+	go service.GetDailyData(startDate, endDate)
+	ctx.JSON(200, "开始更新("+startDate+"-"+endDate+")的数据任务")
 }
 
 // 获取当日龙虎榜

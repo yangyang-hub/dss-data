@@ -60,32 +60,72 @@ func GetConStock(dates []string) (*[]string, error) {
 	return &res, nil
 }
 
-//查询所有ST股票
+// 查询所有ST股票
 func GetAllSTStock() (*[]model.StockInfo, error) {
 	stockInfos := []model.StockInfo{}
 	res := db.Mysql.Where("name like '%ST%'").Find(&stockInfos).Error
 	return &stockInfos, res
 }
 
-//查询所有股票信息
+// 查询所有股票信息
 func GetAllStockInfo() (*[]model.StockInfo, error) {
 	stockInfos := []model.StockInfo{}
 	res := db.Mysql.Find(&stockInfos).Error
 	return &stockInfos, res
 }
 
-//查询所有的股票symbol
+// 查询所有的股票symbol
 func GetAllSymbol() ([]string, error) {
 	rows, _ := db.Mysql.Raw("SELECT symbol FROM stock_info").Rows()
 	res := scanRows2List(rows)
 	return res, nil
 }
 
-//查询所有的股票编码数据（ts_code）
+// 查询所有的股票编码数据（ts_code）
 func GetAllTsCode() ([]string, error) {
 	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_info").Rows()
 	res := scanRows2List(rows)
 	return res, nil
+}
+
+// 删除板块数据
+func DeleteBk() {
+	res := db.Mysql.Exec("DELETE FROM bk").Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+}
+
+// 删除板块-股票关联数据
+func DeleteBkRelSymbol() {
+	res := db.Mysql.Exec("DELETE FROM bk_rel_symbol").Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+}
+
+// 新增板块数据
+func InsertBk(datas *[]model.Bk) {
+	res := db.Mysql.CreateInBatches(datas, constant.InsertBatchSize).Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+}
+
+// 新增板块-股票关联数据
+func InsertBkRelSymbol(datas *[]model.BkRelSymbol) {
+	res := db.Mysql.CreateInBatches(datas, constant.InsertBatchSize).Error
+	if res != nil {
+		log.Println(res.Error())
+	}
+}
+
+// 新增板块行情数据
+func InsertBkQuote(datas *[]model.BkQuote) {
+	res := db.Mysql.CreateInBatches(datas, constant.InsertBatchSize).Error
+	if res != nil {
+		log.Println(res.Error())
+	}
 }
 
 // 新增龙虎榜数据
@@ -104,7 +144,7 @@ func InsertLongHuDetail(longHuDetails *[]model.LongHuDetail) {
 	}
 }
 
-//新增 stock_info数据
+// 新增 stock_info数据
 func InsertStockInfo(stockInfos *[]model.StockInfo) bool {
 	res := db.Mysql.CreateInBatches(stockInfos, constant.InsertBatchSize).Error
 	if res != nil {
@@ -114,7 +154,7 @@ func InsertStockInfo(stockInfos *[]model.StockInfo) bool {
 	return true
 }
 
-//新增tushare stock_company数据
+// 新增tushare stock_company数据
 func InsertStockCompany(stockCompanys *[]model.StockCompany) bool {
 	res := db.Mysql.CreateInBatches(stockCompanys, constant.InsertBatchSize).Error
 	if res != nil {
@@ -124,7 +164,7 @@ func InsertStockCompany(stockCompanys *[]model.StockCompany) bool {
 	return true
 }
 
-//更新（新增） stock_info数据
+// 更新（新增） stock_info数据
 func MergeStockInfo(stockInfos *[]model.StockInfo) error {
 	for _, stockInfo := range *stockInfos {
 		var count int64
@@ -144,7 +184,7 @@ func MergeStockInfo(stockInfos *[]model.StockInfo) error {
 	return nil
 }
 
-//更新（新增）tushare stock_company数据
+// 更新（新增）tushare stock_company数据
 func MergeStockCompany(stockCompanys *[]model.StockCompany) error {
 	for _, stockCompany := range *stockCompanys {
 		var count int64
@@ -164,7 +204,7 @@ func MergeStockCompany(stockCompanys *[]model.StockCompany) error {
 	return nil
 }
 
-//创建StockQuote数据库表
+// 创建StockQuote数据库表
 func InitCreateStockQuoteTable(startDate string) bool {
 	start, _ := time.Parse("20060102", startDate)
 	startYear := start.Year()
@@ -202,7 +242,7 @@ func InitCreateStockQuoteTable(startDate string) bool {
 	return true
 }
 
-//新增StockQuote数据
+// 新增StockQuote数据
 func InsertStockQuote(stockQuotes *[]model.StockQuote) bool {
 	quotes := map[string][]model.StockQuote{}
 	for _, quote := range *stockQuotes {

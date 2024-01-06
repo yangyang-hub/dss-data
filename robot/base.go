@@ -26,20 +26,20 @@ func visitJson(url, cookie string) *map[string]interface{} {
 	}
 	c.OnResponse(func(r *colly.Response) {
 		// 判断响应的内容类型是否为JSON
-		if r.Headers.Get("Content-Type") == "application/json;charset=UTF-8" {
-			err := json.Unmarshal(r.Body, &resp)
-			if err != nil {
-				log.Println("visitXueQiuJson 解析JSON失败:", err)
-				return
-			}
+		//if r.Headers.Get("Content-Type") == "application/json;charset=UTF-8" {
+		err := json.Unmarshal(r.Body, &resp)
+		if err != nil {
+			log.Println("visitXueQiuJson 解析JSON失败:", err)
+			return
 		}
+		//}
 	})
 	err := c.Visit(url)
 	c.Wait()
 	if err != nil {
 		//重试 并删除无效代理
 		// deleteProxy(proxy)
-		visitXueQiuJson(url)
+		visitJson(url, cookie)
 	}
 	return &resp
 }
