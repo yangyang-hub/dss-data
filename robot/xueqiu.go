@@ -3,6 +3,7 @@ package robot
 import (
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"dss-data/model"
@@ -37,11 +38,12 @@ func getStockByPage(page, size int) *[]model.StockInfo {
 				for key, value := range item {
 					switch key {
 					case "symbol":
-						tsCode := value.(string)
+						s := value.(string)
+						tsCode := strings.ToLower(s)
 						symbol := util.Substr(tsCode, 2, len(tsCode))
 						stockInfo.Symbol = symbol
 						stockInfo.TsCode = tsCode
-						stockInfo.Exchange = util.Substr(tsCode, 0, 2)
+						stockInfo.Exchange = util.Substr(s, 0, 2)
 						stockInfo.Market = getMarket(symbol)
 					case "name":
 						stockInfo.Name = value.(string)

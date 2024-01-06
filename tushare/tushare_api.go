@@ -60,13 +60,13 @@ func GetStockCompanyData(params map[string]interface{}) *[]model.StockCompany {
 //获取股票行情
 func GetStockQuoteData(params map[string]interface{}, quoteType string) *[]model.StockQuote {
 	client := httpClient[model.StockQuote]{
-		url:         "http://api.tushare.pro",
+		url:         configs.Config.TushareUrl,
 		contentType: "application/json;charset=utf-8",
 		param: map[string]interface{}{
 			"api_name": quoteType,
 			"params":   params,
 			"fields":   "ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount",
-			"token":    "48664f289b98d05be6737d086fd711ca62f7ba08d17410a73cfa8181",
+			"token":    configs.Config.TushareToken,
 		},
 	}
 	response := client.sendPost()

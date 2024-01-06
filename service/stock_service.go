@@ -2,8 +2,10 @@ package service
 
 import (
 	dao "dss-data/dao"
+	"dss-data/model"
 	"dss-data/robot"
 	tushare "dss-data/tushare"
+	"dss-data/util"
 	"sync"
 	"time"
 
@@ -11,6 +13,17 @@ import (
 	"dss-data/thread"
 )
 
+// 更新stockInfo&获取当日股票详情数据入库&获取当日龙虎榜信息
+func CreateDailyData() {
+	UpdateStockInfo()
+	symbols, _ := dao.GetAllSymbol()
+	liveDatas, _ := GetLiveData(symbols)
+	quotes := liveToQuote(liveDatas)
+	dao.InsertStockQuote(quotes)
+	GetLongHuDaily()
+}
+
+// 获取当日龙虎榜数据入库
 func GetLongHuDaily() {
 	longHu, longHuDetail := robot.GetLonghu()
 	dao.InsertLongHu(longHu)
@@ -23,6 +36,7 @@ func UpdateStockInfo() {
 	dao.MergeStockInfo(stocks)
 }
 
+// 获取从xx日开始至今的历史数据
 func GetDailyData(startDate string) {
 	allStock := robot.GetAllStock()
 	tsCodes := []string{}
@@ -112,4 +126,32 @@ func GetXDayUpYStock(day, percentage int) *[]string {
 	dates, _ := dao.GetXDayTradeDate(day)
 	res, _ := dao.GetXDayUpYStock(*dates, percentage)
 	return res
+}
+
+// 实时行情转换为每日记录行情
+func liveToQuote(liveDatas *[]model.LiveData) *[]model.StockQuote {
+	stockQuotes := []model.StockQuote{}
+	stStock := map[string]string{}
+	sts, _ := dao.GetAllSTStock()
+	for _, v := range *sts {
+		stStock[v.TsCode] = v.Name
+	}
+	for _, data := range *liveDatas {
+		stockQuote := model.StockQuote{}
+		stockQuote.TsCode = data.Code
+		stockQuote.TradeDate = data.Time
+		stockQuote.Open = data.Open
+		stockQuote.High = data.Max
+		stockQuote.Low = data.Min
+		stockQuote.Close = data.Now
+		stockQuote.PreClose = data.PreClose
+		stockQuote.Change = data.Change
+		stockQuote.PctChg = data.PctChg
+		stockQuote.Vol = util.FloatDiv(data.Vol, 10000)
+		stockQuote.Amount = data.Amount
+		//计算涨停板
+		stockQuote.LimitUp = util.CalLimitUp(data.Code, data.PreClose, data.Change, stStock)
+		stockQuotes = append(stockQuotes, stockQuote)
+	}
+	return &stockQuotes
 }
