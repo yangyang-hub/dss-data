@@ -5,7 +5,7 @@ WORKDIR /usr/local/go/src/dss-data
 # 设定时区
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-COPY /output /usr/local/go/src/dss-data
+COPY . /usr/local/go/src/dss-data
 #  用于代理下载go项目依赖的包
 RUN go env -w GO111MODULE="on"
 RUN go env -w GOPROXY=https://goproxy.cn,direct
