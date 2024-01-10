@@ -11,3 +11,8 @@ proxy:
 mysql:
   url: dss:yYzJmeL73FjG3KB4@tcp(ubuntu:3306)/dss?parseTime=True&loc=Local
   database: dss
+
+neo4j:
+  url: bolt://ubuntu:7687
+  username: neo4j
+  password: DSSneo4j

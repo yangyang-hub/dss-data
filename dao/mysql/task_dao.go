@@ -1,4 +1,4 @@
-package dao
+package mysql
 
 import (
 	db "dss-data/db"
@@ -8,7 +8,7 @@ import (
 	"dss-data/model"
 )
 
-//记录定时任务执行记录
+// 记录定时任务执行记录
 func InsertTaskInfo(taskName string, date string, startTime time.Time) {
 	currentTime := time.Now()
 	if date == "" {
@@ -22,7 +22,7 @@ func InsertTaskInfo(taskName string, date string, startTime time.Time) {
 	}
 }
 
-//记录定时任务执行记录
+// 记录定时任务执行记录
 func QueryTaskInfo(taskName string) *[]model.TaskInfo {
 	taskInfos := []model.TaskInfo{}
 	res := db.Mysql.Where("task_name = ?", taskName).Find(&taskInfos).Error
@@ -32,7 +32,7 @@ func QueryTaskInfo(taskName string) *[]model.TaskInfo {
 	return &taskInfos
 }
 
-//查询股票行情数据定时任务执行记录
+// 查询股票行情数据定时任务执行记录
 func QueryStockQuoteTaskInfo(dates []string) *[]model.TaskInfo {
 	taskInfos := []model.TaskInfo{}
 	res := db.Mysql.Where("task_name = ? AND date IN ?", "taskCreateDailyData", dates).Find(&taskInfos).Error

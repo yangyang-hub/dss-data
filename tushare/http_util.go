@@ -2,7 +2,7 @@ package tushare
 
 import (
 	"bytes"
-	"dss-data/dao"
+	"dss-data/dao/mysql"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -102,7 +102,7 @@ func (res *responseData[T]) resultToStruct() {
 		}
 		if t.Name() == "StockQuote" {
 			if len(stStock) == 0 {
-				sts, _ := dao.GetAllSTStock()
+				sts, _ := mysql.GetAllSTStock()
 				for _, v := range *sts {
 					stStock[v.TsCode] = v.Name
 				}

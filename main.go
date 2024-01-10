@@ -23,6 +23,8 @@ func init() {
 	configs.ConfigRead()
 	//初始化mysql
 	db.InitMysql()
+	//初始化neo4j
+	db.InitNeo4j()
 	//初始化定时任务
 	schedule.InitScheduler()
 }

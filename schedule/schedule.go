@@ -1,7 +1,7 @@
 package schedule
 
 import (
-	"dss-data/dao"
+	"dss-data/dao/mysql"
 	"dss-data/robot"
 	"dss-data/service"
 	"log"
@@ -25,7 +25,7 @@ func InitScheduler() {
 func taskCreateDailyData() {
 	trade_date := time.Now().Format(constant.TimeFormatA)
 	startTime := time.Now()
-	defer dao.InsertTaskInfo("CreateDailyData", trade_date, startTime)
+	defer mysql.InsertTaskInfo("CreateDailyData", trade_date, startTime)
 	//查询是否为交易日
 	tradeCals := robot.GetTradeCal()
 	if len(tradeCals) < 1 {

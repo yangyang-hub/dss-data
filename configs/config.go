@@ -16,6 +16,9 @@ type ConfigMap struct {
 	ProxyUrl      string `yml:"proxy.url" env:"PROXY_URL"`
 	MysqlUrl      string `yml:"mysql.url" env:"MYSQL_URL"`
 	MysqlDatabase string `yml:"mysql.database" env:"MYSQL_DATABASE"`
+	Neo4jUrl      string `yml:"neo4j.url"`
+	Neo4jUsername string `yml:"neo4j.username"`
+	Neo4jPassword string `yml:"neo4j.password"`
 }
 
 func ConfigRead() {

@@ -31,7 +31,7 @@ func InitMysql() {
 	// SetConnMaxLifetime 设置了连接可复用的最大时间。
 	sqldb.SetConnMaxLifetime(time.Hour)
 	Mysql = db
-	log.Println("init mysql end.")
+	log.Println("init mysql success.")
 }
 
 type Writer struct {

@@ -1,7 +1,7 @@
 package service
 
 import (
-	dao "dss-data/dao"
+	dao "dss-data/dao/mysql"
 	"dss-data/model"
 	"dss-data/robot"
 	tushare "dss-data/tushare"

@@ -6,6 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.8.2
 	github.com/go-co-op/gocron v1.18.0
 	github.com/gocolly/colly/v2 v2.1.0
+	github.com/neo4j/neo4j-go-driver/v4 v4.4.7
 	github.com/robertkrimen/otto v0.2.1
 	github.com/spf13/viper v1.14.0
 	golang.org/x/text v0.6.0
