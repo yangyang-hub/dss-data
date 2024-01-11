@@ -34,5 +34,7 @@ func taskCreateDailyData() {
 	}
 	log.Printf("Start Scheduler CreateDailyData date(%v)", time.Now().Format(constant.TimeFormatA))
 	service.CreateDailyData()
+	log.Printf("CreateDailyData end,spend time %v,start create graph", time.Since(startTime))
+	service.UpdateGraph(trade_date)
 	log.Printf("Scheduler CreateDailyData end,spend time %v", time.Since(startTime))
 }

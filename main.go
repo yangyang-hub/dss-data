@@ -6,7 +6,7 @@ import (
 	_ "dss-data/handler"
 	_ "dss-data/robot"
 	router "dss-data/router"
-	schedule "dss-data/schedule"
+	"dss-data/schedule"
 	"flag"
 	"log"
 	"os"

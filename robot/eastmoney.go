@@ -50,7 +50,7 @@ func getBkByPage(typeStr int, page, size int) (*[]model.Bk, *[]model.BkQuote) {
 				bk.Type = typeStr
 				bkQuote := model.BkQuote{}
 				bkQuote.TradeDate = time.Now().Format("20060102")
-				bkQuote.Rank = i + 1
+				bkQuote.RankNum = i + 1
 				item := ite.(map[string]interface{})
 				for key, value := range item {
 					switch key {

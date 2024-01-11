@@ -4,7 +4,7 @@ import (
 	dao "dss-data/dao/mysql"
 	"dss-data/model"
 	"dss-data/robot"
-	tushare "dss-data/tushare"
+	"dss-data/tushare"
 	"dss-data/util"
 	"sync"
 	"time"
@@ -52,7 +52,8 @@ func GetLongHuDaily() {
 // 更新stockInfo
 func UpdateStockInfo() {
 	stocks := robot.GetAllStock()
-	dao.MergeStockInfo(stocks)
+	dao.DeleteStockInfo()
+	dao.InsertStockInfo(stocks)
 }
 
 // 获取从xx日开始至今的历史数据

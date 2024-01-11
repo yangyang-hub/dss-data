@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-//根据结构体拼接cypher
+// 根据结构体拼接cypher
 func BuildNodeProperties(node interface{}, mark, prefix string) (string, map[string]interface{}) {
 	buffer := bytes.Buffer{}
 	param := make(map[string]interface{})
@@ -18,6 +18,10 @@ func BuildNodeProperties(node interface{}, mark, prefix string) (string, map[str
 		switch fieldType {
 		case "string":
 			param[jsonName] = reflect.ValueOf(node).FieldByName(fieldName).String()
+		case "int":
+			param[jsonName] = reflect.ValueOf(node).FieldByName(fieldName).Int()
+		case "int32":
+			param[jsonName] = reflect.ValueOf(node).FieldByName(fieldName).Int()
 		case "int64":
 			param[jsonName] = reflect.ValueOf(node).FieldByName(fieldName).Int()
 		case "float64":

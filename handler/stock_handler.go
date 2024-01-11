@@ -20,6 +20,17 @@ func init() {
 	router.RegisterHandler("Get", party, "/getLongHuDaily", getLongHuDaily)
 	router.RegisterHandler("Get", party, "/updateAllBk", updateAllBk)
 	router.RegisterHandler("Get", party, "/createDailyData", createDailyData)
+	router.RegisterHandler("Get", party, "/updateGraph", updateGraph)
+}
+
+// 更新图
+func updateGraph(ctx *gin.Context) {
+	date := ctx.Query("date")
+	if date == "" {
+		date = time.Now().Format("20060102")
+	}
+	service.UpdateGraph(date)
+	ctx.JSON(200, "更新("+date+")的图形任务完成")
 }
 
 // 更新股票信息

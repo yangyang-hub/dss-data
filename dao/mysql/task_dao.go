@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	db "dss-data/db"
+	"dss-data/db"
 	"log"
 	"time"
 

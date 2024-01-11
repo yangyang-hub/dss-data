@@ -3,8 +3,9 @@ package mysql
 import (
 	"database/sql"
 	configs "dss-data/configs"
-	db "dss-data/db"
+	"dss-data/db"
 	"dss-data/model"
+	"dss-data/util"
 	"fmt"
 	"log"
 	"reflect"
@@ -65,6 +66,49 @@ func GetAllSTStock() (*[]model.StockInfo, error) {
 	stockInfos := []model.StockInfo{}
 	res := db.Mysql.Where("name like '%ST%'").Find(&stockInfos).Error
 	return &stockInfos, res
+}
+
+// 查询所有板块
+func GetAllBk() (*[]model.Bk, error) {
+	data := []model.Bk{}
+	res := db.Mysql.Find(&data).Error
+	return &data, res
+}
+
+// 查询所有板块-股票关联
+func GetAllBkRelSymbol() (*[]model.BkRelSymbol, error) {
+	data := []model.BkRelSymbol{}
+	res := db.Mysql.Find(&data).Error
+	return &data, res
+}
+
+// 查询指定日期的板块行情
+func GetBkQuoteByDate(date string) (*[]model.BkQuote, error) {
+	data := []model.BkQuote{}
+	res := db.Mysql.Where("trade_date = ?", date).Find(&data).Error
+	return &data, res
+}
+
+// 查询指定日期的龙虎榜
+func GetLongHuByDate(date string) (*[]model.LongHu, error) {
+	data := []model.LongHu{}
+	res := db.Mysql.Where("trade_date = ?", date).Find(&data).Error
+	return &data, res
+}
+
+// 查询指定日期的龙虎榜详情
+func GetLongHuDetailByDate(date string) (*[]model.LongHuDetail, error) {
+	data := []model.LongHuDetail{}
+	res := db.Mysql.Where("long_hu_id in (SELECT id FROM long_hu WHERE trade_date = ?)", date).Find(&data).Error
+	return &data, res
+}
+
+// 查询指定日期的股票行情
+func GetStockQuoteByDate(date string) (*[]model.StockQuote, error) {
+	data := []model.StockQuote{}
+	tableName := "stock_quote_" + util.Substr(date, 0, 4)
+	res := db.Mysql.Table(tableName).Where("trade_date = ?", date).Find(&data).Error
+	return &data, res
 }
 
 // 查询所有股票信息
@@ -152,6 +196,14 @@ func InsertStockInfo(stockInfos *[]model.StockInfo) bool {
 		return false
 	}
 	return true
+}
+
+// 删除stock_info数据
+func DeleteStockInfo() {
+	res := db.Mysql.Exec("DELETE FROM stock_info").Error
+	if res != nil {
+		log.Println(res.Error())
+	}
 }
 
 // 新增tushare stock_company数据

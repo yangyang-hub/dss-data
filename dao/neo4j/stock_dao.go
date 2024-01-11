@@ -5,22 +5,18 @@ import (
 	"dss-data/db"
 	"dss-data/model"
 	"dss-data/util"
-	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
 
 // 新增stock_info数据
-func InsertStockInfo(stockInfos *[]db.Node[model.StockInfo]) {
+func InsertStockInfo(stockInfos *[]model.StockInfo) {
 	var cyphers []map[string]interface{}
 	step := 100
 	for i, node := range *stockInfos {
 		maps := make(map[string]interface{})
 		buffer := bytes.Buffer{}
-		buffer.WriteString("CREATE (n")
-		for _, label := range node.Label {
-			buffer.WriteString(":")
-			buffer.WriteString(label)
-		}
-		properties, param := util.BuildNodeProperties(node.Properties, ":", "")
+		buffer.WriteString("CREATE (n:")
+		buffer.WriteString(db.StockInfo.String())
+		properties, param := util.BuildNodeProperties(node, ":", "")
 		buffer.WriteString("{")
 		buffer.WriteString(properties)
 		buffer.WriteString("}")
@@ -29,28 +25,25 @@ func InsertStockInfo(stockInfos *[]db.Node[model.StockInfo]) {
 		maps["param"] = param
 		cyphers = append(cyphers, maps)
 		if (i+1)%step == 0 {
-			db.CypherWrite(cyphers)
+			db.CypherBatchExec(cyphers)
 			cyphers = cyphers[:0]
 		}
 	}
-	db.CypherWrite(cyphers)
+	db.CypherBatchExec(cyphers)
 }
 
 // 更新（新增）stock_info数据
-func MergeStockInfo(stockInfos *[]db.Node[model.StockInfo]) {
+func MergeStockInfo(stockInfos *[]model.StockInfo) {
 	var cyphers []map[string]interface{}
 	step := 100
 	for i, node := range *stockInfos {
 		maps := make(map[string]interface{})
 		buffer := bytes.Buffer{}
-		buffer.WriteString("MERGE (n")
-		for _, label := range node.Label {
-			buffer.WriteString(":")
-			buffer.WriteString(label)
-		}
+		buffer.WriteString("MERGE (n:")
+		buffer.WriteString(db.StockInfo.String())
 		buffer.WriteString("{ ts_code: $ts_code" + "}) ")
 		buffer.WriteString(" ON CREATE SET ")
-		properties, param := util.BuildNodeProperties(node.Properties, "=", "n.")
+		properties, param := util.BuildNodeProperties(node, "=", "n.")
 		buffer.WriteString(properties)
 		buffer.WriteString("\n ON MATCH  SET ")
 		buffer.WriteString(properties)
@@ -58,15 +51,27 @@ func MergeStockInfo(stockInfos *[]db.Node[model.StockInfo]) {
 		maps["param"] = param
 		cyphers = append(cyphers, maps)
 		if (i+1)%step == 0 {
-			db.CypherWrite(cyphers)
+			db.CypherBatchExec(cyphers)
 			cyphers = cyphers[:0]
 		}
 	}
-	db.CypherWrite(cyphers)
+	db.CypherBatchExec(cyphers)
+}
+
+// 删除不存在了的股票
+func DeleteStockInfo(symbols *[]string) {
+	buffer := bytes.Buffer{}
+	buffer.WriteString("MATCH (n:")
+	buffer.WriteString(db.StockInfo.String())
+	buffer.WriteString(")\nWHERE n.symbol IN $symbol")
+	buffer.WriteString("\nDELETE n")
+	param := make(map[string]interface{})
+	param["symbol"] = symbols
+	db.CypherExec(buffer.String(), param)
 }
 
 // 新增quote数据（）
-func InsertStockQuote(stockInfos *[]db.Node[model.StockQuote]) {
+func InsertStockQuote(stockInfos *[]model.StockQuote) {
 	var cyphers []map[string]interface{}
 	step := 100
 	for i, node := range *stockInfos {
@@ -74,12 +79,9 @@ func InsertStockQuote(stockInfos *[]db.Node[model.StockQuote]) {
 		buffer := bytes.Buffer{}
 		buffer.WriteString("MATCH (n:")
 		buffer.WriteString(db.StockInfo.String())
-		buffer.WriteString("{symbol: $ts_code})\n CREATE (c")
-		for _, label := range node.Label {
-			buffer.WriteString(":")
-			buffer.WriteString(label)
-		}
-		properties, param := util.BuildNodeProperties(node.Properties, ":", "")
+		buffer.WriteString("{symbol: $ts_code})\n CREATE (c:")
+		buffer.WriteString(db.StockQuote.String())
+		properties, param := util.BuildNodeProperties(node, ":", "")
 		buffer.WriteString("{")
 		buffer.WriteString(properties)
 		buffer.WriteString("})-[r:")
@@ -89,28 +91,25 @@ func InsertStockQuote(stockInfos *[]db.Node[model.StockQuote]) {
 		maps["param"] = param
 		cyphers = append(cyphers, maps)
 		if (i+1)%step == 0 {
-			db.CypherWrite(cyphers)
+			db.CypherBatchExec(cyphers)
 			cyphers = cyphers[:0]
 		}
 	}
-	db.CypherWrite(cyphers)
+	db.CypherBatchExec(cyphers)
 }
 
 // 新增板块数据（）
-func InsertBk(bks *[]db.Node[model.Bk]) {
+func MergeBk(bks *[]model.Bk) {
 	var cyphers []map[string]interface{}
 	step := 100
 	for i, node := range *bks {
 		maps := make(map[string]interface{})
 		buffer := bytes.Buffer{}
-		buffer.WriteString("MERGE (n")
-		for _, label := range node.Label {
-			buffer.WriteString(":")
-			buffer.WriteString(label)
-		}
-		buffer.WriteString("{ code: code" + "}) ")
+		buffer.WriteString("MERGE (n:")
+		buffer.WriteString(db.Bk.String())
+		buffer.WriteString("{ code: $code" + "}) ")
 		buffer.WriteString(" ON CREATE SET ")
-		properties, param := util.BuildNodeProperties(node.Properties, "=", "n.")
+		properties, param := util.BuildNodeProperties(node, "=", "n.")
 		buffer.WriteString(properties)
 		buffer.WriteString("\n ON MATCH  SET ")
 		buffer.WriteString(properties)
@@ -118,15 +117,27 @@ func InsertBk(bks *[]db.Node[model.Bk]) {
 		maps["param"] = param
 		cyphers = append(cyphers, maps)
 		if (i+1)%step == 0 {
-			db.CypherWrite(cyphers)
+			db.CypherBatchExec(cyphers)
 			cyphers = cyphers[:0]
 		}
 	}
-	db.CypherWrite(cyphers)
+	db.CypherBatchExec(cyphers)
 }
 
-// 关联板块-股票
-func InsertBkRelSymbol(bkRelSymbols *[]db.Edge[model.BkRelSymbol]) {
+// 删除不存在了的板块
+func DeleteBk(bkCodes *[]string) {
+	buffer := bytes.Buffer{}
+	buffer.WriteString("MATCH (n:")
+	buffer.WriteString(db.Bk.String())
+	buffer.WriteString(")\nWHERE n.code IN $code")
+	buffer.WriteString("\nDELETE n")
+	param := make(map[string]interface{})
+	param["code"] = bkCodes
+	db.CypherExec(buffer.String(), param)
+}
+
+// 删除不存在了的板块-股票关联
+func DeleteBkRelSymbol(bkRelSymbols *[]model.BkRelSymbol) {
 	var cyphers []map[string]interface{}
 	step := 100
 	for i, node := range *bkRelSymbols {
@@ -138,42 +149,150 @@ func InsertBkRelSymbol(bkRelSymbols *[]db.Edge[model.BkRelSymbol]) {
 		buffer.WriteString(db.RelStockBk.String())
 		buffer.WriteString("]->(b:")
 		buffer.WriteString(db.Bk.String())
-		buffer.WriteString(")\n SET ")
-		properties, param := util.BuildNodeProperties(node.Properties, "=", "r.")
-		buffer.WriteString(properties)
-		buffer.WriteString("\n WHERE a.symbol = $symbol AND b.code = $bk_code")
+		buffer.WriteString(")\nWHERE a.symbol = $symbol AND b.code = $bk_code")
+		buffer.WriteString("\nDELETE r")
+		param := make(map[string]interface{})
+		param["bk_code"] = node.BkCode
+		param["symbol"] = node.Symbol
 		maps["cypher"] = buffer.String()
 		maps["param"] = param
 		cyphers = append(cyphers, maps)
 		if (i+1)%step == 0 {
-			db.CypherWrite(cyphers)
+			db.CypherBatchExec(cyphers)
 			cyphers = cyphers[:0]
 		}
 	}
-	db.CypherWrite(cyphers)
+	db.CypherBatchExec(cyphers)
+}
+
+// 关联板块-股票
+func InsertBkRelSymbol(bkRelSymbols *[]model.BkRelSymbol) {
+	var cyphers []map[string]interface{}
+	step := 100
+	for i, node := range *bkRelSymbols {
+		maps := make(map[string]interface{})
+		buffer := bytes.Buffer{}
+		buffer.WriteString("MATCH (a:")
+		buffer.WriteString(db.StockInfo.String())
+		buffer.WriteString("),(b:")
+		buffer.WriteString(db.Bk.String())
+		buffer.WriteString(")\n WHERE a.symbol = $symbol AND b.code = $bk_code")
+		buffer.WriteString("\nCREATE (a)-[r:")
+		buffer.WriteString(db.RelStockBk.String())
+		buffer.WriteString("{")
+		properties, param := util.BuildNodeProperties(node, ":", "")
+		buffer.WriteString(properties)
+		buffer.WriteString("}")
+		buffer.WriteString("]->(b)")
+		maps["cypher"] = buffer.String()
+		maps["param"] = param
+		cyphers = append(cyphers, maps)
+		if (i+1)%step == 0 {
+			db.CypherBatchExec(cyphers)
+			cyphers = cyphers[:0]
+		}
+	}
+	db.CypherBatchExec(cyphers)
+}
+
+// 关联板块行情
+func InsertBkQuote(bkQuotes *[]model.BkQuote) {
+	var cyphers []map[string]interface{}
+	step := 100
+	for i, node := range *bkQuotes {
+		maps := make(map[string]interface{})
+		buffer := bytes.Buffer{}
+		buffer.WriteString("MATCH (n:")
+		buffer.WriteString(db.Bk.String())
+		buffer.WriteString("{code: $bk_code})\n CREATE (c:")
+		buffer.WriteString(db.BkQuote.String())
+		properties, param := util.BuildNodeProperties(node, ":", "")
+		buffer.WriteString("{")
+		buffer.WriteString(properties)
+		buffer.WriteString("})-[r:")
+		buffer.WriteString(db.RelBkQuote.String())
+		buffer.WriteString("]->(n)")
+		maps["cypher"] = buffer.String()
+		maps["param"] = param
+		cyphers = append(cyphers, maps)
+		if (i+1)%step == 0 {
+			db.CypherBatchExec(cyphers)
+			cyphers = cyphers[:0]
+		}
+	}
+	db.CypherBatchExec(cyphers)
+}
+
+// 新增龙虎榜
+func InsertLongHu(datas *[]model.LongHu) {
+	var cyphers []map[string]interface{}
+	step := 100
+	for i, node := range *datas {
+		maps := make(map[string]interface{})
+		buffer := bytes.Buffer{}
+		buffer.WriteString("MATCH (n:")
+		buffer.WriteString(db.StockInfo.String())
+		buffer.WriteString("{ts_code: $symbol})\n CREATE (c:")
+		buffer.WriteString(db.LongHu.String())
+		properties, param := util.BuildNodeProperties(node, ":", "")
+		buffer.WriteString("{")
+		buffer.WriteString(properties)
+		buffer.WriteString("})-[r:")
+		buffer.WriteString(db.RelStockLongHu.String())
+		buffer.WriteString("]->(n)")
+		maps["cypher"] = buffer.String()
+		maps["param"] = param
+		cyphers = append(cyphers, maps)
+		if (i+1)%step == 0 {
+			db.CypherBatchExec(cyphers)
+			cyphers = cyphers[:0]
+		}
+	}
+	db.CypherBatchExec(cyphers)
+}
+
+// 新增龙虎榜详情
+func InsertLongHuDetail(datas *[]model.LongHuDetail) {
+	var cyphers []map[string]interface{}
+	step := 100
+	for i, node := range *datas {
+		maps := make(map[string]interface{})
+		buffer := bytes.Buffer{}
+		buffer.WriteString("MATCH (n:")
+		buffer.WriteString(db.LongHu.String())
+		buffer.WriteString("{id: $long_hu_id})\n CREATE (c:")
+		buffer.WriteString(db.LongHuDetail.String())
+		properties, param := util.BuildNodeProperties(node, ":", "")
+		buffer.WriteString("{")
+		buffer.WriteString(properties)
+		buffer.WriteString("})-[r:")
+		buffer.WriteString(db.RelLongHuDetail.String())
+		buffer.WriteString("]->(n)")
+		maps["cypher"] = buffer.String()
+		maps["param"] = param
+		cyphers = append(cyphers, maps)
+		if (i+1)%step == 0 {
+			db.CypherBatchExec(cyphers)
+			cyphers = cyphers[:0]
+		}
+	}
+	db.CypherBatchExec(cyphers)
 }
 
 // 查询所有的股票编码数据（ts_code）
-func GetAllTsCode() ([]string, error) {
-	driver := *db.Neo4j
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
-	defer session.Close()
-	results, err := session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
-		var list []string
-		result, err := tx.Run("MATCH (n:"+db.StockInfo.String()+") RETURN n.ts_code", nil)
-		if err != nil {
-			return nil, err
-		}
-		for result.Next() {
-			list = append(list, result.Record().Values[0].(string))
-		}
-		if err = result.Err(); err != nil {
-			return nil, err
-		}
-		return list, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return results.([]string), nil
+func GetAllSymbol() ([]string, error) {
+	cypher := "MATCH (n:" + db.StockInfo.String() + ") RETURN n.symbol"
+	return db.CypherExecReturnStringList(cypher, nil)
+}
+
+// 查询所有的板块编码
+func GetAllBkCode() ([]string, error) {
+	cypher := "MATCH (n:" + db.Bk.String() + ") RETURN n.code"
+	return db.CypherExecReturnStringList(cypher, nil)
+}
+
+// 查询所有的板块-股票关联
+func GetAllBkRelSymbol() ([]string, error) {
+	cypher := "MATCH (n:" + db.StockInfo.String() + ")-[r:" + db.RelStockBk.String() + "]->(t:" + db.Bk.String() + ") RETURN r.bk_code,symbol"
+	return db.CypherExecReturnStringList(cypher, nil)
 }
