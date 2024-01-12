@@ -20,6 +20,10 @@ services:
       TUSHARE_TOKEN: "48664f289b98d05be6737d086fd711ca62f7ba08d17410a73cfa8181"
       MYSQL_URL: "dss:yYzJmeL73FjG3KB4@tcp(172.18.0.1:3306)/dss?parseTime=True&loc=Local"
       MYSQL_DATABASE: dss
+      NEO4J_URL: bolt://172.18.0.4:7687
+      NEO4J_DATABASE: neo4j
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: DSSneo4j
     restart: always
     network_mode: bridge
     networks:

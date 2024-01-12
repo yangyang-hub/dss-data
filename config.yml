@@ -14,5 +14,6 @@ mysql:
 
 neo4j:
   url: bolt://ubuntu:7687
+  database: neo4j
   username: neo4j
   password: DSSneo4j

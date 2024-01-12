@@ -72,7 +72,7 @@ func InitNeo4j() {
 // cypher批量执行
 func CypherBatchExec(cyphers []map[string]interface{}) error {
 	driver := *Neo4j
-	session := driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	session := driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: Config.Neo4jDatabase})
 	defer session.Close(ctx)
 	_, err := session.ExecuteWrite(ctx,
 		func(tx neo4j.ManagedTransaction) (any, error) {
@@ -97,7 +97,7 @@ func CypherBatchExec(cyphers []map[string]interface{}) error {
 // 执行cypher无返回
 func CypherExec(cypher string, param map[string]interface{}) error {
 	driver := *Neo4j
-	session := driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	session := driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: Config.Neo4jDatabase})
 	defer session.Close(ctx)
 	_, err := session.ExecuteWrite(ctx,
 		func(tx neo4j.ManagedTransaction) (any, error) {
@@ -122,7 +122,7 @@ func CypherExecReturnStringList(cypher string, param map[string]interface{}) (*[
 	result, _ := neo4j.ExecuteQuery(ctx, driver,
 		cypher,
 		param, neo4j.EagerResultTransformer,
-		neo4j.ExecuteQueryWithDatabase("neo4j"))
+		neo4j.ExecuteQueryWithDatabase(Config.Neo4jDatabase))
 	for _, record := range result.Records {
 		list = append(list, record.Values[0].(string))
 	}
@@ -136,7 +136,7 @@ func CypherExecReturnMapList(cypher string, param map[string]interface{}) (*[]ma
 	result, _ := neo4j.ExecuteQuery(ctx, driver,
 		cypher,
 		param, neo4j.EagerResultTransformer,
-		neo4j.ExecuteQueryWithDatabase("neo4j"))
+		neo4j.ExecuteQueryWithDatabase(Config.Neo4jDatabase))
 	for _, record := range result.Records {
 		list = append(list, record.AsMap())
 	}
