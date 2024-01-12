@@ -109,7 +109,7 @@ func DeleteStockQuoteByDate(dates []string) {
 	cypher := buffer.String()
 	param := make(map[string]interface{})
 	param["trade_date"] = dates
-	db.CypherExec(cypher, nil)
+	db.CypherExec(cypher, param)
 }
 
 // 新增板块数据（）
@@ -234,7 +234,7 @@ func DeleteBkQuoteByDate(dates []string) {
 	cypher := buffer.String()
 	param := make(map[string]interface{})
 	param["trade_date"] = dates
-	db.CypherExec(cypher, nil)
+	db.CypherExec(cypher, param)
 }
 
 // 新增龙虎榜
@@ -279,7 +279,7 @@ func DeleteLongHuByDate(dates []string) {
 	cypher := buffer.String()
 	param := make(map[string]interface{})
 	param["trade_date"] = dates
-	db.CypherExec(cypher, nil)
+	db.CypherExec(cypher, param)
 }
 
 // 新增龙虎榜详情

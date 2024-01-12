@@ -53,7 +53,9 @@ func GetLongHuDaily() {
 func UpdateStockInfo() {
 	stocks := robot.GetAllStock()
 	dao.DeleteStockInfo()
-	dao.InsertStockInfo(stocks)
+	for _, stock := range *stocks {
+		dao.InsertStockInfo(&stock)
+	}
 }
 
 // 获取从xx日开始至今的历史数据

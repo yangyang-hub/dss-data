@@ -82,15 +82,12 @@ func CypherBatchExec(cyphers []map[string]interface{}) error {
 				_, err := tx.Run(ctx, cypher.(string), param.(map[string]interface{}))
 				if err != nil {
 					log.Println("exec to neo4j with error:", err)
+					log.Println("exec to neo4j with error cypher:", cypher)
 					return err, nil
 				}
 			}
 			return nil, nil
 		})
-	if err != nil {
-		log.Println("neo4j exec with error:", err)
-		return err
-	}
 	return err
 }
 
@@ -104,14 +101,11 @@ func CypherExec(cypher string, param map[string]interface{}) error {
 			result, err := tx.Run(ctx, cypher, param)
 			if err != nil {
 				log.Println("exec to neo4j with error:", err)
+				log.Println("exec to neo4j with error cypher:", cypher)
 				return err, nil
 			}
 			return result, nil
 		})
-	if err != nil {
-		log.Println("neo4j exec with error:", err)
-		return err
-	}
 	return err
 }
 

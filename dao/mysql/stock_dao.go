@@ -205,8 +205,8 @@ func InsertLongHuDetail(longHuDetails *[]model.LongHuDetail) {
 }
 
 // 新增 stock_info数据
-func InsertStockInfo(stockInfos *[]model.StockInfo) bool {
-	res := db.Mysql.CreateInBatches(stockInfos, constant.InsertBatchSize).Error
+func InsertStockInfo(stockInfos *model.StockInfo) bool {
+	res := db.Mysql.Create(stockInfos).Error
 	if res != nil {
 		log.Println(res.Error())
 		return false
