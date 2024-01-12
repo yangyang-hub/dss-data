@@ -42,8 +42,17 @@ func QueryTradeDate(date string) bool {
 
 // 查询近X交易日
 func GetXDayTradeDate(day int) (*[]string, error) {
-	rows, _ := db.Mysql.Raw("SELECT DISTINCT trade_date FROM stock_quote_2023 ORDER BY trade_date DESC LIMIT 0,?", day).Rows()
+	nowYear := time.Now().Format("2006")
+	rows, _ := db.Mysql.Raw("SELECT DISTINCT trade_date FROM stock_quote_"+nowYear+" ORDER BY trade_date DESC LIMIT 0,?", day).Rows()
 	res := scanRows2List(rows)
+	if len(res) >= day {
+		return &res, nil
+	}
+	lastYear := time.Now().AddDate(-1, 0, 0).Format("2006")
+	lastday := day - len(res)
+	rowslast, _ := db.Mysql.Raw("SELECT DISTINCT trade_date FROM stock_quote_"+lastYear+" ORDER BY trade_date DESC LIMIT 0,?", lastday).Rows()
+	reslast := scanRows2List(rowslast)
+	res = append(res, reslast...)
 	return &res, nil
 }
 
@@ -73,6 +82,13 @@ func GetAllBk() (*[]model.Bk, error) {
 	data := []model.Bk{}
 	res := db.Mysql.Find(&data).Error
 	return &data, res
+}
+
+// 查询所有板块编码
+func GetAllBkCode() (*[]string, error) {
+	rows, _ := db.Mysql.Raw("SELECT code FROM bk").Rows()
+	res := scanRows2List(rows)
+	return &res, nil
 }
 
 // 查询所有板块-股票关联
@@ -119,17 +135,17 @@ func GetAllStockInfo() (*[]model.StockInfo, error) {
 }
 
 // 查询所有的股票symbol
-func GetAllSymbol() ([]string, error) {
+func GetAllSymbol() (*[]string, error) {
 	rows, _ := db.Mysql.Raw("SELECT symbol FROM stock_info").Rows()
 	res := scanRows2List(rows)
-	return res, nil
+	return &res, nil
 }
 
 // 查询所有的股票编码数据（ts_code）
-func GetAllTsCode() ([]string, error) {
+func GetAllTsCode() (*[]string, error) {
 	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_info").Rows()
 	res := scanRows2List(rows)
-	return res, nil
+	return &res, nil
 }
 
 // 删除板块数据

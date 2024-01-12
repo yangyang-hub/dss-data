@@ -157,7 +157,7 @@ func (bkRelSymbol BkRelSymbol) TableName() string {
 type BkQuote struct {
 	BkCode     string  `json:"bk_code" gorm:"column:bk_code;primary_key"`           //概念代码
 	TradeDate  string  `json:"trade_date" gorm:"column:trade_date;primary_key"`     //交易日期
-	RankNum    int     `json:"rank_num" gorm:"column:rank_num;int(11)"`             //涨幅排名
+	Rank       int     `json:"rank" gorm:"column:rank;int(11)"`                     //涨幅排名
 	Close      float64 `json:"close" gorm:"column:close;float(30,2)"`               //收盘价
 	Open       float64 `json:"open" gorm:"column:open;float(30,2)"`                 //开盘价
 	High       float64 `json:"high" gorm:"column:high;float(30,2)"`                 //最高价

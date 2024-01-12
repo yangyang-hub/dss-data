@@ -1,8 +1,9 @@
 package db
 
 import (
+	"context"
 	. "dss-data/configs"
-	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
+	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	"log"
 )
 
@@ -37,14 +38,25 @@ const (
 	RelLongHuDetail
 )
 
-var Neo4j *neo4j.Driver
+var (
+	Neo4j *neo4j.DriverWithContext
+	ctx   context.Context
+)
 
-func CreateDriver() (neo4j.Driver, error) {
-	return neo4j.NewDriver(Config.Neo4jUrl, neo4j.BasicAuth(Config.Neo4jUsername, Config.Neo4jPassword, ""))
+func CreateDriver() (neo4j.DriverWithContext, error) {
+	ctx = context.Background()
+	driver, err := neo4j.NewDriverWithContext(
+		Config.Neo4jUrl,
+		neo4j.BasicAuth(Config.Neo4jUsername, Config.Neo4jPassword, ""))
+	err = driver.VerifyConnectivity(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return driver, nil
 }
 
-func CloseDriver(driver neo4j.Driver) error {
-	return driver.Close()
+func CloseDriver(driver neo4j.DriverWithContext) error {
+	return driver.Close(ctx)
 }
 
 func InitNeo4j() {
@@ -60,93 +72,73 @@ func InitNeo4j() {
 // cypher批量执行
 func CypherBatchExec(cyphers []map[string]interface{}) error {
 	driver := *Neo4j
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
-	defer session.Close()
-	transaction, err := session.BeginTransaction()
+	session := driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+	_, err := session.ExecuteWrite(ctx,
+		func(tx neo4j.ManagedTransaction) (any, error) {
+			for _, maps := range cyphers {
+				cypher := maps["cypher"]
+				param := maps["param"]
+				_, err := tx.Run(ctx, cypher.(string), param.(map[string]interface{}))
+				if err != nil {
+					log.Println("exec to neo4j with error:", err)
+					return err, nil
+				}
+			}
+			return nil, nil
+		})
 	if err != nil {
-		log.Println("neo4j beginTransaction with error:", err)
+		log.Println("neo4j exec with error:", err)
 		return err
 	}
-	for _, maps := range cyphers {
-		cypher := maps["cypher"]
-		param := maps["param"]
-		_, err := transaction.Run(cypher.(string), param.(map[string]interface{}))
-		if err != nil {
-			log.Println("exec to neo4j with error:", err)
-			transaction.Rollback()
-			return err
-		}
-	}
-	transaction.Commit()
 	return err
 }
 
 // 执行cypher无返回
 func CypherExec(cypher string, param map[string]interface{}) error {
 	driver := *Neo4j
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
-	defer session.Close()
-	transaction, err := session.BeginTransaction()
+	session := driver.NewSession(ctx, neo4j.SessionConfig{DatabaseName: "neo4j"})
+	defer session.Close(ctx)
+	_, err := session.ExecuteWrite(ctx,
+		func(tx neo4j.ManagedTransaction) (any, error) {
+			result, err := tx.Run(ctx, cypher, param)
+			if err != nil {
+				log.Println("exec to neo4j with error:", err)
+				return err, nil
+			}
+			return result, nil
+		})
 	if err != nil {
-		log.Println("neo4j beginTransaction with error:", err)
+		log.Println("neo4j exec with error:", err)
 		return err
 	}
-	_, err = transaction.Run(cypher, param)
-	if err != nil {
-		log.Println("exec neo4j with error:", err)
-		transaction.Rollback()
-		return err
-	}
-	transaction.Commit()
 	return err
 }
 
 // 执行cypher返回string数组
-func CypherExecReturnStringList(cypher string, param map[string]interface{}) ([]string, error) {
+func CypherExecReturnStringList(cypher string, param map[string]interface{}) (*[]string, error) {
+	var list []string
 	driver := *Neo4j
-	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
-	defer session.Close()
-	results, err := session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
-		var list []string
-		result, err := tx.Run(cypher, param)
-		if err != nil {
-			return nil, err
-		}
-		for result.Next() {
-			list = append(list, result.Record().Values[0].(string))
-		}
-		if err = result.Err(); err != nil {
-			return nil, err
-		}
-		return list, nil
-	})
-	if err != nil {
-		return nil, err
+	result, _ := neo4j.ExecuteQuery(ctx, driver,
+		cypher,
+		param, neo4j.EagerResultTransformer,
+		neo4j.ExecuteQueryWithDatabase("neo4j"))
+	for _, record := range result.Records {
+		list = append(list, record.Values[0].(string))
 	}
-	return results.([]string), nil
+	return &list, nil
 }
 
 // 执行cypher返回map数组
-//func CypherExecReturnMapList(cypher string, param map[string]interface{}) (*[]map[string]interface{}, error) {
-//	driver := *Neo4j
-//	session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
-//	defer session.Close()
-//	results, err := session.ReadTransaction(func(tx neo4j.Transaction) (interface{}, error) {
-//		var list []map[string]interface{}
-//		result, err := tx.Run(cypher, param)
-//		if err != nil {
-//			return nil, err
-//		}
-//		for result.Next() {
-//			list = append(list, result.Record())
-//		}
-//		if err = result.Err(); err != nil {
-//			return nil, err
-//		}
-//		return list, nil
-//	})
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &results.([]map[string]interface{}), nil
-//}
+func CypherExecReturnMapList(cypher string, param map[string]interface{}) (*[]map[string]interface{}, error) {
+	var list []map[string]interface{}
+	driver := *Neo4j
+	result, _ := neo4j.ExecuteQuery(ctx, driver,
+		cypher,
+		param, neo4j.EagerResultTransformer,
+		neo4j.ExecuteQueryWithDatabase("neo4j"))
+	for _, record := range result.Records {
+		list = append(list, record.AsMap())
+	}
+	return &list, nil
+}

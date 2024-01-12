@@ -18,9 +18,9 @@ func CreateDailyData() {
 	UpdateStockInfo()
 	symbols, _ := dao.GetAllTsCode()
 	datas := []string{}
-	for i, v := range symbols {
+	for i, v := range *symbols {
 		datas = append(datas, v)
-		if len(datas) > 50 || i+1 == len(symbols) {
+		if len(datas) > 50 || i+1 == len(*symbols) {
 			liveDatas, _ := GetLiveData(datas)
 			quotes := liveToQuote(liveDatas)
 			dao.InsertStockQuote(quotes)
