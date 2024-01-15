@@ -28,7 +28,7 @@ func taskCreateDailyData() {
 	defer mysql.InsertTaskInfo("CreateDailyData", trade_date, startTime)
 	//查询是否为交易日
 	tradeCals := robot.GetTradeCal()
-	if len(tradeCals) < 1 {
+	if tradeCals != "1" {
 		log.Printf("(%v)为非交易日,结束任务 RefreshThsGn", trade_date)
 		return
 	}
