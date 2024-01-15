@@ -92,22 +92,11 @@ func GetDailyData(startDate, endDate string) {
 
 // 查询最近连板股
 func GetConStock() *map[int][]string {
-	day := 2
+	day := 1
 	result := map[int][]string{}
-	dates := []string{}
-	c := 0
-	a := 0
 	for {
-		for {
-			date := dao.QueryXTradeDate(a)
-			dates = append(dates, date)
-			c++
-			a++
-			if c == day {
-				break
-			}
-		}
-		res, _ := dao.GetConStock(dates)
+		dates, _ := dao.GetXDayTradeDate(day)
+		res, _ := dao.GetConStock(*dates)
 		if len(*res) > 0 {
 			dup := result[day-1]
 			if len(dup) > 0 {

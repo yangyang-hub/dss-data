@@ -21,6 +21,13 @@ func init() {
 	router.RegisterHandler("Get", party, "/updateAllBk", updateAllBk)
 	router.RegisterHandler("Get", party, "/createDailyData", createDailyData)
 	router.RegisterHandler("Get", party, "/updateGraph", updateGraph)
+	router.RegisterHandler("Get", party, "/getConStock", getConStock)
+}
+
+// 更新图
+func getConStock(ctx *gin.Context) {
+	res := service.GetConStock()
+	ctx.JSON(200, res)
 }
 
 // 更新图

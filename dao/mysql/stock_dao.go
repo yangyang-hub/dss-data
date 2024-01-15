@@ -22,13 +22,6 @@ func GetXDayUpYStock(dates []string, percentage int) (*[]string, error) {
 	return &res, nil
 }
 
-// 查询前第X个交易日
-func QueryXTradeDate(day int) string {
-	rows, _ := db.Mysql.Raw("SELECT DISTINCT trade_date FROM stock_quote_2023 ORDER BY trade_date DESC LIMIT ?,1", day).Rows()
-	res := scanRows2List(rows)
-	return res[0]
-}
-
 // 查询某天是否为交易日
 func QueryTradeDate(date string) bool {
 	var count int64
@@ -65,8 +58,15 @@ func GetLimitUpXDayStock(dates []string) (*[]string, error) {
 
 // 查询近X日连板股
 func GetConStock(dates []string) (*[]string, error) {
-	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_quote_2023 WHERE trade_date IN ? AND limit_up = '1' GROUP BY ts_code HAVING COUNT(1)  = ?", dates, len(dates)).Rows()
+	nowYear := time.Now().Format("2006")
+	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_quote_"+nowYear+" WHERE trade_date IN ? AND limit_up = '1' GROUP BY ts_code HAVING COUNT(1)  = ?", dates, len(dates)).Rows()
 	res := scanRows2List(rows)
+	if len(res) > 0 {
+		return &res, nil
+	}
+	lastYear := time.Now().AddDate(-1, 0, 0).Format("2006")
+	rows, _ = db.Mysql.Raw("SELECT ts_code FROM (SELECT * FROM stock_quote_"+lastYear+" union all SELECT * FROM stock_quote_"+nowYear+") s WHERE trade_date IN ? AND limit_up = '1' GROUP BY ts_code HAVING COUNT(1)  = ?", dates, len(dates)).Rows()
+	res = scanRows2List(rows)
 	return &res, nil
 }
 
