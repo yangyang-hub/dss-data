@@ -17,3 +17,9 @@ neo4j:
   database: neo4j
   username: neo4j
   password: DSSneo4j
+
+influx:
+  url: http://ubuntu:8086
+  token: l7BK0-rM5E2BpvWZq8vXeP35Iuw5kdpRkapZfX3kRxYOgJNUq0hEhnkBQY2Z61rf-wspabaLJZaayKvLi-LP6w==
+  org: dss
+  bucket: dss

@@ -24,6 +24,10 @@ services:
       NEO4J_DATABASE: neo4j
       NEO4J_USERNAME: neo4j
       NEO4J_PASSWORD: DSSneo4j
+      InfluxDbUrl: http://172.18.0.5:8086
+      InfluxDbToken: l7BK0-rM5E2BpvWZq8vXeP35Iuw5kdpRkapZfX3kRxYOgJNUq0hEhnkBQY2Z61rf-wspabaLJZaayKvLi-LP6w==
+      InfluxDbOrg: dss
+      InfluxDbBucket: dss
     restart: always
     network_mode: bridge
     networks:

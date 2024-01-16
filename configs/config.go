@@ -11,15 +11,19 @@ import (
 var Config *ConfigMap
 
 type ConfigMap struct {
-	TushareUrl    string `yml:"tushare.url" env:"TUSHARE_URL"`
-	TushareToken  string `yml:"tushare.token" env:"TUSHARE_TOKEN"`
-	ProxyUrl      string `yml:"proxy.url" env:"PROXY_URL"`
-	MysqlUrl      string `yml:"mysql.url" env:"MYSQL_URL"`
-	MysqlDatabase string `yml:"mysql.database" env:"MYSQL_DATABASE"`
-	Neo4jUrl      string `yml:"neo4j.url" env:"NEO4J_URL"`
-	Neo4jDatabase string `yml:"neo4j.database" env:"NEO4J_DATABASE"`
-	Neo4jUsername string `yml:"neo4j.username" env:"NEO4J_USERNAME"`
-	Neo4jPassword string `yml:"neo4j.password" env:"NEO4J_PASSWORD"`
+	TushareUrl     string `yml:"tushare.url" env:"TUSHARE_URL"`
+	TushareToken   string `yml:"tushare.token" env:"TUSHARE_TOKEN"`
+	ProxyUrl       string `yml:"proxy.url" env:"PROXY_URL"`
+	MysqlUrl       string `yml:"mysql.url" env:"MYSQL_URL"`
+	MysqlDatabase  string `yml:"mysql.database" env:"MYSQL_DATABASE"`
+	Neo4jUrl       string `yml:"neo4j.url" env:"NEO4J_URL"`
+	Neo4jDatabase  string `yml:"neo4j.database" env:"NEO4J_DATABASE"`
+	Neo4jUsername  string `yml:"neo4j.username" env:"NEO4J_USERNAME"`
+	Neo4jPassword  string `yml:"neo4j.password" env:"NEO4J_PASSWORD"`
+	InfluxDbUrl    string `yml:"influx.url" env:"INFLUXDB_URL"`
+	InfluxDbToken  string `yml:"influx.token" env:"INFLUXDB_TOKEN"`
+	InfluxDbOrg    string `yml:"influx.org" env:"INFLUXDB_ORG"`
+	InfluxDbBucket string `yml:"influx.bucket" env:"INFLUXDB_BUCKET"`
 }
 
 func ConfigRead() {

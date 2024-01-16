@@ -1,9 +1,13 @@
 package service
 
 import (
+	"dss-data/db"
 	"errors"
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/influxdata/influxdb-client-go/v2/api/write"
 	"strconv"
 	"strings"
+	"time"
 
 	"dss-data/model"
 	"dss-data/util"
@@ -11,7 +15,13 @@ import (
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
-//批量获取股票实时数据
+// 获取实时数据插入influxdb
+func InsertPoints(symbols []string) {
+	points, _ := TencentLiveDataPoints(symbols)
+	db.WritePoint(points)
+}
+
+// 批量获取股票实时数据
 func GetLiveData(symbols []string) (*[]model.LiveData, error) {
 	//随机从网易和腾讯获取数据
 	// random := rand.Intn(2) //生成0-99之间的随机数
@@ -31,7 +41,121 @@ func GetLiveData(symbols []string) (*[]model.LiveData, error) {
 	return result, err
 }
 
-//从腾讯接口获取实时数据
+// 从腾讯接口获取实时数据influxdb
+func TencentLiveDataPoints(symbols []string) (*[]*write.Point, error) {
+	if len(symbols) <= 0 {
+		return nil, errors.New("symbols is null")
+	}
+	tradeDate := time.Now().Format("20060102")
+	//http://qt.gtimg.cn/q=sz002603,sz002693,sh603232
+	url := "http://qt.gtimg.cn/q="
+	param := ""
+	for index, symbol := range symbols {
+		param += symbol
+		if index != len(symbols) {
+			param += ","
+		}
+	}
+	response, err := util.SendGetResString(url + param)
+	if err != nil {
+		return nil, err
+	}
+	// gbk转utf-8
+	tmp, _ := simplifiedchinese.GBK.NewDecoder().Bytes([]byte(response))
+	response = string(tmp)
+	result := []*write.Point{}
+	lines := strings.Split(response, "\n")
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+		dataStr := util.Substr(line, 12, len([]rune(line))-2)
+		values := strings.Split(dataStr, "~")
+		livaData := map[string]interface{}{}
+		tmp1, _ := strconv.ParseFloat(values[3], 64) //当前价
+		livaData["now"] = tmp1
+		tmp4, _ := strconv.ParseFloat(values[4], 64) //昨收价
+		livaData["pre_close"] = tmp4
+		tmp5, _ := strconv.ParseFloat(values[5], 64) //开盘价
+		livaData["open"] = tmp5
+		tmp6, _ := strconv.ParseFloat(values[6], 64) //成交量
+		livaData["vol"] = tmp6
+		tmp9, _ := strconv.ParseFloat(values[9], 64) //买1价格
+		livaData["buy1"] = tmp9
+		tmp10, _ := strconv.ParseFloat(values[10], 64) //买1数量（手）
+		livaData["buy1_count"] = tmp10
+		tmp11, _ := strconv.ParseFloat(values[11], 64) //买2价格
+		livaData["buy2"] = tmp11
+		tmp12, _ := strconv.ParseFloat(values[12], 64) //买2数量（手）
+		livaData["buy2_count"] = tmp12
+		tmp13, _ := strconv.ParseFloat(values[13], 64) //买3价格
+		livaData["buy3"] = tmp13
+		tmp14, _ := strconv.ParseFloat(values[14], 64) //买3数量（手）
+		livaData["buy3_count"] = tmp14
+		tmp15, _ := strconv.ParseFloat(values[15], 64) //买4价格
+		livaData["buy4"] = tmp15
+		tmp16, _ := strconv.ParseFloat(values[16], 64) //买4数量（手）
+		livaData["buy4_count"] = tmp16
+		tmp17, _ := strconv.ParseFloat(values[17], 64) //买5价格
+		livaData["buy5"] = tmp17
+		tmp18, _ := strconv.ParseFloat(values[18], 64) //买5数量（手）
+		livaData["buy5_count"] = tmp18
+		tmp19, _ := strconv.ParseFloat(values[19], 64) //卖1价格
+		livaData["sell1"] = tmp19
+		tmp20, _ := strconv.ParseFloat(values[20], 64) //卖1数量（手）
+		livaData["sell1_count"] = tmp20
+		tmp21, _ := strconv.ParseFloat(values[21], 64) //卖2价格
+		livaData["sell2"] = tmp21
+		tmp22, _ := strconv.ParseFloat(values[22], 64) //卖2数量（手）
+		livaData["sell2_count"] = tmp22
+		tmp23, _ := strconv.ParseFloat(values[23], 64) //卖3价格
+		livaData["sell3"] = tmp23
+		tmp24, _ := strconv.ParseFloat(values[24], 64) //卖3数量（手）
+		livaData["sell3_count"] = tmp24
+		tmp25, _ := strconv.ParseFloat(values[25], 64) //卖4价格
+		livaData["sell4"] = tmp25
+		tmp26, _ := strconv.ParseFloat(values[26], 64) //卖4数量（手）
+		livaData["sell4_count"] = tmp26
+		tmp27, _ := strconv.ParseFloat(values[27], 64) //卖5价格
+		livaData["sell5"] = tmp27
+		tmp28, _ := strconv.ParseFloat(values[28], 64) //买5数量（手）
+		livaData["sell5_count"] = tmp28
+		tmp31, _ := strconv.ParseFloat(values[31], 64) //涨跌
+		livaData["change"] = tmp31
+		tmp32, _ := strconv.ParseFloat(values[32], 64) //涨跌幅
+		livaData["pct_chg"] = tmp32
+		tmp33, _ := strconv.ParseFloat(values[33], 64) //最高价
+		livaData["max"] = tmp33
+		tmp34, _ := strconv.ParseFloat(values[34], 64) //最低价
+		livaData["min"] = tmp34
+		tmp38, _ := strconv.ParseFloat(values[38], 64) //换手
+		livaData["hands"] = tmp38
+		tmp42, _ := strconv.ParseFloat(values[43], 64) //振幅
+		livaData["amplitude"] = tmp42
+		tmp43, _ := strconv.ParseFloat(values[44], 64) //流通市值
+		livaData["float_value"] = tmp43
+		tmp44, _ := strconv.ParseFloat(values[45], 64) //总市值
+		livaData["total_value"] = tmp44
+		tmp45, _ := strconv.ParseFloat(values[46], 64) //市净率
+		livaData["ptb"] = tmp45
+		tmp51, _ := strconv.ParseFloat(values[52], 64) //市盈率
+		livaData["pte"] = tmp51
+		tmp56, _ := strconv.ParseFloat(values[57], 64) //成交额
+		livaData["amount"] = tmp56
+		code := values[2]     //编码
+		nowTime := values[30] //更新时间
+		t, _ := time.Parse("20060102150405", nowTime)
+		p := influxdb2.NewPoint(tradeDate,
+			map[string]string{"code": code},
+			livaData,
+			t)
+		result = append(result, p)
+	}
+	//转换结果
+	return &result, nil
+}
+
+// 从腾讯接口获取实时数据
 func TencentLiveData(symbols []string) (*[]model.LiveData, error) {
 	if len(symbols) <= 0 {
 		return nil, errors.New("symbols is null")
@@ -148,7 +272,7 @@ func TencentLiveData(symbols []string) (*[]model.LiveData, error) {
 	return &result, nil
 }
 
-//从网易接口获取实时数据
+// 从网易接口获取实时数据
 func WangyiLiveData(symbols []string) (*[]model.LiveData, error) {
 	//http://api.money.126.net/data/feed/0601398%2c1000001%2c1000881%2cmoney.api
 	return nil, nil
