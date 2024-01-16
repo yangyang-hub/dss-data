@@ -358,6 +358,12 @@ func DeleteStockCon() {
 	buffer.WriteString(")\nDELETE r,b")
 	cypher := buffer.String()
 	db.CypherExec(cypher, nil)
+	bufferc := bytes.Buffer{}
+	bufferc.WriteString("MATCH (a:")
+	bufferc.WriteString(db.StockCon.String())
+	bufferc.WriteString(")\nDELETE a")
+	cypherc := bufferc.String()
+	db.CypherExec(cypherc, nil)
 }
 
 // 查询所有的股票编码数据（ts_code）
