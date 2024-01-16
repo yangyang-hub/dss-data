@@ -24,7 +24,7 @@ func init() {
 	router.RegisterHandler("Get", party, "/getConStock", getConStock)
 }
 
-// 更新图
+// 获取连板股票
 func getConStock(ctx *gin.Context) {
 	res := service.GetConStock()
 	ctx.JSON(200, res)

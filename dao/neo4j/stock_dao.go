@@ -310,6 +310,56 @@ func InsertLongHuDetail(datas *[]model.LongHuDetail) {
 	db.CypherBatchExec(cyphers)
 }
 
+// 关联连板股票
+func InsertStockCon(datas *map[int][]string) {
+	var cyphersc []map[string]interface{}
+	var cyphers []map[string]interface{}
+	for i, node := range *datas {
+		mapsc := make(map[string]interface{})
+		bufferc := bytes.Buffer{}
+		bufferc.WriteString("CREATE (n:")
+		bufferc.WriteString(db.StockCon.String())
+		bufferc.WriteString("{ high: $high })")
+		mapsc["cypher"] = bufferc.String()
+		paramc := make(map[string]interface{})
+		paramc["high"] = i
+		mapsc["param"] = paramc
+		cyphersc = append(cyphersc, mapsc)
+		maps := make(map[string]interface{})
+		buffer := bytes.Buffer{}
+		buffer.WriteString("MATCH (n:")
+		buffer.WriteString(db.StockInfo.String())
+		buffer.WriteString("),(c:")
+		buffer.WriteString(db.StockCon.String())
+		buffer.WriteString(")\n WHERE n.symbol IN $symbol AND c.high = $high")
+		buffer.WriteString("\n CREATE (n)-[r:")
+		buffer.WriteString(db.RelStockCon.String())
+		buffer.WriteString("{ high: $high }]->(c)")
+		maps["cypher"] = buffer.String()
+		param := make(map[string]interface{})
+		param["symbol"] = node
+		param["high"] = i
+		maps["param"] = param
+		cyphers = append(cyphers, maps)
+	}
+	db.CypherBatchExec(cyphersc)
+	db.CypherBatchExec(cyphers)
+}
+
+// 删除连板股票
+func DeleteStockCon() {
+	buffer := bytes.Buffer{}
+	buffer.WriteString("MATCH (a:")
+	buffer.WriteString(db.StockInfo.String())
+	buffer.WriteString(")-[r:")
+	buffer.WriteString(db.RelStockCon.String())
+	buffer.WriteString("]->(b:")
+	buffer.WriteString(db.StockCon.String())
+	buffer.WriteString(")\nDELETE r,b")
+	cypher := buffer.String()
+	db.CypherExec(cypher, nil)
+}
+
 // 查询所有的股票编码数据（ts_code）
 func GetAllSymbol() (*[]string, error) {
 	cypher := "MATCH (n:" + db.StockInfo.String() + ") RETURN n.symbol"

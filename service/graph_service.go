@@ -46,4 +46,8 @@ func UpdateGraph(date string) {
 	neo4j.DeleteStockQuoteByDate(*dates)
 	neo4j.DeleteBkQuoteByDate(*dates)
 	neo4j.DeleteLongHuByDate(*dates)
+	// 更新连板股
+	cons := GetConStock()
+	neo4j.DeleteStockCon()
+	neo4j.InsertStockCon(cons)
 }

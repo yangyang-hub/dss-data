@@ -11,7 +11,7 @@ import (
 type NodeEnum int
 
 func (n NodeEnum) String() string {
-	return [...]string{"NT_STOCK_INFO", "NT_STOCK_QUOTE", "NT_BK", "NT_BK_QUOTE", "NT_LONG_HU", "NT_LONG_HU_DETAIL"}[n]
+	return [...]string{"NT_STOCK_INFO", "NT_STOCK_QUOTE", "NT_BK", "NT_BK_QUOTE", "NT_LONG_HU", "NT_LONG_HU_DETAIL", "NT_STOCK_CON"}[n]
 }
 
 const (
@@ -21,13 +21,14 @@ const (
 	BkQuote
 	LongHu
 	LongHuDetail
+	StockCon
 )
 
 // 边标签枚举
 type EdgeEnum int
 
 func (e EdgeEnum) String() string {
-	return [...]string{"RT_STOCK_QUOTE", "RT_STOCK_BK", "RT_BK_QUOTE", "RT_STOCK_LONG_HU", "RT_LONG_HU_DETAIL"}[e]
+	return [...]string{"RT_STOCK_QUOTE", "RT_STOCK_BK", "RT_BK_QUOTE", "RT_STOCK_LONG_HU", "RT_LONG_HU_DETAIL", "RT_STOCK_CON"}[e]
 }
 
 const (
@@ -36,6 +37,7 @@ const (
 	RelBkQuote
 	RelStockLongHu
 	RelLongHuDetail
+	RelStockCon
 )
 
 var (
