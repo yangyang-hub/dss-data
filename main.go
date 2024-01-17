@@ -25,8 +25,6 @@ func init() {
 	db.InitMysql()
 	//初始化neo4j
 	db.InitNeo4j()
-	//初始化influxdb
-	db.InitInfluxDb()
 	//初始化定时任务
 	schedule.InitScheduler()
 }

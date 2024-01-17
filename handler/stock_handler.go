@@ -22,20 +22,6 @@ func init() {
 	router.RegisterHandler("Get", party, "/createDailyData", createDailyData)
 	router.RegisterHandler("Get", party, "/updateGraph", updateGraph)
 	router.RegisterHandler("Get", party, "/getConStock", getConStock)
-	router.RegisterHandler("Post", party, "/insertPoints", insertPoints)
-}
-
-// 插入influxdb
-func insertPoints(ctx *gin.Context) {
-	var params map[string]string
-	b, _ := ctx.GetRawData()
-	json.Unmarshal(b, &params)
-	symbols := params["symbols"]
-	if symbols == "" {
-		ctx.JSON(200, "请传入股票编码")
-	}
-	service.InsertPoints(strings.Split(symbols, ","))
-	ctx.JSON(200, "插入节点成功")
 }
 
 // 获取连板股票
