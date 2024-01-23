@@ -6,7 +6,6 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-co-op/gocron v1.18.0
 	github.com/gocolly/colly/v2 v2.1.0
-	github.com/influxdata/influxdb-client-go/v2 v2.13.0
 	github.com/neo4j/neo4j-go-driver/v5 v5.16.0
 	github.com/robertkrimen/otto v0.2.1
 	github.com/spf13/viper v1.14.0
@@ -16,15 +15,11 @@ require (
 )
 
 require (
-	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/bytedance/sonic v1.10.0-rc3 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
-	github.com/google/uuid v1.3.1 // indirect
-	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
-	github.com/oapi-codegen/runtime v1.0.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	golang.org/x/arch v0.4.0 // indirect
 )

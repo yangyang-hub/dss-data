@@ -1,18 +1,34 @@
 package service
 
 import (
+	"dss-data/model"
+	"dss-data/util"
 	"errors"
 	"strconv"
 	"strings"
-
-	"dss-data/model"
-	"dss-data/util"
 
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
 
 // 批量获取股票实时数据
 func GetLiveData(symbols []string) (*[]model.LiveData, error) {
+	if len(symbols) <= 100 {
+		return getLiveData(symbols)
+	}
+	datas := []string{}
+	result := []model.LiveData{}
+	for i, v := range symbols {
+		datas = append(datas, v)
+		if len(datas) > 100 || i+1 == len(symbols) {
+			liveDatas, _ := getLiveData(datas)
+			result = append(result, *liveDatas...)
+			datas = []string{}
+		}
+	}
+	return &result, nil
+}
+
+func getLiveData(symbols []string) (*[]model.LiveData, error) {
 	//随机从网易和腾讯获取数据
 	// random := rand.Intn(2) //生成0-99之间的随机数
 	var result *[]model.LiveData
