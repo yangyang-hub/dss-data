@@ -7,7 +7,7 @@ services:
     build: .
     container_name: dss-data
     ports:
-      - "32081:8081"
+      - "32081:32081"
     deploy:
         resources:
             limits:
