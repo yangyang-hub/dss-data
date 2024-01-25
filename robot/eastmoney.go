@@ -7,6 +7,16 @@ import (
 	"time"
 )
 
+// 查询东财所有板块实时详情
+func GetAllBkQuotes() *[]model.BkQuote {
+	resultQuotes := []model.BkQuote{}
+	for i := 1; i <= 3; i++ {
+		_, bkQuotes := getBk(i)
+		resultQuotes = append(resultQuotes, *bkQuotes...)
+	}
+	return &resultQuotes
+}
+
 // 查询东财所有板块以及板块关联股票
 func GetAllBkAndRelSymbol() (*[]model.Bk, *[]model.BkRelSymbol, *[]model.BkQuote) {
 	resultBks := []model.Bk{}

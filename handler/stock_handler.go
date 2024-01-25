@@ -24,6 +24,13 @@ func init() {
 	router.RegisterHandler("Get", party, "/updateGraph", updateGraph)
 	router.RegisterHandler("Get", party, "/getConStock", getConStock)
 	router.RegisterHandler("Get", party, "/getTradeCal", getTradeCal)
+	router.RegisterHandler("Get", party, "/getAllBkQuotes", getAllBkQuotes)
+}
+
+// 查询东财所有板块实时详情
+func getAllBkQuotes(ctx *gin.Context) {
+	res := robot.GetAllBkQuotes()
+	ctx.JSON(200, res)
 }
 
 // 查询是否为交易日
