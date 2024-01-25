@@ -1,8 +1,9 @@
 package handler
 
 import (
-	router "dss-data/router"
-	service "dss-data/service"
+	"dss-data/robot"
+	"dss-data/router"
+	"dss-data/service"
 	"encoding/json"
 	"log"
 	"strings"
@@ -22,6 +23,13 @@ func init() {
 	router.RegisterHandler("Get", party, "/createDailyData", createDailyData)
 	router.RegisterHandler("Get", party, "/updateGraph", updateGraph)
 	router.RegisterHandler("Get", party, "/getConStock", getConStock)
+	router.RegisterHandler("Get", party, "/getTradeCal", getTradeCal)
+}
+
+// 查询是否为交易日
+func getTradeCal(ctx *gin.Context) {
+	tradeCals := robot.GetTradeCal()
+	ctx.JSON(200, tradeCals)
 }
 
 // 获取连板股票

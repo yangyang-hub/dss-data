@@ -29,7 +29,7 @@ func taskCreateDailyData() {
 	//查询是否为交易日
 	tradeCals := robot.GetTradeCal()
 	if tradeCals != "1" {
-		log.Printf("(%v)为非交易日,结束任务 RefreshThsGn", trade_date)
+		log.Printf("(%v)为非交易日,结束任务", trade_date)
 		return
 	}
 	log.Printf("Start Scheduler CreateDailyData date(%v)", time.Now().Format(constant.TimeFormatA))
