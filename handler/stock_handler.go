@@ -29,7 +29,7 @@ func init() {
 // 查询是否为交易日
 func getTradeCal(ctx *gin.Context) {
 	tradeCals := robot.GetTradeCal()
-	ctx.JSON(200, tradeCals)
+	ctx.String(200, tradeCals)
 }
 
 // 获取连板股票
