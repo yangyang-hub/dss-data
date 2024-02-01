@@ -273,38 +273,33 @@ func MergeStockCompany(stockCompanys *[]model.StockCompany) error {
 }
 
 // 创建StockQuote数据库表
-func InitCreateStockQuoteTable(startDate string) bool {
-	start, _ := time.Parse("20060102", startDate)
-	startYear := start.Year()
+func InitCreateStockQuoteTable() bool {
 	nowYear := time.Now().Year()
-	//初始化数据时从开始日期开始按年创建数据库行情表
-	for i := startYear; i <= nowYear; i++ {
-		tableName := fmt.Sprintf("%s%d", "stock_quote_", i)
-		var count int64
-		db.Mysql.Raw("SELECT COUNT(1) FROM information_schema.TABLES t \n"+
-			"WHERE t.TABLE_NAME = ? AND t.TABLE_SCHEMA = ?", tableName, configs.Config.MysqlDatabase).Count(&count)
-		if count == 0 {
-			sql := "CREATE TABLE `" + tableName + "`  (\n" +
-				"  `ts_code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'TS代码',\n" +
-				"  `trade_date` varchar(8) NOT NULL COMMENT '交易日期',\n" +
-				"  `open` float(30, 2) NULL DEFAULT NULL COMMENT '开盘价',\n" +
-				"  `high` float(30, 2) NULL DEFAULT NULL COMMENT '最高价',\n" +
-				"  `low` float(30, 2) NULL DEFAULT NULL COMMENT '最低价',\n" +
-				"  `close` float(30, 2) NULL DEFAULT NULL COMMENT '收盘价',\n" +
-				"  `pre_close` float(30, 2) NULL DEFAULT NULL COMMENT '昨收价(前复权)',\n" +
-				"  `change` float(30, 2) NULL DEFAULT NULL COMMENT '涨跌额',\n" +
-				"  `pct_chg` float(30, 2) NULL DEFAULT NULL COMMENT '涨跌幅(未复权)',\n" +
-				"  `vol` float(30, 2) NULL DEFAULT NULL COMMENT '成交量(万手)',\n" +
-				"  `amount` float(30, 2) NULL DEFAULT NULL COMMENT '成交额(万元)',\n" +
-				"  `limit_up` tinyint(1) NULL DEFAULT NULL COMMENT '涨停板',\n" +
-				"  PRIMARY KEY (`ts_code`, `trade_date`) USING BTREE,\n" +
-				"  INDEX `trade_date_index`(`trade_date`) USING BTREE,\n" +
-				"  INDEX `ts_code_index`(`ts_code`) USING BTREE\n)" +
-				" ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '股票行情' ROW_FORMAT = Dynamic;"
-			res := db.Mysql.Exec(sql)
-			if res.Error != nil {
-				log.Println(res.Error.Error())
-			}
+	tableName := fmt.Sprintf("%s%d", "stock_quote_", nowYear)
+	var count int64
+	db.Mysql.Raw("SELECT COUNT(1) FROM information_schema.TABLES t \n"+
+		"WHERE t.TABLE_NAME = ? AND t.TABLE_SCHEMA = ?", tableName, configs.Config.MysqlDatabase).Count(&count)
+	if count == 0 {
+		sql := "CREATE TABLE `" + tableName + "`  (\n" +
+			"  `ts_code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'TS代码',\n" +
+			"  `trade_date` varchar(8) NOT NULL COMMENT '交易日期',\n" +
+			"  `open` float(30, 2) NULL DEFAULT NULL COMMENT '开盘价',\n" +
+			"  `high` float(30, 2) NULL DEFAULT NULL COMMENT '最高价',\n" +
+			"  `low` float(30, 2) NULL DEFAULT NULL COMMENT '最低价',\n" +
+			"  `close` float(30, 2) NULL DEFAULT NULL COMMENT '收盘价',\n" +
+			"  `pre_close` float(30, 2) NULL DEFAULT NULL COMMENT '昨收价(前复权)',\n" +
+			"  `change` float(30, 2) NULL DEFAULT NULL COMMENT '涨跌额',\n" +
+			"  `pct_chg` float(30, 2) NULL DEFAULT NULL COMMENT '涨跌幅(未复权)',\n" +
+			"  `vol` float(30, 2) NULL DEFAULT NULL COMMENT '成交量(万手)',\n" +
+			"  `amount` float(30, 2) NULL DEFAULT NULL COMMENT '成交额(万元)',\n" +
+			"  `limit_up` tinyint(1) NULL DEFAULT NULL COMMENT '涨停板',\n" +
+			"  PRIMARY KEY (`ts_code`, `trade_date`) USING BTREE,\n" +
+			"  INDEX `trade_date_index`(`trade_date`) USING BTREE,\n" +
+			"  INDEX `ts_code_index`(`ts_code`) USING BTREE\n)" +
+			" ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '股票行情' ROW_FORMAT = Dynamic;"
+		res := db.Mysql.Exec(sql)
+		if res.Error != nil {
+			log.Println(res.Error.Error())
 		}
 	}
 	return true

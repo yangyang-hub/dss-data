@@ -16,6 +16,7 @@ import (
 // 更新stockInfo&获取当日股票详情数据入库&获取当日龙虎榜信息
 func CreateDailyData() {
 	UpdateStockInfo()
+	dao.InitCreateStockQuoteTable()
 	symbols, _ := dao.GetAllTsCode()
 	datas := []string{}
 	for i, v := range *symbols {
