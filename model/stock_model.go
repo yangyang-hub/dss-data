@@ -16,10 +16,13 @@ type Tabler interface {
 
 // 交易日历
 type TradeCal struct {
-	Exchange     string `json:"exchange"`      //交易所 SSE上交所 SZSE深交所
-	CalDate      string `json:"cal_date"`      //日历日期
-	IsOpen       int64  `json:"is_open"`       //是否交易 0休市 1交易
-	PretradeDate string `json:"pretrade_date"` //上一个交易日
+	Date   string `json:"date"`    //日历日期
+	IsOpen string `json:"is_open"` //是否交易 0休市 1交易
+}
+
+func (tradeCal TradeCal) TableName() string {
+	//表名
+	return "trade_cal"
 }
 
 // 基础数据

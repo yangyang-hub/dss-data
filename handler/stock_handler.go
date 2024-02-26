@@ -35,7 +35,8 @@ func getAllBkQuotes(ctx *gin.Context) {
 
 // 查询是否为交易日
 func getTradeCal(ctx *gin.Context) {
-	tradeCals := robot.GetTradeCal()
+	service.UpdateTradeCals()
+	tradeCals := service.QueryNowDateTradeCal()
 	ctx.String(200, tradeCals)
 }
 

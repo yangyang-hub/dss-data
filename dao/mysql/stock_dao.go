@@ -15,6 +15,34 @@ import (
 	"dss-data/constant"
 )
 
+// 查询当天是否为交易日
+func QueryNowDateTradeCal() string {
+	res := model.TradeCal{}
+	nowDate := time.Now().Format("2006-01-02")
+	db.Mysql.Table("trade_cal").Where("date = ?", nowDate).Find(&res)
+	return res.IsOpen
+}
+
+// 更新（新增） trade_cal 数据
+func MergeTradeCals(tradeCals *[]model.TradeCal) error {
+	for _, tradeCal := range *tradeCals {
+		var count int64
+		db.Mysql.Table(tradeCal.TableName()).Where("date = ?", tradeCal.Date).Count(&count)
+		if count == 0 {
+			results := db.Mysql.Create(tradeCal)
+			if results.Error != nil {
+				return results.Error
+			}
+		} else {
+			results := db.Mysql.Model(tradeCal).Updates(tradeCal)
+			if results.Error != nil {
+				return results.Error
+			}
+		}
+	}
+	return nil
+}
+
 // 查询前第X个交易日
 func GetXDayUpYStock(dates []string, percentage int) (*[]string, error) {
 	rows, _ := db.Mysql.Raw("SELECT ts_code FROM stock_quote_2023 WHERE trade_date in ? GROUP BY ts_code HAVING SUM(pct_chg) > ?", dates, percentage).Rows()

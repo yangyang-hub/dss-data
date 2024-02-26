@@ -13,6 +13,16 @@ import (
 	"dss-data/thread"
 )
 
+func QueryNowDateTradeCal() string {
+	return dao.QueryNowDateTradeCal()
+}
+
+// 更新交易日历
+func UpdateTradeCals() {
+	cals := robot.GetTradeCals()
+	dao.MergeTradeCals(cals)
+}
+
 // 更新stockInfo&获取当日股票详情数据入库&获取当日龙虎榜信息
 func CreateDailyData() {
 	UpdateStockInfo()
@@ -54,9 +64,7 @@ func GetLongHuDaily() {
 func UpdateStockInfo() {
 	stocks := robot.GetAllStock()
 	dao.DeleteStockInfo()
-	for _, stock := range *stocks {
-		dao.InsertStockInfo(&stock)
-	}
+	dao.MergeStockInfo(stocks)
 }
 
 // 获取从xx日开始至今的历史数据
