@@ -31,6 +31,8 @@ func taskCreateDailyData() {
 	trade_date := time.Now().Format(constant.TimeFormatA)
 	startTime := time.Now()
 	defer mysql.InsertTaskInfo("CreateDailyData", trade_date, startTime)
+	// 更新交易日信息
+	service.UpdateTradeCals()
 	// 查询是否为交易日
 	tradeCals := service.QueryNowDateTradeCal()
 	if tradeCals != "1" {
