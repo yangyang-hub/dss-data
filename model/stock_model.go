@@ -16,8 +16,8 @@ type Tabler interface {
 
 // 交易日历
 type TradeCal struct {
-	Date   string `json:"date"`    //日历日期
-	IsOpen string `json:"is_open"` //是否交易 0休市 1交易
+	Date   string `json:"date" gorm:"column:date;primary_key"` //日历日期
+	IsOpen string `json:"is_open" gorm:"column:is_open"`       //是否交易 0休市 1交易
 }
 
 func (tradeCal TradeCal) TableName() string {
